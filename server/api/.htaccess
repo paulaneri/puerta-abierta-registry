@@ -1,0 +1,7 @@
+RewriteEngine On
+
+# Auth endpoints
+RewriteRule ^auth/(.*)$ auth.php [L,QSA]
+
+# REST API
+RewriteRule ^rest/v1/(.*)$ index.php [L,QSA]

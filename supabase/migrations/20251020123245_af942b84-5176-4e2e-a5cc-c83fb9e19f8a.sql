@@ -1,0 +1,10 @@
+-- Añadir columnas faltantes a la tabla contactos
+ALTER TABLE contactos 
+ADD COLUMN IF NOT EXISTS pagina_web TEXT,
+ADD COLUMN IF NOT EXISTS direccion TEXT,
+ADD COLUMN IF NOT EXISTS servicio TEXT,
+ADD COLUMN IF NOT EXISTS dia_atencion TEXT,
+ADD COLUMN IF NOT EXISTS horario_atencion TEXT,
+ADD COLUMN IF NOT EXISTS ciudad TEXT,
+ADD COLUMN IF NOT EXISTS provincia TEXT,
+ADD COLUMN IF NOT EXISTS pais TEXT;

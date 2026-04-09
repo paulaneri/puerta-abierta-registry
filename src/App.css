@@ -1,0 +1,12 @@
+/* App styles - using Tailwind for all styling */
+/* This file is kept minimal as the design system is defined in index.css */
+
+/* Animation keyframes (if needed for specific cases) */
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

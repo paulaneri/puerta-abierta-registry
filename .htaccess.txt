@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  
+  # Si el archivo o directorio existe, servirlo directamente
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  
+  # Excluir la carpeta api/
+  RewriteCond %{REQUEST_URI} !^/api/
+  
+  # Redirigir todo lo demás a index.html
+  RewriteRule ^ index.html [QSA,L]
+</IfModule>

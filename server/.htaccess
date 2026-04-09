@@ -1,0 +1,12 @@
+RewriteEngine On
+
+# API routing
+RewriteRule ^api/auth/(.*)$ api/auth.php [L,QSA]
+RewriteRule ^api/rest/v1/(.*)$ api/index.php [L,QSA]
+
+# SPA fallback - serve index.html for non-file routes
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{REQUEST_URI} !^/api/
+RewriteCond %{REQUEST_URI} !^/install\.php
+RewriteRule ^ index.html [L]

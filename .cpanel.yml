@@ -1,0 +1,5 @@
+---
+deployment:
+  tasks:
+    - export DEPLOYPATH=/home/puerta/registro.puertaabiertarecreando.org.ar
+    - /bin/cp -r /home/puerta/repo-registro/dist/* $DEPLOYPATH

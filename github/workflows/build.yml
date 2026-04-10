@@ -32,8 +32,7 @@ jobs:
 
       - name: Deploy on cPanel
         run: |
-          curl -s "https://${{ secrets.CPANEL_DOMAIN }}:2083" \
-            -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_TOKEN }}" \
-            "https://${{ secrets.CPANEL_DOMAIN }}:2083/execute/VersionControl/retrieve_repositories"
           curl -s -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_TOKEN }}" \
-            "https://${{ secrets.CPANEL_DOMAIN }}:2083/execute/VersionControl/deploy?repository_root=${{ secrets.CPANEL_REPO_PATH }}"
+            -H "Content-Type: application/json" \
+            "https://${{ secrets.CPANEL_DOMAIN }}:2083/execute/VersionControl/deploy" \
+            --data-urlencode "repository_root=${{ secrets.CPANEL_REPO_PATH }}"

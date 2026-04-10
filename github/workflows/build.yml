@@ -36,7 +36,6 @@ jobs:
           local-dir: ./dist/
           server-dir: /registro.puertaabiertarecreando.org.ar/
 
-
       - name: Commit dist
         run: |
           git config user.name "github-actions"

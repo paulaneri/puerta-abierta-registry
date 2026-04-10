@@ -272,13 +272,22 @@ export const mujeresStore = {
 
   eliminarMujer: async (id: string): Promise<boolean> => {
     try {
-      const { error } = await supabase
+      console.log('🗑️ Intentando eliminar mujer con ID:', id);
+      const { error, count } = await supabase
         .from('mujeres')
         .delete()
-        .eq('id', id);
+        .eq('id', id)
+        .select();
       
-      return !error;
+      if (error) {
+        console.error('❌ Error al eliminar mujer:', error.message, error.details, error.hint);
+        return false;
+      }
+      
+      console.log('✅ Mujer eliminada correctamente, ID:', id);
+      return true;
     } catch (error) {
+      console.error('❌ Excepción al eliminar mujer:', error);
       return false;
     }
   },

@@ -1,0 +1,53 @@
+{
+    "description": "DO NOT DELETE THIS FILE. This file is used to keep track of which files have been synced in the most recent deployment. If you delete this file a resync will need to be done (which can take a while) - read more: https://github.com/SamKirkland/FTP-Deploy-Action",
+    "version": "1.0.0",
+    "generatedTime": 1775836282524,
+    "data": [
+        {
+            "type": "folder",
+            "name": "assets"
+        },
+        {
+            "type": "file",
+            "name": "favicon.ico",
+            "size": 7645,
+            "hash": "29a40d56580a5366083461297773dbf146ec043d1156f432f5472cb3487f506b"
+        },
+        {
+            "type": "file",
+            "name": "index.html",
+            "size": 1016,
+            "hash": "cdce8992e82ecb4565fe74692bbaf0c370bef519d951b484f46ab08e282ea827"
+        },
+        {
+            "type": "file",
+            "name": "placeholder.svg",
+            "size": 3253,
+            "hash": "64badf7aabda0b9630b87020ffb6095cb858ccbcf66b355c2aa08b1063954d3b"
+        },
+        {
+            "type": "file",
+            "name": "robots.txt",
+            "size": 160,
+            "hash": "a3d27b3ca5ce32341fa9f96f01169b521b1657c05d1860c45d1e53a6258e9e8b"
+        },
+        {
+            "type": "file",
+            "name": "assets/index-BBrgFSny.js",
+            "size": 1608698,
+            "hash": "f73b3834604a95d15d6f765d05fe0c6474ff5dc33ce004cc3764599b2b134547"
+        },
+        {
+            "type": "file",
+            "name": "assets/index-Bpqvt-Fo.css",
+            "size": 89021,
+            "hash": "742a375d8f579ff3f739204d9cfcf71d2531fe942b025420ff157193cf1a3ed3"
+        },
+        {
+            "type": "file",
+            "name": "assets/logo-par-BpP0fV_k.png",
+            "size": 85541,
+            "hash": "f64ca21669fe7a8556f4adf07d4ad5dd3388a304034918f1eb598c40b11f33fb"
+        }
+    ]
+}

@@ -43,3 +43,5 @@ jobs:
           git add dist/ -f
           git diff --staged --quiet || git commit -m "Auto-build dist"
           git push
+
+           Delete this file

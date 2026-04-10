@@ -5,11 +5,16 @@ on:
     branches:
       - main
 
+permissions:
+  contents: write
+
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -29,8 +34,12 @@ jobs:
           git add dist/ -f
           git diff --staged --quiet || git commit -m "Auto-build dist"
           git push
-- name: Deploy on cPanel
-        run: |
-          curl -v \
-            -H "Authorization: cpanel ${{ secrets.CPANEL_USERNAME }}:${{ secrets.CPANEL_TOKEN }}" \
-            "https://${{ secrets.CPANEL_DOMAIN }}:2083/execute/Tokens/list"
+
+      - name: Deploy via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_HOST }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./dist/
+          server-dir: /registro.puertaabiertarecreando.org.ar/

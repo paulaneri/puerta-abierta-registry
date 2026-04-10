@@ -149,13 +149,15 @@ const Calendario = () => {
         
         mujeresData?.forEach(mujer => {
           if (mujer.fecha_nacimiento) {
-            const fecha = new Date(mujer.fecha_nacimiento);
-            if (!isNaN(fecha.getTime())) {
+            const partes = mujer.fecha_nacimiento.split('-');
+            if (partes.length === 3) {
+              const mes = partes[1];
+              const dia = partes[2];
               cumpleanosArray.push({
                 id: `participante-${mujer.id}`,
                 nombre: mujer.nombre || '',
                 apellido: mujer.apellido || '',
-                fecha: `${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`,
+                fecha: `${mes}-${dia}`,
                 tipo: 'participante'
               });
             }
@@ -166,13 +168,15 @@ const Calendario = () => {
           
         equipoData?.forEach(profesional => {
           if (profesional.fechaNacimiento) {
-            const fecha = new Date(profesional.fechaNacimiento);
-            if (!isNaN(fecha.getTime())) {
+            const partes = profesional.fechaNacimiento.split('-');
+            if (partes.length === 3) {
+              const mes = partes[1];
+              const dia = partes[2];
               cumpleanosArray.push({
                 id: `equipo-${profesional.id}`,
                 nombre: profesional.nombre,
                 apellido: profesional.apellido || '',
-                fecha: `${String(fecha.getMonth() + 1).padStart(2, '0')}-${String(fecha.getDate()).padStart(2, '0')}`,
+                fecha: `${mes}-${dia}`,
                 tipo: 'equipo'
               });
             }
@@ -318,7 +322,8 @@ const Calendario = () => {
 
   const calcularEdad = (fechaNacimiento: string): number => {
     const hoy = new Date();
-    const nacimiento = new Date(fechaNacimiento);
+    const partes = fechaNacimiento.split('-');
+    const nacimiento = new Date(parseInt(partes[0]), parseInt(partes[1]) - 1, parseInt(partes[2]));
     let edad = hoy.getFullYear() - nacimiento.getFullYear();
     const mes = hoy.getMonth() - nacimiento.getMonth();
     if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {

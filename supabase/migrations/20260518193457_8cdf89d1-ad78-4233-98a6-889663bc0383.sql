@@ -1,0 +1,3 @@
+DELETE FROM public.asignaciones_roles WHERE reunion_id IN ('e6d37369-3c95-4ed3-9346-ea00e42d2c60','764d8753-3adc-422b-be25-bc5d42ae883b');
+DELETE FROM public.disponibilidad_reuniones WHERE reunion_id IN ('e6d37369-3c95-4ed3-9346-ea00e42d2c60','764d8753-3adc-422b-be25-bc5d42ae883b');
+DELETE FROM public.reuniones_semanales WHERE id IN ('e6d37369-3c95-4ed3-9346-ea00e42d2c60','764d8753-3adc-422b-be25-bc5d42ae883b');

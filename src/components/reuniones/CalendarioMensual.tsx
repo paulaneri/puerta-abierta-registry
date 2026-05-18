@@ -409,9 +409,6 @@ export const CalendarioMensual = ({
                     <div className="flex-1">
                       <div className="flex items-center gap-3 mb-2 flex-wrap">
                         <Calendar className="h-5 w-5 text-primary" />
-                        <span className="font-semibold">
-                          Semana {reunion.semana_numero}
-                        </span>
                         <span className="text-muted-foreground">
                           {format(parseISO(reunion.fecha), "EEEE d 'de' MMMM", { locale: es })}
                         </span>

@@ -565,9 +565,6 @@ export const CalendarioAnual = ({
                             <div className="flex flex-col md:flex-row md:items-center justify-between gap-2">
                               <div className="flex items-center gap-3 flex-wrap">
                                 <Calendar className="h-4 w-4 text-primary" />
-                                <span className="font-medium">
-                                  Semana {reunion.semana_numero}
-                                </span>
                                 <span className="text-sm text-muted-foreground">
                                   {format(parseISO(reunion.fecha), "EEEE d MMM", { locale: es })}
                                 </span>

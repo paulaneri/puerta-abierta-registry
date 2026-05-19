@@ -380,7 +380,9 @@ const Mujeres = () => {
 
   const filteredMujeres = mujeres.filter(mujer => {
     const fullName = `${mujer.nombre || ''} ${mujer.apellido || ''} ${mujer.apodo || ''}`.toLowerCase();
-    return fullName.includes(searchTerm.toLowerCase());
+    const matchesSearch = fullName.includes(searchTerm.toLowerCase());
+    const matchesOrigen = filtroOrigen === "todos" || mujer.origenRegistro === filtroOrigen;
+    return matchesSearch && matchesOrigen;
   });
 
   const {

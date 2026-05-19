@@ -12,11 +12,13 @@ import {
   MessageSquare,
   UserCheck,
   Trash2,
+  Pencil,
   ChevronLeft,
   ChevronRight,
   RotateCcw,
   Ban
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, addMonths, subMonths, getMonth, getYear, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { 
@@ -56,6 +58,7 @@ export const CalendarioMensual = ({
   const [reunionACancelar, setReunionACancelar] = useState<ReunionConAsignaciones | null>(null);
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [disponibilidad, setDisponibilidad] = useState<Map<string, Set<string>>>(new Map());
+  const [editando, setEditando] = useState<{ reunionId: string; rol: RolReunion } | null>(null);
 
   // Si cambia el año, mantener el mes actual (p.ej. enero-diciembre) dentro del nuevo año
   useEffect(() => {
@@ -330,7 +333,148 @@ export const CalendarioMensual = ({
     }
 
     onReunionesChange();
-  }; 
+  };
+
+  // Cambio manual del nombre asignado a un rol
+  const handleCambioManualRol = async (
+    reunion: ReunionConAsignaciones,
+    rol: RolReunion,
+    nuevoProfesionalId: string
+  ) => {
+    const asignacionActual = reunion.asignaciones.find(a => a.rol === rol);
+    if (asignacionActual?.profesional_id === nuevoProfesionalId) {
+      setEditando(null);
+      return;
+    }
+
+    // Validar que no quede duplicado en la misma reunión: si la persona ya tiene
+    // otro rol en esta reunión, primero hay que liberarlo.
+    const conflictoMismaReunion = reunion.asignaciones.find(
+      a => a.profesional_id === nuevoProfesionalId && a.rol !== rol
+    );
+    if (conflictoMismaReunion) {
+      toast.error('Esa persona ya tiene otro rol en esta misma reunión');
+      return;
+    }
+
+    // 1) Actualizar / crear la asignación del rol
+    if (asignacionActual) {
+      const ok = await reunionesStore.actualizarAsignacion(asignacionActual.id, {
+        profesional_id: nuevoProfesionalId
+      });
+      if (!ok) {
+        toast.error('No se pudo guardar el cambio');
+        return;
+      }
+    } else {
+      const ok = await reunionesStore.asignarRol(reunion.id, nuevoProfesionalId, rol);
+      if (!ok) {
+        toast.error('No se pudo guardar el cambio');
+        return;
+      }
+    }
+
+    // 2) Verificar reunión siguiente: si esa persona tiene un rol ahí,
+    //    o si se repite el mismo rol consecutivamente, recalcular desde la siguiente.
+    const reunionesOrdenadas = [...reuniones]
+      .filter(r => r.estado !== 'cancelada')
+      .sort((a, b) => a.semana_numero - b.semana_numero);
+    const idx = reunionesOrdenadas.findIndex(r => r.id === reunion.id);
+    const reunionSiguiente = idx >= 0 ? reunionesOrdenadas[idx + 1] : null;
+
+    let necesitaRecalculo = false;
+    if (reunionSiguiente) {
+      const tieneRolEnSiguiente = reunionSiguiente.asignaciones.some(
+        a => a.profesional_id === nuevoProfesionalId
+      );
+      // Regla acta: si ahora le asignamos 'acta', no puede tener ningún rol la próxima
+      // Regla general: no repetir el mismo rol consecutivo
+      const repiteMismoRol = reunionSiguiente.asignaciones.some(
+        a => a.rol === rol && a.profesional_id === nuevoProfesionalId
+      );
+      if (tieneRolEnSiguiente && (rol === 'acta' || repiteMismoRol)) {
+        necesitaRecalculo = true;
+      } else if (repiteMismoRol) {
+        necesitaRecalculo = true;
+      }
+    }
+
+    if (necesitaRecalculo && reunionSiguiente) {
+      // Preparar: reuniones hasta la actual (incluida) quedan como están — con
+      // el cambio recién guardado — y las siguientes se recalculan.
+      // Construimos un snapshot actualizado en memoria.
+      const snapshot = reunionesOrdenadas.map(r => {
+        if (r.id === reunion.id) {
+          const otras = r.asignaciones.filter(a => a.rol !== rol);
+          return {
+            ...r,
+            asignaciones: [
+              ...otras,
+              {
+                id: asignacionActual?.id || 'tmp',
+                reunion_id: r.id,
+                rol,
+                profesional_id: nuevoProfesionalId,
+                presente: true,
+              } as typeof r.asignaciones[number],
+            ],
+          };
+        }
+        if (r.semana_numero > reunion.semana_numero) {
+          return { ...r, asignaciones: [] };
+        }
+        return r;
+      });
+
+      const idsARecalcular = snapshot
+        .filter(r => r.semana_numero > reunion.semana_numero)
+        .map(r => r.id);
+
+      const nuevasAsignaciones = calcularAsignacionesAutomaticas(
+        snapshot,
+        profesionales,
+        disponibilidad,
+        reunionSiguiente.id
+      );
+
+      // Validar completitud
+      let valido = true;
+      for (const rid of idsARecalcular) {
+        const a = nuevasAsignaciones.get(rid);
+        if (!a || !a.reflexion || !a.coordinacion || !a.acta) {
+          valido = false;
+          break;
+        }
+        if (new Set([a.reflexion, a.coordinacion, a.acta]).size < 3) {
+          valido = false;
+          break;
+        }
+      }
+
+      if (!valido) {
+        toast.warning('Cambio guardado, pero no se pudo recalcular automáticamente las reuniones siguientes');
+      } else {
+        await reunionesStore.eliminarAsignacionesMultiples(idsARecalcular);
+        const filas: { reunion_id: string; profesional_id: string; rol: RolReunion }[] = [];
+        nuevasAsignaciones.forEach((a, rid) => {
+          if (!idsARecalcular.includes(rid)) return;
+          filas.push({ reunion_id: rid, profesional_id: a.reflexion, rol: 'reflexion' });
+          filas.push({ reunion_id: rid, profesional_id: a.coordinacion, rol: 'coordinacion' });
+          filas.push({ reunion_id: rid, profesional_id: a.acta, rol: 'acta' });
+        });
+        if (filas.length > 0) {
+          await reunionesStore.asignarRolesMultiples(filas);
+        }
+        toast.success('Cambio guardado. Se recalcularon las reuniones siguientes.');
+      }
+    } else {
+      toast.success('Asignación actualizada');
+    }
+
+    setEditando(null);
+    onReunionesChange();
+  };
+
 
   return (
     <div className="space-y-4">
@@ -433,6 +577,7 @@ export const CalendarioMensual = ({
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
                           {ROLES.map(rol => {
                             const asignacion = reunion.asignaciones.find(a => a.rol === rol.value);
+                            const enEdicion = editando?.reunionId === reunion.id && editando?.rol === rol.value;
                             return (
                               <div 
                                 key={rol.value}
@@ -441,19 +586,61 @@ export const CalendarioMensual = ({
                                 <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
                                   <span className={`w-2 h-2 rounded-full shrink-0 ${rol.color}`}></span>
                                   <span className="text-xs sm:text-sm font-medium shrink-0">{rol.label}:</span>
-                                  <span className="text-xs sm:text-sm break-words hyphens-auto">
-                                    {asignacion ? getNombreProfesional(asignacion.profesional_id) : 'Sin asignar'}
-                                  </span>
+                                  {enEdicion ? (
+                                    <Select
+                                      defaultValue={asignacion?.profesional_id}
+                                      onValueChange={(val) => handleCambioManualRol(reunion, rol.value, val)}
+                                    >
+                                      <SelectTrigger className="h-7 text-xs sm:text-sm w-auto min-w-[140px]">
+                                        <SelectValue placeholder="Elegir persona" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {profesionales.map(p => (
+                                          <SelectItem key={p.id} value={p.id}>
+                                            {p.nombre} {p.apellido}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  ) : (
+                                    <span className="text-xs sm:text-sm break-words hyphens-auto">
+                                      {asignacion ? getNombreProfesional(asignacion.profesional_id) : 'Sin asignar'}
+                                    </span>
+                                  )}
                                 </div>
-                                {asignacion && reunion.estado === 'planificada' && (
+                                {reunion.estado === 'planificada' && !enEdicion && (
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      onClick={() => setEditando({ reunionId: reunion.id, rol: rol.value })}
+                                      title="Editar manualmente"
+                                    >
+                                      <Pencil className="h-3 w-3 text-primary" />
+                                    </Button>
+                                    {asignacion && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0"
+                                        onClick={() => handleEliminarRol(reunion, rol.value)}
+                                        title="Eliminar y reasignar"
+                                      >
+                                        <Trash2 className="h-3 w-3 text-destructive" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                )}
+                                {enEdicion && (
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     className="h-6 w-6 p-0 shrink-0"
-                                    onClick={() => handleEliminarRol(reunion, rol.value)}
-                                    title="Eliminar y reasignar"
+                                    onClick={() => setEditando(null)}
+                                    title="Cancelar"
                                   >
-                                    <Trash2 className="h-3 w-3 text-destructive" />
+                                    <X className="h-3 w-3" />
                                   </Button>
                                 )}
                               </div>

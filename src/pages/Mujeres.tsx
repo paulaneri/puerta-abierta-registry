@@ -674,19 +674,32 @@ const Mujeres = () => {
       {/* Main Content */}
       <main className="w-full px-6 py-8">
         {/* Search and Stats */}
-        <div className="flex justify-between items-center mb-6">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Buscar por nombre, apellido, email o nacionalidad..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-10 w-80"
-            />
+        <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
+          <div className="flex flex-wrap items-center gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input
+                placeholder="Buscar por nombre, apellido, email o nacionalidad..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 w-80"
+              />
+            </div>
+            <Select value={filtroOrigen} onValueChange={(v) => setFiltroOrigen(v as typeof filtroOrigen)}>
+              <SelectTrigger className="w-56">
+                <SelectValue placeholder="Filtrar por origen" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todos">Todos los orígenes</SelectItem>
+                <SelectItem value="centro-dia">Centro de Día</SelectItem>
+                <SelectItem value="trabajo-campo">Trabajo de Campo</SelectItem>
+                <SelectItem value="derivacion">Derivación</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <Card className="p-4">
-            <p className="text-sm text-muted-foreground">Total Registradas</p>
-            <p className="text-2xl font-bold text-primary">{mujeres.length}</p>
+            <p className="text-sm text-muted-foreground">Total {filtroOrigen === "todos" ? "Registradas" : "Filtradas"}</p>
+            <p className="text-2xl font-bold text-primary">{filteredMujeres.length}</p>
           </Card>
         </div>
 

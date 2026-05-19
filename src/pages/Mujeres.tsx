@@ -43,6 +43,7 @@ const Mujeres = () => {
   const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string | null }>({ open: false, id: null });
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [showMultiSelectToolbar, setShowMultiSelectToolbar] = useState(false);
+  const [filtroOrigen, setFiltroOrigen] = useState<"todos" | "centro-dia" | "trabajo-campo" | "derivacion">("todos");
 
   // Cargar mujeres al inicializar el componente
   useEffect(() => {

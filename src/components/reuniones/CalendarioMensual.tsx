@@ -12,11 +12,13 @@ import {
   MessageSquare,
   UserCheck,
   Trash2,
+  Pencil,
   ChevronLeft,
   ChevronRight,
   RotateCcw,
   Ban
 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, addMonths, subMonths, getMonth, getYear, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
 import { 

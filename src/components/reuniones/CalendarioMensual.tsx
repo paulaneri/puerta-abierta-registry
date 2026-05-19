@@ -577,6 +577,7 @@ export const CalendarioMensual = ({
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 mt-3">
                           {ROLES.map(rol => {
                             const asignacion = reunion.asignaciones.find(a => a.rol === rol.value);
+                            const enEdicion = editando?.reunionId === reunion.id && editando?.rol === rol.value;
                             return (
                               <div 
                                 key={rol.value}
@@ -585,19 +586,61 @@ export const CalendarioMensual = ({
                                 <div className="flex items-center gap-2 min-w-0 flex-1 flex-wrap">
                                   <span className={`w-2 h-2 rounded-full shrink-0 ${rol.color}`}></span>
                                   <span className="text-xs sm:text-sm font-medium shrink-0">{rol.label}:</span>
-                                  <span className="text-xs sm:text-sm break-words hyphens-auto">
-                                    {asignacion ? getNombreProfesional(asignacion.profesional_id) : 'Sin asignar'}
-                                  </span>
+                                  {enEdicion ? (
+                                    <Select
+                                      defaultValue={asignacion?.profesional_id}
+                                      onValueChange={(val) => handleCambioManualRol(reunion, rol.value, val)}
+                                    >
+                                      <SelectTrigger className="h-7 text-xs sm:text-sm w-auto min-w-[140px]">
+                                        <SelectValue placeholder="Elegir persona" />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        {profesionales.map(p => (
+                                          <SelectItem key={p.id} value={p.id}>
+                                            {p.nombre} {p.apellido}
+                                          </SelectItem>
+                                        ))}
+                                      </SelectContent>
+                                    </Select>
+                                  ) : (
+                                    <span className="text-xs sm:text-sm break-words hyphens-auto">
+                                      {asignacion ? getNombreProfesional(asignacion.profesional_id) : 'Sin asignar'}
+                                    </span>
+                                  )}
                                 </div>
-                                {asignacion && reunion.estado === 'planificada' && (
+                                {reunion.estado === 'planificada' && !enEdicion && (
+                                  <div className="flex items-center gap-1 shrink-0">
+                                    <Button
+                                      variant="ghost"
+                                      size="sm"
+                                      className="h-6 w-6 p-0"
+                                      onClick={() => setEditando({ reunionId: reunion.id, rol: rol.value })}
+                                      title="Editar manualmente"
+                                    >
+                                      <Pencil className="h-3 w-3 text-primary" />
+                                    </Button>
+                                    {asignacion && (
+                                      <Button
+                                        variant="ghost"
+                                        size="sm"
+                                        className="h-6 w-6 p-0"
+                                        onClick={() => handleEliminarRol(reunion, rol.value)}
+                                        title="Eliminar y reasignar"
+                                      >
+                                        <Trash2 className="h-3 w-3 text-destructive" />
+                                      </Button>
+                                    )}
+                                  </div>
+                                )}
+                                {enEdicion && (
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     className="h-6 w-6 p-0 shrink-0"
-                                    onClick={() => handleEliminarRol(reunion, rol.value)}
-                                    title="Eliminar y reasignar"
+                                    onClick={() => setEditando(null)}
+                                    title="Cancelar"
                                   >
-                                    <Trash2 className="h-3 w-3 text-destructive" />
+                                    <X className="h-3 w-3" />
                                   </Button>
                                 )}
                               </div>

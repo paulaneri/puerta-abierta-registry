@@ -58,6 +58,7 @@ export const CalendarioMensual = ({
   const [reunionACancelar, setReunionACancelar] = useState<ReunionConAsignaciones | null>(null);
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [disponibilidad, setDisponibilidad] = useState<Map<string, Set<string>>>(new Map());
+  const [editando, setEditando] = useState<{ reunionId: string; rol: RolReunion } | null>(null);
 
   // Si cambia el año, mantener el mes actual (p.ej. enero-diciembre) dentro del nuevo año
   useEffect(() => {

@@ -331,6 +331,12 @@ const Actividades = () => {
                                 <div className={`flex items-center gap-1 text-xs ${overdue ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
                                   <Calendar className="h-3 w-3" />
                                   {format(parseISO(actividad.fecha_limite), "d MMM", { locale: es })}
+                                  {actividad.hora_limite && (
+                                    <span className="ml-1 inline-flex items-center gap-0.5">
+                                      <Clock className="h-3 w-3" />
+                                      {actividad.hora_limite.slice(0, 5)}
+                                    </span>
+                                  )}
                                 </div>
                               )}
                               {getResponsableNombre(actividad.responsable_id) && (

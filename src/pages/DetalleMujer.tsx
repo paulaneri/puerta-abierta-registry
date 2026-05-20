@@ -1521,7 +1521,7 @@ const DetalleMujer = () => {
               <Label>Fecha</Label>
               {isViewingAcomp ? (
                 <div className="text-sm py-2">
-                  {acompForm.fecha ? new Date(acompForm.fecha).toLocaleDateString() : "Sin fecha"}
+                  {acompForm.fecha ? formatDate(acompForm.fecha) : "Sin fecha"}
                 </div>
               ) : (
                 <DatePicker

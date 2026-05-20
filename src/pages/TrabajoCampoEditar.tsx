@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { trabajoCampoStore, type TrabajoCampo } from "@/lib/trabajoCampoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
 import LugarPredictiveInput from "@/components/LugarPredictiveInput";
+import { formatDate } from "@/lib/utils";
 
 interface EncuentroMujer {
   id: number;

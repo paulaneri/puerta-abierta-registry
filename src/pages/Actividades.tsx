@@ -83,6 +83,7 @@ const Actividades = () => {
       estado: actividad.estado,
       prioridad: actividad.prioridad || '',
       fecha_limite: actividad.fecha_limite || '',
+      hora_limite: actividad.hora_limite || '',
       responsable_id: actividad.responsable_id || ''
     });
     setDialogOpen(true);

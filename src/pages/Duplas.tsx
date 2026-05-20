@@ -17,6 +17,7 @@ import { useRoles } from "@/hooks/useRoles";
 import { equipoStore } from "@/lib/equipoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
 import { duplasStore, type DuplaConNombres } from "@/lib/duplasStore";
+import { formatDate } from "@/lib/utils";
 
 interface Profesional {
   id: string;

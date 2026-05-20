@@ -32,7 +32,7 @@ const DetalleRegistro = ({ registro, onClose }: DetalleRegistroProps) => {
           <div className="flex items-center justify-between">
             <CardTitle className="flex items-center gap-2">
               <Calendar className="h-5 w-5" />
-              Registro del {new Date(registro.fecha).toLocaleDateString()}
+              Registro del {formatDate(registro.fecha)}
             </CardTitle>
             <Button variant="outline" size="icon" onClick={onClose}>
               <X className="h-4 w-4" />

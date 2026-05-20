@@ -375,7 +375,7 @@ const CentroDiaEditar = () => {
               </Button>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Editar Registro - Centro de Día</h1>
-                <p className="text-muted-foreground">Modifica el registro del {new Date(registro.fecha).toLocaleDateString()}</p>
+                <p className="text-muted-foreground">Modifica el registro del {formatDate(registro.fecha)}</p>
               </div>
             </div>
             <Button type="submit" onClick={handleSubmit}>

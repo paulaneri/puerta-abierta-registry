@@ -1,0 +1,1 @@
+ALTER TABLE public.actividades ADD COLUMN hora_limite time without time zone;

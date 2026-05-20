@@ -12,6 +12,8 @@ import { format, parseISO, isPast, isToday } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { DatePicker } from "@/components/ui/date-picker";
+import { TimeInput24h } from "@/components/ui/time-input-24h";
+import { Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { actividadesStore, type Actividad, type EstadoActividad, COLUMNAS_KANBAN, PRIORIDADES } from "@/lib/actividadesStore";
 import { equipoStore, type Profesional } from "@/lib/equipoStore";
@@ -34,6 +36,7 @@ const Actividades = () => {
     estado: 'planificado' as EstadoActividad,
     prioridad: '' as string,
     fecha_limite: '',
+    hora_limite: '',
     responsable_id: ''
   });
 
@@ -66,6 +69,7 @@ const Actividades = () => {
       estado: 'planificado',
       prioridad: '',
       fecha_limite: '',
+      hora_limite: '',
       responsable_id: ''
     });
     setEditando(null);
@@ -79,6 +83,7 @@ const Actividades = () => {
       estado: actividad.estado,
       prioridad: actividad.prioridad || '',
       fecha_limite: actividad.fecha_limite || '',
+      hora_limite: actividad.hora_limite || '',
       responsable_id: actividad.responsable_id || ''
     });
     setDialogOpen(true);
@@ -103,6 +108,7 @@ const Actividades = () => {
           estado: formData.estado,
           prioridad: (formData.prioridad || null) as any,
           fecha_limite: formData.fecha_limite || null,
+          hora_limite: formData.hora_limite || null,
           responsable_id: formData.responsable_id || null
         });
         
@@ -122,6 +128,7 @@ const Actividades = () => {
           estado: formData.estado,
           prioridad: (formData.prioridad || null) as any,
           fecha_limite: formData.fecha_limite || null,
+          hora_limite: formData.hora_limite || null,
           responsable_id: formData.responsable_id || null,
           creado_por: user.id,
           orden: maxOrden + 1
@@ -324,6 +331,12 @@ const Actividades = () => {
                                 <div className={`flex items-center gap-1 text-xs ${overdue ? 'text-destructive font-medium' : 'text-muted-foreground'}`}>
                                   <Calendar className="h-3 w-3" />
                                   {format(parseISO(actividad.fecha_limite), "d MMM", { locale: es })}
+                                  {actividad.hora_limite && (
+                                    <span className="ml-1 inline-flex items-center gap-0.5">
+                                      <Clock className="h-3 w-3" />
+                                      {actividad.hora_limite.slice(0, 5)}
+                                    </span>
+                                  )}
                                 </div>
                               )}
                               {getResponsableNombre(actividad.responsable_id) && (
@@ -440,6 +453,16 @@ const Actividades = () => {
                   />
                 </div>
               </div>
+
+              <div className="space-y-2">
+                <Label>Horario (opcional)</Label>
+                <TimeInput24h
+                  value={formData.hora_limite}
+                  onChange={(value) => setFormData(prev => ({ ...prev, hora_limite: value }))}
+                />
+
+              </div>
+
 
               <div className="space-y-2">
                 <Label>Prioridad</Label>

@@ -103,7 +103,7 @@ const Index = () => {
         // Agregar cumpleaños de las mujeres
         mujeres.forEach(mujer => {
           if (mujer.fechaNacimiento) {
-            const fechaNac = new Date(mujer.fechaNacimiento);
+            const fechaNac = parseLocalDate(mujer.fechaNacimiento);
             const mesNac = getMonth(fechaNac);
             const diaNac = getDate(fechaNac);
             

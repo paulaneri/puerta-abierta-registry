@@ -453,8 +453,8 @@ const Actividades = () => {
                 <TimeInput24h
                   value={formData.hora_limite}
                   onChange={(value) => setFormData(prev => ({ ...prev, hora_limite: value }))}
-                  placeholder="--:--" as any />
                 />
+
               </div>
 
 

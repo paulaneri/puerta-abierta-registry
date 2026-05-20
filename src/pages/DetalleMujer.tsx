@@ -1358,7 +1358,7 @@ const DetalleMujer = () => {
                       <TableBody>
                         {mujer.acompanamientos.map((acomp) => (
                           <TableRow key={acomp.id}>
-                            <TableCell className="whitespace-nowrap">{new Date(acomp.fecha).toLocaleDateString()}</TableCell>
+                            <TableCell className="whitespace-nowrap">{formatDate(acomp.fecha)}</TableCell>
                             <TableCell>
                               <div className="flex flex-wrap gap-1">
                                 {acomp.equipo.map((persona, idx) => (

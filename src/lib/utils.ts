@@ -38,3 +38,12 @@ export function formatDate(date: Date | string): string {
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 }
+
+/**
+ * Convierte una fecha 'YYYY-MM-DD' (o ISO) en un Date local sin desfase de zona horaria.
+ */
+export function parseLocalDate(date: string | Date): Date {
+  if (date instanceof Date) return date;
+  const [y, m, d] = date.split('T')[0].split('-').map(Number);
+  return new Date(y, (m || 1) - 1, d || 1);
+}

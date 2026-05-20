@@ -16,6 +16,7 @@ import { format } from "date-fns";
 import { trabajoCampoStore, type TrabajoCampo } from "@/lib/trabajoCampoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
 import LugarPredictiveInput from "@/components/LugarPredictiveInput";
+import { formatDate } from "@/lib/utils";
 
 interface EncuentroMujer {
   id: number;
@@ -235,7 +236,7 @@ const TrabajoCampoEditar = () => {
               </Button>
               <div>
                 <h1 className="text-3xl font-bold text-foreground">Editar Trabajo de Campo</h1>
-                <p className="text-muted-foreground">Modifica el registro del {new Date(trabajo.fecha).toLocaleDateString()}</p>
+                <p className="text-muted-foreground">Modifica el registro del {formatDate(trabajo.fecha)}</p>
               </div>
             </div>
             <Button type="submit" onClick={handleSubmit}>

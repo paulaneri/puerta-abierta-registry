@@ -21,7 +21,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DatePicker } from "@/components/ui/date-picker";
 import { DocumentViewer } from "@/components/DocumentViewer";
 import { format, differenceInYears } from "date-fns";
-import { cn } from "@/lib/utils";
+import { cn, formatDate, parseLocalDate } from "@/lib/utils";
 import { trabajoCampoStore, type TrabajoCampo } from "@/lib/trabajoCampoStore";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
@@ -1358,7 +1358,7 @@ const DetalleMujer = () => {
                       <TableBody>
                         {mujer.acompanamientos.map((acomp) => (
                           <TableRow key={acomp.id}>
-                            <TableCell className="whitespace-nowrap">{new Date(acomp.fecha).toLocaleDateString()}</TableCell>
+                            <TableCell className="whitespace-nowrap">{formatDate(acomp.fecha)}</TableCell>
                             <TableCell>
                               <div className="flex flex-wrap gap-1">
                                 {acomp.equipo.map((persona, idx) => (
@@ -1435,7 +1435,7 @@ const DetalleMujer = () => {
                         <TableRow key={index}>
                           <TableCell className="font-medium">
                             <div className="text-sm">
-                              {new Date(registro.fecha).toLocaleDateString('es-ES', { 
+                              {parseLocalDate(registro.fecha).toLocaleDateString('es-ES', { 
                                 weekday: 'short',
                                 day: 'numeric',
                                 month: 'short',
@@ -1521,7 +1521,7 @@ const DetalleMujer = () => {
               <Label>Fecha</Label>
               {isViewingAcomp ? (
                 <div className="text-sm py-2">
-                  {acompForm.fecha ? new Date(acompForm.fecha).toLocaleDateString() : "Sin fecha"}
+                  {acompForm.fecha ? formatDate(acompForm.fecha) : "Sin fecha"}
                 </div>
               ) : (
                 <DatePicker

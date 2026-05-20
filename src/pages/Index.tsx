@@ -12,6 +12,7 @@ import { centroDiaStore } from "@/lib/centroDiaStore";
 import { trabajoCampoStore } from "@/lib/trabajoCampoStore";
 import { eventosStore, type Evento } from "@/lib/eventosStore";
 import { PhotoCarousel } from "@/components/galeria/PhotoCarousel";
+import { parseLocalDate } from "@/lib/utils";
 
 const tiposEvento = [
   { value: 'reunion', label: 'Reunión', color: 'bg-blue-500' },
@@ -102,7 +103,7 @@ const Index = () => {
         // Agregar cumpleaños de las mujeres
         mujeres.forEach(mujer => {
           if (mujer.fechaNacimiento) {
-            const fechaNac = new Date(mujer.fechaNacimiento);
+            const fechaNac = parseLocalDate(mujer.fechaNacimiento);
             const mesNac = getMonth(fechaNac);
             const diaNac = getDate(fechaNac);
             
@@ -120,7 +121,7 @@ const Index = () => {
                 id: `cumple-mujer-${mujer.id}`,
                 titulo: `Cumpleaños de ${mujer.nombre} ${mujer.apellido}`,
                 tipo: 'cumpleaños',
-                fecha: cumpleañosEsteAño.toISOString().split('T')[0],
+                fecha: format(cumpleañosEsteAño, 'yyyy-MM-dd'),
                 hora_inicio: '00:00',
                 descripcion: `Cumpleaños de ${mujer.nombre} ${mujer.apellido}${mujer.apodo ? ` (${mujer.apodo})` : ''}`
               });
@@ -131,7 +132,7 @@ const Index = () => {
         // Agregar cumpleaños del equipo
         equipo.forEach(profesional => {
           if (profesional.fechaNacimiento) {
-            const fechaNac = new Date(profesional.fechaNacimiento);
+            const fechaNac = parseLocalDate(profesional.fechaNacimiento);
             const mesNac = getMonth(fechaNac);
             const diaNac = getDate(fechaNac);
             
@@ -149,7 +150,7 @@ const Index = () => {
                 id: `cumple-equipo-${profesional.id}`,
                 titulo: `Cumpleaños de ${profesional.nombre} ${profesional.apellido}`,
                 tipo: 'cumpleaños',
-                fecha: cumpleañosEsteAño.toISOString().split('T')[0],
+                fecha: format(cumpleañosEsteAño, 'yyyy-MM-dd'),
                 hora_inicio: '00:00',
                 descripcion: `Cumpleaños de ${profesional.nombre} ${profesional.apellido} (Equipo)`
               });

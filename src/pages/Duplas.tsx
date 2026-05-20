@@ -17,6 +17,7 @@ import { useRoles } from "@/hooks/useRoles";
 import { equipoStore } from "@/lib/equipoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
 import { duplasStore, type DuplaConNombres } from "@/lib/duplasStore";
+import { formatDate } from "@/lib/utils";
 
 interface Profesional {
   id: string;
@@ -464,7 +465,7 @@ const Duplas = () => {
                         <TableCell className="font-medium">
                           <div className="text-xs text-muted-foreground flex items-center gap-1">
                             <Calendar className="h-3 w-3" />
-                            {new Date(dupla.fechaFormacion).toLocaleDateString()}
+                            {formatDate(dupla.fechaFormacion)}
                           </div>
                         </TableCell>
                         <TableCell>

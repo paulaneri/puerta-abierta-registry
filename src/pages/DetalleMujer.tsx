@@ -21,7 +21,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { DatePicker } from "@/components/ui/date-picker";
 import { DocumentViewer } from "@/components/DocumentViewer";
 import { format, differenceInYears } from "date-fns";
-import { cn } from "@/lib/utils";
+import { cn, formatDate, parseLocalDate } from "@/lib/utils";
 import { trabajoCampoStore, type TrabajoCampo } from "@/lib/trabajoCampoStore";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";

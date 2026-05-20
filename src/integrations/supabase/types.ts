@@ -21,6 +21,7 @@ export type Database = {
           descripcion: string | null
           estado: string
           fecha_limite: string | null
+          hora_limite: string | null
           id: string
           orden: number
           prioridad: string | null
@@ -34,6 +35,7 @@ export type Database = {
           descripcion?: string | null
           estado?: string
           fecha_limite?: string | null
+          hora_limite?: string | null
           id?: string
           orden?: number
           prioridad?: string | null
@@ -47,6 +49,7 @@ export type Database = {
           descripcion?: string | null
           estado?: string
           fecha_limite?: string | null
+          hora_limite?: string | null
           id?: string
           orden?: number
           prioridad?: string | null

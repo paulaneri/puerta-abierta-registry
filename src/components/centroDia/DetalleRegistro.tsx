@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Calendar, Users, Phone, PhoneCall, FileText, UserCheck, MapPin, Building2 } from "lucide-react";
 import { type RegistroCentroDia } from "@/lib/centroDiaStore";
 import { trabajoCampoStore } from "@/lib/trabajoCampoStore";
+import { formatDate } from "@/lib/utils";
 
 interface DetalleRegistroProps {
   registro: RegistroCentroDia;

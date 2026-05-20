@@ -108,6 +108,7 @@ const Actividades = () => {
           estado: formData.estado,
           prioridad: (formData.prioridad || null) as any,
           fecha_limite: formData.fecha_limite || null,
+          hora_limite: formData.hora_limite || null,
           responsable_id: formData.responsable_id || null
         });
         

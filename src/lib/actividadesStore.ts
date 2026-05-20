@@ -10,6 +10,7 @@ export interface Actividad {
   estado: EstadoActividad;
   prioridad: PrioridadActividad;
   fecha_limite: string | null;
+  hora_limite: string | null;
   responsable_id: string | null;
   creado_por: string;
   orden: number;

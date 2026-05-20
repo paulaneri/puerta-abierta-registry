@@ -12,6 +12,7 @@ import { centroDiaStore } from "@/lib/centroDiaStore";
 import { trabajoCampoStore } from "@/lib/trabajoCampoStore";
 import { eventosStore, type Evento } from "@/lib/eventosStore";
 import { PhotoCarousel } from "@/components/galeria/PhotoCarousel";
+import { parseLocalDate } from "@/lib/utils";
 
 const tiposEvento = [
   { value: 'reunion', label: 'Reunión', color: 'bg-blue-500' },

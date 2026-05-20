@@ -121,7 +121,7 @@ const Index = () => {
                 id: `cumple-mujer-${mujer.id}`,
                 titulo: `Cumpleaños de ${mujer.nombre} ${mujer.apellido}`,
                 tipo: 'cumpleaños',
-                fecha: cumpleañosEsteAño.toISOString().split('T')[0],
+                fecha: format(cumpleañosEsteAño, 'yyyy-MM-dd'),
                 hora_inicio: '00:00',
                 descripcion: `Cumpleaños de ${mujer.nombre} ${mujer.apellido}${mujer.apodo ? ` (${mujer.apodo})` : ''}`
               });

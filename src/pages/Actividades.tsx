@@ -69,6 +69,7 @@ const Actividades = () => {
       estado: 'planificado',
       prioridad: '',
       fecha_limite: '',
+      hora_limite: '',
       responsable_id: ''
     });
     setEditando(null);

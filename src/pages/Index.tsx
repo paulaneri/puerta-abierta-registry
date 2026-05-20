@@ -132,7 +132,7 @@ const Index = () => {
         // Agregar cumpleaños del equipo
         equipo.forEach(profesional => {
           if (profesional.fechaNacimiento) {
-            const fechaNac = new Date(profesional.fechaNacimiento);
+            const fechaNac = parseLocalDate(profesional.fechaNacimiento);
             const mesNac = getMonth(fechaNac);
             const diaNac = getDate(fechaNac);
             

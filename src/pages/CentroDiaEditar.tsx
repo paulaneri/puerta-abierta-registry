@@ -18,6 +18,7 @@ import { centroDiaStore, type RegistroCentroDia } from "@/lib/centroDiaStore";
 import { mujeresStore, type Mujer } from "@/lib/mujeresStore";
 import { trabajoCampoStore } from "@/lib/trabajoCampoStore";
 import { equipoStore, type Profesional } from "@/lib/equipoStore";
+import { formatDate } from "@/lib/utils";
 
 const CentroDiaEditar = () => {
   const navigate = useNavigate();

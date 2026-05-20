@@ -449,6 +449,16 @@ const Actividades = () => {
               </div>
 
               <div className="space-y-2">
+                <Label>Horario (opcional)</Label>
+                <TimeInput24h
+                  value={formData.hora_limite}
+                  onChange={(value) => setFormData(prev => ({ ...prev, hora_limite: value }))}
+                  placeholder="--:--"
+                />
+              </div>
+
+
+              <div className="space-y-2">
                 <Label>Prioridad</Label>
                 <Select
                   value={formData.prioridad || PRIORIDAD_NONE_VALUE}

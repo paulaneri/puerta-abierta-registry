@@ -12,6 +12,8 @@ import { format, parseISO, isPast, isToday } from "date-fns";
 import { es } from "date-fns/locale";
 import { toast } from "sonner";
 import { DatePicker } from "@/components/ui/date-picker";
+import { TimeInput24h } from "@/components/ui/time-input-24h";
+import { Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { actividadesStore, type Actividad, type EstadoActividad, COLUMNAS_KANBAN, PRIORIDADES } from "@/lib/actividadesStore";
 import { equipoStore, type Profesional } from "@/lib/equipoStore";

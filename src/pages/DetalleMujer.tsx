@@ -1435,7 +1435,7 @@ const DetalleMujer = () => {
                         <TableRow key={index}>
                           <TableCell className="font-medium">
                             <div className="text-sm">
-                              {new Date(registro.fecha).toLocaleDateString('es-ES', { 
+                              {parseLocalDate(registro.fecha).toLocaleDateString('es-ES', { 
                                 weekday: 'short',
                                 day: 'numeric',
                                 month: 'short',

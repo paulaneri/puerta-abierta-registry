@@ -36,6 +36,7 @@ const Actividades = () => {
     estado: 'planificado' as EstadoActividad,
     prioridad: '' as string,
     fecha_limite: '',
+    hora_limite: '',
     responsable_id: ''
   });
 

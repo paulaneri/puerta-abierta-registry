@@ -5,12 +5,15 @@ import { type Contacto } from "@/lib/contactosStore";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { User, Building, Phone, Mail, Globe, FileText, Tag, MapPin, Clock, Calendar } from "lucide-react";
+import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRecordMetadata } from "@/hooks/useRecordMetadata";
 
 interface DetalleContactoProps {
   contacto: Contacto;
 }
 
 export function DetalleContacto({ contacto }: DetalleContactoProps) {
+  const meta = useRecordMetadata("contactos", contacto.id);
   const getTipoBadgeColor = (tipo: string) => {
     const colors: Record<string, string> = {
       "Salud": "bg-red-100 text-red-800",

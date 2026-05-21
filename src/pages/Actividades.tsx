@@ -17,6 +17,7 @@ import { Clock } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { actividadesStore, type Actividad, type EstadoActividad, COLUMNAS_KANBAN, PRIORIDADES } from "@/lib/actividadesStore";
 import { equipoStore, type Profesional } from "@/lib/equipoStore";
+import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
 
 const Actividades = () => {
   const { user } = useAuth();

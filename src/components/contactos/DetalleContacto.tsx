@@ -231,7 +231,6 @@ export function DetalleContacto({ contacto }: DetalleContactoProps) {
               </p>
             </div>
           </div>
-          </div>
           <MetadatosRegistro createdAt={meta?.created_at || contacto.createdAt} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} />
         </CardContent>
       </Card>

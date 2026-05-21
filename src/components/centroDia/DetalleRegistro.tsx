@@ -6,6 +6,8 @@ import { X, Calendar, Users, Phone, PhoneCall, FileText, UserCheck, MapPin, Buil
 import { type RegistroCentroDia } from "@/lib/centroDiaStore";
 import { trabajoCampoStore } from "@/lib/trabajoCampoStore";
 import { formatDate } from "@/lib/utils";
+import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRecordMetadata } from "@/hooks/useRecordMetadata";
 
 interface DetalleRegistroProps {
   registro: RegistroCentroDia;
@@ -13,6 +15,7 @@ interface DetalleRegistroProps {
 }
 
 const DetalleRegistro = ({ registro, onClose }: DetalleRegistroProps) => {
+  const meta = useRecordMetadata("centro_dia", registro.id);
   const totalTramites = registro.tramites.reduce((sum, tramite) => sum + tramite.cantidad, 0);
   const entrevistasRealizadas = registro.mujeresAsistieron.filter(m => m.entrevistaRealizada).length;
   const [trabajoCampoDelDia, setTrabajoCampoDelDia] = useState<any>(null);

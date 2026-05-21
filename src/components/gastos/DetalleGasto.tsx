@@ -217,6 +217,7 @@ export function DetalleGasto({ gasto }: DetalleGastoProps) {
               </p>
             </div>
           </div>
+          <MetadatosRegistro createdAt={meta?.created_at || gasto.createdAt} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} />
         </CardContent>
       </Card>
     </div>

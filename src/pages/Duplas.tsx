@@ -347,6 +347,9 @@ const Duplas = () => {
                       placeholder="Notas adicionales sobre el progreso o situaciones especiales..."
                     />
                   </div>
+                  {editingDupla && (
+                    <DuplaMetadata id={editingDupla.id} />
+                  )}
                   <div className="flex justify-end gap-2">
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                       Cancelar

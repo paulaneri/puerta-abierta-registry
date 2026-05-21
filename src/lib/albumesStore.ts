@@ -52,9 +52,11 @@ export const albumesStore = {
   },
 
   async createAlbum(album: Omit<Album, 'id' | 'created_at' | 'updated_at'>): Promise<Album | null> {
+    const { getCurrentUserId } = await import('./currentUser');
+    const creado_por = await getCurrentUserId();
     const { data, error } = await supabase
       .from('albumes' as any)
-      .insert(album as any)
+      .insert({ ...album, creado_por } as any)
       .select()
       .single();
     

@@ -1676,8 +1676,10 @@ const DetalleMujer = () => {
         title="¿Eliminar acompañamiento?"
         description="Esta acción no se puede deshacer. El registro de acompañamiento será eliminado permanentemente."
       />
+      <MetadatosRegistro createdAt={meta?.created_at} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} className="mx-auto max-w-7xl px-4 pb-6" />
     </div>
   );
 };
+
 
 export default DetalleMujer;

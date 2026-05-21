@@ -66,6 +66,8 @@ export const centroDiaStore = (() => {
     },
 
     agregarRegistro: async (registro: Omit<RegistroCentroDia, 'id'>) => {
+      const { getCurrentUserId } = await import('./currentUser');
+      const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('centro_dia')
         .insert({
@@ -79,8 +81,9 @@ export const centroDiaStore = (() => {
           llamadas_hechas: registro.llamadasHechas as any,
           tramites: registro.tramites as any,
           articulacion_instituciones: registro.articulacionInstituciones,
-          trabajo_campo_resumen: registro.trabajoCampoResumen
-        })
+          trabajo_campo_resumen: registro.trabajoCampoResumen,
+          creado_por,
+        } as any)
         .select()
         .single();
       

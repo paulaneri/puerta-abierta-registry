@@ -446,6 +446,8 @@ const TrabajoCampoEditar = () => {
               Guardar Cambios
             </Button>
           </div>
+
+          <MetadatosRegistro createdAt={meta?.created_at} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} />
         </form>
       </main>
 

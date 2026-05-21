@@ -726,4 +726,12 @@ const EquipoTrabajo = () => {
   );
 };
 
+import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRecordMetadata } from "@/hooks/useRecordMetadata";
+
+const ProfesionalMetadata = ({ id }: { id: string }) => {
+  const meta = useRecordMetadata("equipo", id);
+  return <MetadatosRegistro createdAt={meta?.created_at} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} />;
+};
+
 export default EquipoTrabajo;

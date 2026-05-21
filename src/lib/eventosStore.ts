@@ -40,9 +40,11 @@ export const eventosStore = {
   
   agregarEvento: async (evento: Omit<Evento, 'id' | 'created_at' | 'updated_at'>): Promise<Evento | null> => {
     try {
+      const { getCurrentUserId } = await import('./currentUser');
+      const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('eventos')
-        .insert(evento)
+        .insert({ ...evento, creado_por } as any)
         .select()
         .single();
       

@@ -129,9 +129,11 @@ export const albumesStore = {
   },
 
   async addFoto(foto: Omit<FotoAlbum, 'id' | 'created_at'>): Promise<FotoAlbum | null> {
+    const { getCurrentUserId } = await import('./currentUser');
+    const creado_por = await getCurrentUserId();
     const { data, error } = await supabase
       .from('fotos_album' as any)
-      .insert(foto as any)
+      .insert({ ...foto, creado_por } as any)
       .select()
       .single();
     

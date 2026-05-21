@@ -68,6 +68,8 @@ class GastosStore {
   }
 
   async addGasto(gasto: Omit<Gasto, 'id' | 'createdAt'>): Promise<boolean> {
+    const { getCurrentUserId } = await import('./currentUser');
+    const creado_por = await getCurrentUserId();
     const { error } = await supabase
       .from('gastos')
       .insert({
@@ -77,8 +79,9 @@ class GastosStore {
         fecha: gasto.fecha,
         categoria: gasto.etiqueta || 'Gastos Generales',
         metodo_pago: 'Efectivo',
-        documentos_adjuntos: JSON.stringify(gasto.documentosAdjuntos || [])
-      });
+        documentos_adjuntos: JSON.stringify(gasto.documentosAdjuntos || []),
+        creado_por,
+      } as any);
     
     if (error) {
       console.error('Error adding gasto:', error);

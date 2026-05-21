@@ -67,6 +67,8 @@ class ContactosStore {
   }
 
   async addContacto(contacto: Omit<Contacto, 'id' | 'createdAt'>): Promise<boolean> {
+    const { getCurrentUserId } = await import('./currentUser');
+    const creado_por = await getCurrentUserId();
     const { error } = await supabase
       .from('contactos')
       .insert({
@@ -85,8 +87,9 @@ class ContactosStore {
         provincia: contacto.provincia,
         pais: contacto.pais,
         tags: [contacto.tipoContacto],
-        notas: contacto.descripcion
-      });
+        notas: contacto.descripcion,
+        creado_por,
+      } as any);
     
     if (error) {
       console.error('Error adding contacto:', error);

@@ -26,9 +26,12 @@ import { trabajoCampoStore, type TrabajoCampo } from "@/lib/trabajoCampoStore";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { UnsavedChangesDialog } from "@/components/ui/unsaved-changes-dialog";
+import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRecordMetadata } from "@/hooks/useRecordMetadata";
 
 const DetalleMujer = () => {
   const { id } = useParams<{ id: string }>();
+  const meta = useRecordMetadata("mujeres", id);
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [mujer, setMujer] = useState<Mujer | null>(null);

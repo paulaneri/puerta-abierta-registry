@@ -17,6 +17,8 @@ import { trabajoCampoStore, type TrabajoCampo } from "@/lib/trabajoCampoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
 import LugarPredictiveInput from "@/components/LugarPredictiveInput";
 import { formatDate } from "@/lib/utils";
+import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRecordMetadata } from "@/hooks/useRecordMetadata";
 
 interface EncuentroMujer {
   id: number;

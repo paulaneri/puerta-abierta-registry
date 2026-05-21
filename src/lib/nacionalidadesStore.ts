@@ -42,9 +42,11 @@ class NacionalidadesStore {
 
   async agregarNacionalidad(nacionalidad: Omit<Nacionalidad, 'id' | 'created_at' | 'updated_at'>): Promise<Nacionalidad | null> {
     try {
+      const { getCurrentUserId } = await import('./currentUser');
+      const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('nacionalidades')
-        .insert([nacionalidad])
+        .insert([{ ...nacionalidad, creado_por } as any])
         .select()
         .single();
 

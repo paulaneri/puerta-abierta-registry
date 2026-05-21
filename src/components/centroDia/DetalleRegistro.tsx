@@ -290,6 +290,8 @@ const DetalleRegistro = ({ registro, onClose }: DetalleRegistroProps) => {
           <div className="flex justify-end">
             <Button onClick={onClose}>Cerrar</Button>
           </div>
+
+          <MetadatosRegistro createdAt={meta?.created_at} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} />
         </CardContent>
       </Card>
     </div>

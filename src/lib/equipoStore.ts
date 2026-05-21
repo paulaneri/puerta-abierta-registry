@@ -173,6 +173,8 @@ export const equipoStore = {
         }
       }
       
+      const { getCurrentUserId } = await import('./currentUser');
+      const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('equipo')
         .insert({
@@ -187,8 +189,9 @@ export const equipoStore = {
           activo: profesional.estado === 'activo',
           experiencia: profesional.experiencia,
           certificaciones: profesional.certificaciones,
-          equipo_ampliado: profesional.equipoAmpliado
-        })
+          equipo_ampliado: profesional.equipoAmpliado,
+          creado_por,
+        } as any)
         .select()
         .single();
       

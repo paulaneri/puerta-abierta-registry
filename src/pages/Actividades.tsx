@@ -520,9 +520,9 @@ const Actividades = () => {
             </div>
             {editando && (
               <MetadatosRegistro
-                createdAt={(editando as any).created_at}
-                updatedAt={(editando as any).updated_at}
-                creadoPor={(editando as any).creado_por}
+                createdAt={editando.created_at}
+                updatedAt={editando.updated_at}
+                creadoPor={editando.creado_por}
               />
             )}
             <DialogFooter>

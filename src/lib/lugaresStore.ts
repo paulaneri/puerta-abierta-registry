@@ -60,9 +60,11 @@ export const lugaresStore = {
       }
 
       // Crear nuevo lugar
+      const { getCurrentUserId } = await import('./currentUser');
+      const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('lugares')
-        .insert([{ nombre: nombre.trim(), activo: true }])
+        .insert([{ nombre: nombre.trim(), activo: true, creado_por } as any])
         .select()
         .single();
 

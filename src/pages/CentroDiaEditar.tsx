@@ -19,10 +19,13 @@ import { mujeresStore, type Mujer } from "@/lib/mujeresStore";
 import { trabajoCampoStore } from "@/lib/trabajoCampoStore";
 import { equipoStore, type Profesional } from "@/lib/equipoStore";
 import { formatDate } from "@/lib/utils";
+import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRecordMetadata } from "@/hooks/useRecordMetadata";
 
 const CentroDiaEditar = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const meta = useRecordMetadata("centro_dia", id);
   
   const [registro, setRegistro] = useState<RegistroCentroDia | null>(null);
   const [cargando, setCargando] = useState(true);

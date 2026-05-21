@@ -879,6 +879,8 @@ const CentroDiaEditar = () => {
               Actualizar Registro
             </Button>
           </div>
+
+          <MetadatosRegistro createdAt={meta?.created_at} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} />
         </form>
       </main>
 

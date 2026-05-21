@@ -154,9 +154,12 @@ export const mujeresStore = {
         return false; // Ya existe
       }
 
+      const { getCurrentUserId } = await import('./currentUser');
+      const creado_por = await getCurrentUserId();
       const { error } = await supabase
         .from('mujeres')
         .insert({
+          creado_por,
           nombre: mujer.nombre,
           apellido: mujer.apellido,
           apodo: mujer.apodo || null,

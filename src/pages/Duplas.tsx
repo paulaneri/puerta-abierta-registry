@@ -18,6 +18,8 @@ import { equipoStore } from "@/lib/equipoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
 import { duplasStore, type DuplaConNombres } from "@/lib/duplasStore";
 import { formatDate } from "@/lib/utils";
+import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRecordMetadata } from "@/hooks/useRecordMetadata";
 
 interface Profesional {
   id: string;

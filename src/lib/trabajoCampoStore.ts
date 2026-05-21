@@ -85,6 +85,8 @@ export const trabajoCampoStore = (() => {
 
     agregarTrabajo: async (trabajo: Omit<TrabajoCampo, 'id' | 'createdAt' | 'updatedAt'>): Promise<TrabajoCampo | null> => {
       try {
+        const { getCurrentUserId } = await import('./currentUser');
+        const creado_por = await getCurrentUserId();
         const { data, error } = await supabase
           .from('trabajo_campo')
           .insert({
@@ -95,8 +97,9 @@ export const trabajoCampoStore = (() => {
             resultados: trabajo.resultados || '',
             participantes: trabajo.profesionales,
             profesional_responsable: trabajo.profesionales[0] || '',
-            encuentros: JSON.stringify(trabajo.encuentros || [])
-          })
+            encuentros: JSON.stringify(trabajo.encuentros || []),
+            creado_por,
+          } as any)
           .select()
           .single();
         

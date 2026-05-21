@@ -39,6 +39,9 @@ const TrabajoCampoEditar = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   
+  const { id } = useParams<{ id: string }>();
+  const meta = useRecordMetadata("trabajo_campo", id);
+  
   const [trabajo, setTrabajo] = useState<TrabajoCampo | null>(null);
   const [cargando, setCargando] = useState(true);
   const [mujeresRegistradas, setMujeresRegistradas] = useState<{id: string, nombre: string, apellido: string}[]>([]);

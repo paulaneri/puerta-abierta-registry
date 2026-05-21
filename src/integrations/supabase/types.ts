@@ -69,6 +69,7 @@ export type Database = {
       }
       albumes: {
         Row: {
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           evento: string | null
@@ -79,6 +80,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           evento?: string | null
@@ -89,6 +91,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           evento?: string | null
@@ -158,6 +161,7 @@ export type Database = {
       cargos_profesionales: {
         Row: {
           activo: boolean
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           id: string
@@ -166,6 +170,7 @@ export type Database = {
         }
         Insert: {
           activo?: boolean
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           id?: string
@@ -174,6 +179,7 @@ export type Database = {
         }
         Update: {
           activo?: boolean
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           id?: string
@@ -186,6 +192,7 @@ export type Database = {
         Row: {
           archivado: boolean
           articulacion_instituciones: string | null
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           fecha: string
@@ -205,6 +212,7 @@ export type Database = {
         Insert: {
           archivado?: boolean
           articulacion_instituciones?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           fecha: string
@@ -224,6 +232,7 @@ export type Database = {
         Update: {
           archivado?: boolean
           articulacion_instituciones?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           fecha?: string
@@ -247,6 +256,7 @@ export type Database = {
           apellido: string | null
           cargo: string | null
           ciudad: string | null
+          creado_por: string | null
           created_at: string
           dia_atencion: string | null
           direccion: string | null
@@ -268,6 +278,7 @@ export type Database = {
           apellido?: string | null
           cargo?: string | null
           ciudad?: string | null
+          creado_por?: string | null
           created_at?: string
           dia_atencion?: string | null
           direccion?: string | null
@@ -289,6 +300,7 @@ export type Database = {
           apellido?: string | null
           cargo?: string | null
           ciudad?: string | null
+          creado_por?: string | null
           created_at?: string
           dia_atencion?: string | null
           direccion?: string | null
@@ -354,6 +366,7 @@ export type Database = {
         Row: {
           activa: boolean
           archivado: boolean
+          creado_por: string | null
           created_at: string
           fecha_formacion: string
           id: string
@@ -366,6 +379,7 @@ export type Database = {
         Insert: {
           activa?: boolean
           archivado?: boolean
+          creado_por?: string | null
           created_at?: string
           fecha_formacion: string
           id?: string
@@ -378,6 +392,7 @@ export type Database = {
         Update: {
           activa?: boolean
           archivado?: boolean
+          creado_por?: string | null
           created_at?: string
           fecha_formacion?: string
           id?: string
@@ -416,6 +431,7 @@ export type Database = {
           activo: boolean | null
           apellido: string
           certificaciones: string[] | null
+          creado_por: string | null
           created_at: string
           email: string | null
           equipo_ampliado: boolean
@@ -433,6 +449,7 @@ export type Database = {
           activo?: boolean | null
           apellido: string
           certificaciones?: string[] | null
+          creado_por?: string | null
           created_at?: string
           email?: string | null
           equipo_ampliado?: boolean
@@ -450,6 +467,7 @@ export type Database = {
           activo?: boolean | null
           apellido?: string
           certificaciones?: string[] | null
+          creado_por?: string | null
           created_at?: string
           email?: string | null
           equipo_ampliado?: boolean
@@ -468,6 +486,7 @@ export type Database = {
       etiquetas_gastos: {
         Row: {
           color: string | null
+          creado_por: string | null
           created_at: string
           id: string
           nombre: string
@@ -475,6 +494,7 @@ export type Database = {
         }
         Insert: {
           color?: string | null
+          creado_por?: string | null
           created_at?: string
           id?: string
           nombre: string
@@ -482,6 +502,7 @@ export type Database = {
         }
         Update: {
           color?: string | null
+          creado_por?: string | null
           created_at?: string
           id?: string
           nombre?: string
@@ -491,6 +512,7 @@ export type Database = {
       }
       eventos: {
         Row: {
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           fecha: string
@@ -507,6 +529,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           fecha: string
@@ -523,6 +546,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           fecha?: string
@@ -543,6 +567,7 @@ export type Database = {
       fotos_album: {
         Row: {
           album_id: string
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           id: string
@@ -552,6 +577,7 @@ export type Database = {
         }
         Insert: {
           album_id: string
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           id?: string
@@ -561,6 +587,7 @@ export type Database = {
         }
         Update: {
           album_id?: string
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           id?: string
@@ -584,6 +611,7 @@ export type Database = {
           categoria: string
           comprobante_id: string | null
           concepto: string
+          creado_por: string | null
           created_at: string
           descripcion: string | null
           documentos_adjuntos: Json | null
@@ -598,6 +626,7 @@ export type Database = {
           categoria: string
           comprobante_id?: string | null
           concepto: string
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           documentos_adjuntos?: Json | null
@@ -612,6 +641,7 @@ export type Database = {
           categoria?: string
           comprobante_id?: string | null
           concepto?: string
+          creado_por?: string | null
           created_at?: string
           descripcion?: string | null
           documentos_adjuntos?: Json | null
@@ -626,6 +656,7 @@ export type Database = {
       lugares: {
         Row: {
           activo: boolean
+          creado_por: string | null
           created_at: string
           id: string
           nombre: string
@@ -633,6 +664,7 @@ export type Database = {
         }
         Insert: {
           activo?: boolean
+          creado_por?: string | null
           created_at?: string
           id?: string
           nombre: string
@@ -640,6 +672,7 @@ export type Database = {
         }
         Update: {
           activo?: boolean
+          creado_por?: string | null
           created_at?: string
           id?: string
           nombre?: string
@@ -656,6 +689,7 @@ export type Database = {
           aporte_previsional: string | null
           ayuda_habitacional: string | null
           cobertura_salud: string | null
+          creado_por: string | null
           created_at: string
           descripcion_rasgos: string | null
           direccion: string | null
@@ -694,6 +728,7 @@ export type Database = {
           aporte_previsional?: string | null
           ayuda_habitacional?: string | null
           cobertura_salud?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion_rasgos?: string | null
           direccion?: string | null
@@ -732,6 +767,7 @@ export type Database = {
           aporte_previsional?: string | null
           ayuda_habitacional?: string | null
           cobertura_salud?: string | null
+          creado_por?: string | null
           created_at?: string
           descripcion_rasgos?: string | null
           direccion?: string | null
@@ -767,6 +803,7 @@ export type Database = {
       nacionalidades: {
         Row: {
           activa: boolean
+          creado_por: string | null
           created_at: string
           id: string
           nombre: string
@@ -774,6 +811,7 @@ export type Database = {
         }
         Insert: {
           activa?: boolean
+          creado_por?: string | null
           created_at?: string
           id?: string
           nombre: string
@@ -781,6 +819,7 @@ export type Database = {
         }
         Update: {
           activa?: boolean
+          creado_por?: string | null
           created_at?: string
           id?: string
           nombre?: string
@@ -818,6 +857,7 @@ export type Database = {
       reuniones_semanales: {
         Row: {
           ano: number
+          creado_por: string | null
           created_at: string
           estado: string
           fecha: string
@@ -830,6 +870,7 @@ export type Database = {
         }
         Insert: {
           ano: number
+          creado_por?: string | null
           created_at?: string
           estado?: string
           fecha: string
@@ -842,6 +883,7 @@ export type Database = {
         }
         Update: {
           ano?: number
+          creado_por?: string | null
           created_at?: string
           estado?: string
           fecha?: string
@@ -858,6 +900,7 @@ export type Database = {
         Row: {
           actividad: string
           archivado: boolean
+          creado_por: string | null
           created_at: string
           encuentros: Json | null
           fecha: string
@@ -872,6 +915,7 @@ export type Database = {
         Insert: {
           actividad: string
           archivado?: boolean
+          creado_por?: string | null
           created_at?: string
           encuentros?: Json | null
           fecha: string
@@ -886,6 +930,7 @@ export type Database = {
         Update: {
           actividad?: string
           archivado?: boolean
+          creado_por?: string | null
           created_at?: string
           encuentros?: Json | null
           fecha?: string

@@ -1,0 +1,15 @@
+ALTER TABLE public.mujeres ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.centro_dia ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.trabajo_campo ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.gastos ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.contactos ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.reuniones_semanales ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.albumes ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.fotos_album ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.eventos ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.duplas_acompanamiento ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.equipo ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.lugares ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.nacionalidades ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.cargos_profesionales ADD COLUMN IF NOT EXISTS creado_por uuid;
+ALTER TABLE public.etiquetas_gastos ADD COLUMN IF NOT EXISTS creado_por uuid;

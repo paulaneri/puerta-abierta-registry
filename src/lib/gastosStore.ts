@@ -269,9 +269,11 @@ class GastosStore {
   }
 
   async addEtiqueta(nombre: string): Promise<boolean> {
+    const { getCurrentUserId } = await import('./currentUser');
+    const creado_por = await getCurrentUserId();
     const { error } = await supabase
       .from('etiquetas_gastos' as any)
-      .insert({ nombre });
+      .insert({ nombre, creado_por } as any);
     if (error) {
       console.error('Error adding etiqueta:', error);
       return false;

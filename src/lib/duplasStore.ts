@@ -85,6 +85,8 @@ export const duplasStore = {
     activa?: boolean;
   }): Promise<Dupla | null> => {
     try {
+      const { getCurrentUserId } = await import('./currentUser');
+      const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('duplas_acompanamiento')
         .insert({
@@ -93,8 +95,9 @@ export const duplasStore = {
           mujer_id: dupla.mujerId || null,
           fecha_formacion: dupla.fechaFormacion,
           observaciones: dupla.observaciones || '',
-          activa: dupla.activa !== undefined ? dupla.activa : true
-        })
+          activa: dupla.activa !== undefined ? dupla.activa : true,
+          creado_por,
+        } as any)
         .select()
         .single();
       

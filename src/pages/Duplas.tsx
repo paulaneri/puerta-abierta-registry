@@ -570,4 +570,9 @@ const Duplas = () => {
   );
 };
 
+const DuplaMetadata = ({ id }: { id: string }) => {
+  const meta = useRecordMetadata("duplas_acompanamiento", id);
+  return <MetadatosRegistro createdAt={meta?.created_at} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} />;
+};
+
 export default Duplas;

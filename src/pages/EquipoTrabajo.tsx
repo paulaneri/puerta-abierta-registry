@@ -521,6 +521,7 @@ const EquipoTrabajo = () => {
                     </div>
                   </div>
 
+                  {editingProfesional && <ProfesionalMetadata id={editingProfesional.id} />}
                   <div className="flex justify-end gap-2 pt-4 border-t">
                     <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
                       Cancelar

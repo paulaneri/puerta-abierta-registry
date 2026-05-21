@@ -7,12 +7,15 @@ import { es } from "date-fns/locale";
 import { Calendar, DollarSign, FileText, Receipt, Download, Eye, Image as ImageIcon } from "lucide-react";
 import { formatCurrency } from "@/lib/utils";
 import { useState } from "react";
+import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRecordMetadata } from "@/hooks/useRecordMetadata";
 
 interface DetalleGastoProps {
   gasto: Gasto;
 }
 
 export function DetalleGasto({ gasto }: DetalleGastoProps) {
+  const meta = useRecordMetadata("gastos", gasto.id);
   const [previewUrls, setPreviewUrls] = useState<Record<string, string>>({});
 
   const loadPreview = async (documento: any) => {

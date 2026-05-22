@@ -273,25 +273,30 @@ export const mujeresStore = {
     mujeresStore.setMujeres(nuevasMujeres);
   },
 
-  eliminarMujer: async (id: string): Promise<boolean> => {
+  eliminarMujer: async (id: string): Promise<{ ok: boolean; reason?: 'permission' | 'error' }> => {
     try {
       console.log('🗑️ Intentando eliminar mujer con ID:', id);
-      const { error, count } = await supabase
+      const { data, error } = await supabase
         .from('mujeres')
         .delete()
         .eq('id', id)
-        .select();
-      
+        .select('id');
+
       if (error) {
         console.error('❌ Error al eliminar mujer:', error.message, error.details, error.hint);
-        return false;
+        return { ok: false, reason: 'error' };
       }
-      
+
+      if (!data || data.length === 0) {
+        console.warn('⚠️ DELETE no afectó filas — probable bloqueo por RLS (solo administrador puede eliminar mujeres)');
+        return { ok: false, reason: 'permission' };
+      }
+
       console.log('✅ Mujer eliminada correctamente, ID:', id);
-      return true;
+      return { ok: true };
     } catch (error) {
       console.error('❌ Excepción al eliminar mujer:', error);
-      return false;
+      return { ok: false, reason: 'error' };
     }
   },
 

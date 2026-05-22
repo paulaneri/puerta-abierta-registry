@@ -312,10 +312,13 @@ const Mujeres = () => {
   const handleDelete = async (id: string) => {
     try {
       const result = await mujeresStore.eliminarMujer(id);
-      if (result) {
+      if (result.ok) {
         const mujeresActualizadas = await mujeresStore.getMujeres();
         setMujeres(mujeresActualizadas);
         toast.success("Mujer eliminada exitosamente");
+        setDeleteConfirm({ open: false, id: null });
+      } else if (result.reason === 'permission') {
+        toast.error("No tenés permisos para eliminar. Solo un administrador puede borrar registros de mujeres.");
         setDeleteConfirm({ open: false, id: null });
       } else {
         toast.error("Error al eliminar la mujer");
@@ -334,13 +337,18 @@ const Mujeres = () => {
     }
 
     try {
+      let eliminados = 0;
+      let bloqueados = 0;
       for (const id of selectedIds) {
-        await mujeresStore.eliminarMujer(id);
+        const r = await mujeresStore.eliminarMujer(id);
+        if (r.ok) eliminados++;
+        else if (r.reason === 'permission') bloqueados++;
       }
       const mujeresActualizadas = await mujeresStore.getMujeres();
       setMujeres(mujeresActualizadas);
       setSelectedIds([]);
-      toast.success(`${selectedIds.length} registro${selectedIds.length > 1 ? 's eliminados' : ' eliminado'}`);
+      if (eliminados > 0) toast.success(`${eliminados} registro${eliminados > 1 ? 's eliminados' : ' eliminado'}`);
+      if (bloqueados > 0) toast.error(`${bloqueados} registro${bloqueados > 1 ? 's no se pudieron eliminar' : ' no se pudo eliminar'} (requiere rol administrador)`);
     } catch (error) {
       console.error('Error eliminando mujeres:', error);
       toast.error("Error al eliminar los registros");

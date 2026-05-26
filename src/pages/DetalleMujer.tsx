@@ -268,7 +268,9 @@ const DetalleMujer = () => {
       formData.viviendaContrato !== (mujer.viviendaContrato || "") ||
       formData.ayudaHabitacional !== (mujer.ayudaHabitacional || "") ||
       formData.coberturaSalud !== (mujer.coberturaSalud || "") ||
-      formData.aportePrevisional !== (mujer.aportePrevisional || "");
+      formData.aportePrevisional !== (mujer.aportePrevisional || "") ||
+      JSON.stringify(hijosDetalle) !== JSON.stringify(mujer.hijosDetalle || []);
+
     
     setHasChanges(isDifferent && editMode);
   }, [formData, mujer, editMode]);

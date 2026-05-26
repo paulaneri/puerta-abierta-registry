@@ -18,6 +18,13 @@ interface Documento {
   tamaño: number;
 }
 
+interface HijoACargo {
+  id: string;
+  nombre: string;
+  fechaNacimiento: string;
+  cuil: string;
+}
+
 interface Mujer {
   id: string;
   nombre: string;
@@ -33,6 +40,7 @@ interface Mujer {
   direccion: string;
   documentacion: string;
   hijosACargo: boolean;
+  hijosDetalle?: HijoACargo[];
   fechaRegistro: string; 
   origenRegistro?: 'trabajo-campo' | 'centro-dia' | 'derivacion';
   fechaPrimerContacto?: string;
@@ -53,6 +61,7 @@ interface Mujer {
   coberturaSalud?: string;
   aportePrevisional?: string;
 }
+
 
 // Store integrado con Supabase
 export const mujeresStore = {

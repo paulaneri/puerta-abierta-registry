@@ -79,7 +79,11 @@ const DetalleMujer = () => {
     aportePrevisional: "",
   });
 
+  // Estado para hijos a cargo
+  const [hijosDetalle, setHijosDetalle] = useState<HijoACargo[]>([]);
+
   // Estados para documentos
+
   const [docFile, setDocFile] = useState<File | null>(null);
   const [docDescripcion, setDocDescripcion] = useState<string>("");
   const [uploadingDoc, setUploadingDoc] = useState(false);

@@ -1131,14 +1131,24 @@ const DetalleMujer = () => {
                       <div className="flex items-center gap-3">
                         <Switch
                           checked={formData.hijosACargo}
-                          onCheckedChange={(v) => setFormData({ ...formData, hijosACargo: !!v })}
+                          onCheckedChange={(v) => {
+                            setFormData({ ...formData, hijosACargo: !!v });
+                            if (v && hijosDetalle.length === 0) {
+                              setHijosDetalle([crearHijoVacio()]);
+                            }
+                          }}
                         />
                         <span className="text-sm text-muted-foreground">{formData.hijosACargo ? "Sí" : "No"}</span>
                       </div>
                     ) : (
-                      <p className="text-sm py-2">{mujer.hijosACargo ? "Sí" : "No"}</p>
+                      <p className="text-sm py-2">
+                        {mujer.hijosACargo
+                          ? `Sí${(mujer.hijosDetalle && mujer.hijosDetalle.length > 0) ? ` (${mujer.hijosDetalle.length})` : ""}`
+                          : "No"}
+                      </p>
                     )}
                   </div>
+
                   
                   <div>
                     <Label>Alfabetizada</Label>

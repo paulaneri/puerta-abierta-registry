@@ -189,7 +189,11 @@ export const mujeresStore = {
           email: mujer.email || '',
           direccion: mujer.direccion || '',
           hijos: mujer.hijosACargo,
-          numero_hijos: mujer.hijosACargo ? 1 : 0,
+          numero_hijos: (mujer.hijosDetalle && mujer.hijosDetalle.length > 0)
+            ? mujer.hijosDetalle.length
+            : (mujer.hijosACargo ? 1 : 0),
+          hijos_detalle: mujer.hijosDetalle || [],
+
           alfabetizada: mujer.alfabetizada || false,
           tramites_realizados: mujer.tramites_realizados || [],
           llamadas_recibidas: mujer.llamadas_recibidas || 0,

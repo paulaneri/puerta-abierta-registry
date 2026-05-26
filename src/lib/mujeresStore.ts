@@ -18,6 +18,13 @@ interface Documento {
   tamaño: number;
 }
 
+interface HijoACargo {
+  id: string;
+  nombre: string;
+  fechaNacimiento: string;
+  cuil: string;
+}
+
 interface Mujer {
   id: string;
   nombre: string;
@@ -33,6 +40,7 @@ interface Mujer {
   direccion: string;
   documentacion: string;
   hijosACargo: boolean;
+  hijosDetalle?: HijoACargo[];
   fechaRegistro: string; 
   origenRegistro?: 'trabajo-campo' | 'centro-dia' | 'derivacion';
   fechaPrimerContacto?: string;
@@ -53,6 +61,7 @@ interface Mujer {
   coberturaSalud?: string;
   aportePrevisional?: string;
 }
+
 
 // Store integrado con Supabase
 export const mujeresStore = {
@@ -82,6 +91,14 @@ export const mujeresStore = {
       direccion: row.direccion || '',
       documentacion: '',
       hijosACargo: row.hijos || false,
+      hijosDetalle: (row as any).hijos_detalle
+        ? typeof (row as any).hijos_detalle === 'string'
+          ? JSON.parse((row as any).hijos_detalle)
+          : Array.isArray((row as any).hijos_detalle)
+            ? (row as any).hijos_detalle
+            : []
+        : [],
+
       fechaRegistro: row.created_at?.split('T')[0] || '',
       origenRegistro: (row.origen_registro as 'trabajo-campo' | 'centro-dia' | 'derivacion') || 'centro-dia',
       fechaPrimerContacto: row.fecha_primer_contacto || '',
@@ -172,7 +189,11 @@ export const mujeresStore = {
           email: mujer.email || '',
           direccion: mujer.direccion || '',
           hijos: mujer.hijosACargo,
-          numero_hijos: mujer.hijosACargo ? 1 : 0,
+          numero_hijos: (mujer.hijosDetalle && mujer.hijosDetalle.length > 0)
+            ? mujer.hijosDetalle.length
+            : (mujer.hijosACargo ? 1 : 0),
+          hijos_detalle: mujer.hijosDetalle || [],
+
           alfabetizada: mujer.alfabetizada || false,
           tramites_realizados: mujer.tramites_realizados || [],
           llamadas_recibidas: mujer.llamadas_recibidas || 0,
@@ -237,6 +258,11 @@ export const mujeresStore = {
           email: mujerActualizada.email || '',
           direccion: mujerActualizada.direccion || '',
           hijos: mujerActualizada.hijosACargo,
+          numero_hijos: (mujerActualizada.hijosDetalle && mujerActualizada.hijosDetalle.length > 0)
+            ? mujerActualizada.hijosDetalle.length
+            : (mujerActualizada.hijosACargo ? 1 : 0),
+          hijos_detalle: mujerActualizada.hijosDetalle || [],
+
           alfabetizada: mujerActualizada.alfabetizada || false,
           tramites_realizados: mujerActualizada.tramites_realizados || [],
           llamadas_recibidas: mujerActualizada.llamadas_recibidas || 0,
@@ -409,4 +435,4 @@ export const mujeresStore = {
   }
 };
 
-export type { Mujer, Acompanamiento, Documento };
+export type { Mujer, Acompanamiento, Documento, HijoACargo };

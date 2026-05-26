@@ -13,7 +13,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { ArrowLeft, Edit, Trash2, Plus, Eye, Download, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { mujeresStore, type Mujer, type Acompanamiento, type Documento } from "@/lib/mujeresStore";
+import { mujeresStore, type Mujer, type Acompanamiento, type Documento, type HijoACargo } from "@/lib/mujeresStore";
+import { HijosACargoEditor, crearHijoVacio } from "@/components/mujeres/HijosACargoEditor";
+import { HijosACargoLista } from "@/components/mujeres/HijosACargoLista";
+
 import { equipoStore, type Profesional } from "@/lib/equipoStore";
 import { nacionalidadesStore, type Nacionalidad } from "@/lib/nacionalidadesStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
@@ -76,7 +79,11 @@ const DetalleMujer = () => {
     aportePrevisional: "",
   });
 
+  // Estado para hijos a cargo
+  const [hijosDetalle, setHijosDetalle] = useState<HijoACargo[]>([]);
+
   // Estados para documentos
+
   const [docFile, setDocFile] = useState<File | null>(null);
   const [docDescripcion, setDocDescripcion] = useState<string>("");
   const [uploadingDoc, setUploadingDoc] = useState(false);
@@ -168,6 +175,8 @@ const DetalleMujer = () => {
                 coberturaSalud: mujerEncontrada.coberturaSalud || "",
                 aportePrevisional: mujerEncontrada.aportePrevisional || "",
               });
+              setHijosDetalle(mujerEncontrada.hijosDetalle || []);
+
             } else if (mujeres.length === 0) {
               // Si no hay mujeres cargadas, probablemente hubo error de red
               huboErrorRed = true;
@@ -216,6 +225,8 @@ const DetalleMujer = () => {
                 coberturaSalud: mujerEncontrada.coberturaSalud || "",
                 aportePrevisional: mujerEncontrada.aportePrevisional || "",
               });
+              setHijosDetalle(mujerEncontrada.hijosDetalle || []);
+
             }
           }
         }
@@ -257,10 +268,12 @@ const DetalleMujer = () => {
       formData.viviendaContrato !== (mujer.viviendaContrato || "") ||
       formData.ayudaHabitacional !== (mujer.ayudaHabitacional || "") ||
       formData.coberturaSalud !== (mujer.coberturaSalud || "") ||
-      formData.aportePrevisional !== (mujer.aportePrevisional || "");
+      formData.aportePrevisional !== (mujer.aportePrevisional || "") ||
+      JSON.stringify(hijosDetalle) !== JSON.stringify(mujer.hijosDetalle || []);
+
     
     setHasChanges(isDifferent && editMode);
-  }, [formData, mujer, editMode]);
+  }, [formData, mujer, editMode, hijosDetalle]);
 
   // Función para calcular la edad
   const calcularEdad = (fechaNacimiento: string) => {
@@ -288,7 +301,11 @@ const DetalleMujer = () => {
     }
     
     try {
-      await mujeresStore.actualizarMujer(mujer.id, formData);
+      await mujeresStore.actualizarMujer(mujer.id, {
+        ...formData,
+        hijosDetalle: formData.hijosACargo ? hijosDetalle.filter(h => h.nombre.trim()) : [],
+      });
+
       const mujeresActualizadas = await mujeresStore.getMujeres();
       const mujerActualizada = mujeresActualizadas.find(m => m.id === mujer.id);
       if (mujerActualizada) {
@@ -326,7 +343,9 @@ const DetalleMujer = () => {
           coberturaSalud: mujerActualizada.coberturaSalud || "",
           aportePrevisional: mujerActualizada.aportePrevisional || "",
         });
+        setHijosDetalle(mujerActualizada.hijosDetalle || []);
       }
+
       setEditMode(false);
       toast.success("Datos personales actualizados");
     } catch (error) {
@@ -1112,14 +1131,24 @@ const DetalleMujer = () => {
                       <div className="flex items-center gap-3">
                         <Switch
                           checked={formData.hijosACargo}
-                          onCheckedChange={(v) => setFormData({ ...formData, hijosACargo: !!v })}
+                          onCheckedChange={(v) => {
+                            setFormData({ ...formData, hijosACargo: !!v });
+                            if (v && hijosDetalle.length === 0) {
+                              setHijosDetalle([crearHijoVacio()]);
+                            }
+                          }}
                         />
                         <span className="text-sm text-muted-foreground">{formData.hijosACargo ? "Sí" : "No"}</span>
                       </div>
                     ) : (
-                      <p className="text-sm py-2">{mujer.hijosACargo ? "Sí" : "No"}</p>
+                      <p className="text-sm py-2">
+                        {mujer.hijosACargo
+                          ? `Sí${(mujer.hijosDetalle && mujer.hijosDetalle.length > 0) ? ` (${mujer.hijosDetalle.length})` : ""}`
+                          : "No"}
+                      </p>
                     )}
                   </div>
+
                   
                   <div>
                     <Label>Alfabetizada</Label>
@@ -1136,6 +1165,15 @@ const DetalleMujer = () => {
                     )}
                   </div>
                 </div>
+
+                {(editMode ? formData.hijosACargo : mujer.hijosACargo) && (
+                  editMode ? (
+                    <HijosACargoEditor value={hijosDetalle} onChange={setHijosDetalle} />
+                  ) : (
+                    <HijosACargoLista hijos={mujer.hijosDetalle || []} />
+                  )
+                )}
+
 
                 {/* Sección: Vivienda y Situación Social */}
                 <div className="border-t pt-4 mt-2">

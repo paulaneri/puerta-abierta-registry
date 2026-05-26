@@ -47,3 +47,22 @@ export function parseLocalDate(date: string | Date): Date {
   const [y, m, d] = date.split('T')[0].split('-').map(Number);
   return new Date(y, (m || 1) - 1, d || 1);
 }
+
+/**
+ * Calcula la edad en años a partir de una fecha de nacimiento (YYYY-MM-DD o ISO).
+ * Usa parseLocalDate para evitar desfases por zona horaria.
+ */
+export function calcularEdad(fechaNacimiento?: string | null): number | null {
+  if (!fechaNacimiento) return null;
+  try {
+    const nac = parseLocalDate(fechaNacimiento);
+    const hoy = new Date();
+    let edad = hoy.getFullYear() - nac.getFullYear();
+    const m = hoy.getMonth() - nac.getMonth();
+    if (m < 0 || (m === 0 && hoy.getDate() < nac.getDate())) edad--;
+    return edad >= 0 ? edad : null;
+  } catch {
+    return null;
+  }
+}
+

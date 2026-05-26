@@ -11,13 +11,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ArrowLeft, Save, Paperclip, X, CalendarIcon } from "lucide-react";
-import { mujeresStore, type Mujer, type Documento } from "@/lib/mujeresStore";
+import { mujeresStore, type Mujer, type Documento, type HijoACargo } from "@/lib/mujeresStore";
 import { nacionalidadesStore, type Nacionalidad } from "@/lib/nacionalidadesStore";
 import { DatePicker } from "@/components/ui/date-picker";
 import { format, differenceInYears } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { UnsavedChangesDialog } from "@/components/ui/unsaved-changes-dialog";
+import { HijosACargoEditor, crearHijoVacio } from "@/components/mujeres/HijosACargoEditor";
+
 
 const MujerNueva = () => {
   const navigate = useNavigate();
@@ -66,6 +68,8 @@ const MujerNueva = () => {
 
   // Estados para documentos
   const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const [hijosDetalle, setHijosDetalle] = useState<HijoACargo[]>([]);
+
   const [docFile, setDocFile] = useState<File | null>(null);
   const [docDescripcion, setDocDescripcion] = useState<string>("");
   const [uploadingDoc, setUploadingDoc] = useState(false);
@@ -156,6 +160,8 @@ const MujerNueva = () => {
         direccion: formData.direccion,
         documentacion: formData.documentacion,
         hijosACargo: formData.hijosACargo,
+        hijosDetalle: formData.hijosACargo ? hijosDetalle.filter(h => h.nombre.trim()) : [],
+
         alfabetizada: formData.alfabetizada,
         fechaRegistro: new Date().toISOString().split('T')[0],
         origenRegistro: formData.origenRegistro,
@@ -469,9 +475,19 @@ const MujerNueva = () => {
                       </div>
                       <Switch
                         checked={formData.hijosACargo}
-                        onCheckedChange={(checked) => setFormData({...formData, hijosACargo: checked})}
+                        onCheckedChange={(checked) => {
+                          setFormData({...formData, hijosACargo: checked});
+                          if (checked && hijosDetalle.length === 0) {
+                            setHijosDetalle([crearHijoVacio()]);
+                          }
+                        }}
                       />
                     </div>
+
+                    {formData.hijosACargo && (
+                      <HijosACargoEditor value={hijosDetalle} onChange={setHijosDetalle} />
+                    )}
+
 
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="space-y-0.5">

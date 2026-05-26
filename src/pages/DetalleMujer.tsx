@@ -1166,6 +1166,15 @@ const DetalleMujer = () => {
                   </div>
                 </div>
 
+                {(editMode ? formData.hijosACargo : mujer.hijosACargo) && (
+                  editMode ? (
+                    <HijosACargoEditor value={hijosDetalle} onChange={setHijosDetalle} />
+                  ) : (
+                    <HijosACargoLista hijos={mujer.hijosDetalle || []} />
+                  )
+                )}
+
+
                 {/* Sección: Vivienda y Situación Social */}
                 <div className="border-t pt-4 mt-2">
                   <h3 className="font-semibold text-foreground mb-3">Vivienda y Situación Social</h3>

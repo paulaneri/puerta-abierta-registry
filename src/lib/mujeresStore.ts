@@ -258,6 +258,11 @@ export const mujeresStore = {
           email: mujerActualizada.email || '',
           direccion: mujerActualizada.direccion || '',
           hijos: mujerActualizada.hijosACargo,
+          numero_hijos: (mujerActualizada.hijosDetalle && mujerActualizada.hijosDetalle.length > 0)
+            ? mujerActualizada.hijosDetalle.length
+            : (mujerActualizada.hijosACargo ? 1 : 0),
+          hijos_detalle: mujerActualizada.hijosDetalle || [],
+
           alfabetizada: mujerActualizada.alfabetizada || false,
           tramites_realizados: mujerActualizada.tramites_realizados || [],
           llamadas_recibidas: mujerActualizada.llamadas_recibidas || 0,

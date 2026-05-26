@@ -13,7 +13,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { toast } from "sonner";
 import { ArrowLeft, Edit, Trash2, Plus, Eye, Download, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw } from "lucide-react";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { mujeresStore, type Mujer, type Acompanamiento, type Documento } from "@/lib/mujeresStore";
+import { mujeresStore, type Mujer, type Acompanamiento, type Documento, type HijoACargo } from "@/lib/mujeresStore";
+import { HijosACargoEditor, crearHijoVacio } from "@/components/mujeres/HijosACargoEditor";
+import { HijosACargoLista } from "@/components/mujeres/HijosACargoLista";
+
 import { equipoStore, type Profesional } from "@/lib/equipoStore";
 import { nacionalidadesStore, type Nacionalidad } from "@/lib/nacionalidadesStore";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";

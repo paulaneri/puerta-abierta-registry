@@ -160,6 +160,8 @@ const MujerNueva = () => {
         direccion: formData.direccion,
         documentacion: formData.documentacion,
         hijosACargo: formData.hijosACargo,
+        hijosDetalle: formData.hijosACargo ? hijosDetalle.filter(h => h.nombre.trim()) : [],
+
         alfabetizada: formData.alfabetizada,
         fechaRegistro: new Date().toISOString().split('T')[0],
         origenRegistro: formData.origenRegistro,

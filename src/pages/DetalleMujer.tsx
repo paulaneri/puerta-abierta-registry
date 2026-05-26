@@ -273,7 +273,7 @@ const DetalleMujer = () => {
 
     
     setHasChanges(isDifferent && editMode);
-  }, [formData, mujer, editMode]);
+  }, [formData, mujer, editMode, hijosDetalle]);
 
   // Función para calcular la edad
   const calcularEdad = (fechaNacimiento: string) => {

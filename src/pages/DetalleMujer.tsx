@@ -175,6 +175,8 @@ const DetalleMujer = () => {
                 coberturaSalud: mujerEncontrada.coberturaSalud || "",
                 aportePrevisional: mujerEncontrada.aportePrevisional || "",
               });
+              setHijosDetalle(mujerEncontrada.hijosDetalle || []);
+
             } else if (mujeres.length === 0) {
               // Si no hay mujeres cargadas, probablemente hubo error de red
               huboErrorRed = true;

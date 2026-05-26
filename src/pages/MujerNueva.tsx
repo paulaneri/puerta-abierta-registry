@@ -11,13 +11,15 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { ArrowLeft, Save, Paperclip, X, CalendarIcon } from "lucide-react";
-import { mujeresStore, type Mujer, type Documento } from "@/lib/mujeresStore";
+import { mujeresStore, type Mujer, type Documento, type HijoACargo } from "@/lib/mujeresStore";
 import { nacionalidadesStore, type Nacionalidad } from "@/lib/nacionalidadesStore";
 import { DatePicker } from "@/components/ui/date-picker";
 import { format, differenceInYears } from "date-fns";
 import { cn } from "@/lib/utils";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { UnsavedChangesDialog } from "@/components/ui/unsaved-changes-dialog";
+import { HijosACargoEditor, crearHijoVacio } from "@/components/mujeres/HijosACargoEditor";
+
 
 const MujerNueva = () => {
   const navigate = useNavigate();

@@ -68,6 +68,8 @@ const MujerNueva = () => {
 
   // Estados para documentos
   const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const [hijosDetalle, setHijosDetalle] = useState<HijoACargo[]>([]);
+
   const [docFile, setDocFile] = useState<File | null>(null);
   const [docDescripcion, setDocDescripcion] = useState<string>("");
   const [uploadingDoc, setUploadingDoc] = useState(false);

@@ -699,6 +699,7 @@ export type Database = {
           fecha_nacimiento: string | null
           fecha_primer_contacto: string | null
           hijos: boolean | null
+          hijos_detalle: Json
           id: string
           llamadas_realizadas: number | null
           llamadas_recibidas: number | null
@@ -738,6 +739,7 @@ export type Database = {
           fecha_nacimiento?: string | null
           fecha_primer_contacto?: string | null
           hijos?: boolean | null
+          hijos_detalle?: Json
           id?: string
           llamadas_realizadas?: number | null
           llamadas_recibidas?: number | null
@@ -777,6 +779,7 @@ export type Database = {
           fecha_nacimiento?: string | null
           fecha_primer_contacto?: string | null
           hijos?: boolean | null
+          hijos_detalle?: Json
           id?: string
           llamadas_realizadas?: number | null
           llamadas_recibidas?: number | null

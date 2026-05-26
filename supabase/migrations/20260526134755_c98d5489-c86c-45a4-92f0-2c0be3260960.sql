@@ -1,0 +1,1 @@
+ALTER TABLE public.mujeres ADD COLUMN IF NOT EXISTS hijos_detalle jsonb NOT NULL DEFAULT '[]'::jsonb;

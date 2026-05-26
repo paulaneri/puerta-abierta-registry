@@ -225,6 +225,8 @@ const DetalleMujer = () => {
                 coberturaSalud: mujerEncontrada.coberturaSalud || "",
                 aportePrevisional: mujerEncontrada.aportePrevisional || "",
               });
+              setHijosDetalle(mujerEncontrada.hijosDetalle || []);
+
             }
           }
         }

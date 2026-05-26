@@ -74,8 +74,8 @@ export const HijosACargoEditor = ({ value, onChange }: Props) => {
             <div>
               <Label className="text-xs">Fecha de nacimiento</Label>
               <DatePicker
-                value={h.fechaNacimiento ? new Date(h.fechaNacimiento + "T00:00:00") : undefined}
-                onChange={(d) => {
+                date={h.fechaNacimiento ? new Date(h.fechaNacimiento + "T00:00:00") : undefined}
+                onSelect={(d) => {
                   if (!d) return actualizar(h.id, { fechaNacimiento: "" });
                   const y = d.getFullYear();
                   const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -83,6 +83,7 @@ export const HijosACargoEditor = ({ value, onChange }: Props) => {
                   actualizar(h.id, { fechaNacimiento: `${y}-${m}-${day}` });
                 }}
               />
+
             </div>
             <div>
               <Label className="text-xs">CUIL</Label>

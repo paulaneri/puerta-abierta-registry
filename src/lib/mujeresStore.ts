@@ -435,4 +435,4 @@ export const mujeresStore = {
   }
 };
 
-export type { Mujer, Acompanamiento, Documento };
+export type { Mujer, Acompanamiento, Documento, HijoACargo };

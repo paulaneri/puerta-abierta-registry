@@ -91,6 +91,14 @@ export const mujeresStore = {
       direccion: row.direccion || '',
       documentacion: '',
       hijosACargo: row.hijos || false,
+      hijosDetalle: (row as any).hijos_detalle
+        ? typeof (row as any).hijos_detalle === 'string'
+          ? JSON.parse((row as any).hijos_detalle)
+          : Array.isArray((row as any).hijos_detalle)
+            ? (row as any).hijos_detalle
+            : []
+        : [],
+
       fechaRegistro: row.created_at?.split('T')[0] || '',
       origenRegistro: (row.origen_registro as 'trabajo-campo' | 'centro-dia' | 'derivacion') || 'centro-dia',
       fechaPrimerContacto: row.fecha_primer_contacto || '',

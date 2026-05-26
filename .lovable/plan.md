@@ -1,75 +1,50 @@
 ## Objetivo
 
-Mostrar en pequeño y no editable, en la vista de detalle/edición de cada registro, **quién lo creó** y **cuándo**.
+Cuando en el registro de una mujer se marque "Sí" en *¿Tiene hijos a cargo?*, mostrar un mini-formulario dinámico para cargar cada hijo (Nombre, Fecha de nacimiento con edad calculada, CUIL), con botón **+** para agregar más filas y **🗑** para quitar. En la vista de detalle, mostrar la lista en un recuadro junto con la cantidad total.
 
-## Cambios en base de datos
+## Cambios
 
-Agregar columna `creado_por uuid` (nullable, referencia a `auth.users` por id pero **sin FK** según las reglas del proyecto) a las tablas que aún no la tienen:
+### 1. Base de datos (migración)
+- Agregar columna `hijos_detalle jsonb default '[]'` a `public.mujeres`.
+- Estructura por hijo: `{ id, nombre, fechaNacimiento, cuil }`.
+- `numero_hijos` se sincroniza automáticamente desde el largo del array al guardar (en el store, no en SQL).
 
-- `mujeres`
-- `centro_dia`
-- `trabajo_campo`
-- `gastos`
-- `contactos`
-- `reuniones_semanales`
-- `albumes`
-- `fotos_album`
-- `eventos`
-- `duplas_acompanamiento`
-- `equipo`
-- `lugares`
-- `nacionalidades`
-- `cargos_profesionales`
-- `etiquetas_gastos`
+### 2. Componente reusable: `HijosACargoEditor`
+- Ubicación: `src/components/mujeres/HijosACargoEditor.tsx`.
+- Props: `value: HijoACargo[]`, `onChange(value)`.
+- Render: lista de filas con inputs *Nombre* / *Fecha de nacimiento* (date-picker dd/mm/aaaa) / *CUIL* + chip con edad calculada (`parseLocalDate` desde `src/lib/utils.ts`) + botón eliminar (con tooltip, ghost).
+- Botón **+ Agregar hijo/a** al final.
+- Validación suave: CUIL opcional, formato 11 dígitos si se ingresa.
 
-`actividades` ya tiene `creado_por`. `user_roles`, `profiles`, `asignaciones_roles`, `disponibilidad_reuniones` quedan fuera (son metadatos auxiliares, no "registros de contenido").
+### 3. Componente de solo lectura: `HijosACargoLista`
+- Mismo directorio. Recibe `hijos: HijoACargo[]`.
+- Renderiza un `Card`/recuadro con encabezado *"Hijos/as a cargo (N)"* y una tabla compacta: Nombre · Fecha nac. (dd/mm/aaaa) · Edad · CUIL.
+- Si la lista está vacía pero `hijosACargo` es true, muestra "Sin detalle cargado".
 
-Para registros viejos `creado_por` quedará `null` → se mostrará solo la fecha. La fecha siempre se podrá mostrar porque todas las tablas tienen `created_at`.
+### 4. Integración en formularios
+- `src/pages/MujerNueva.tsx`: cuando `formData.hijosACargo === true`, renderizar `HijosACargoEditor` debajo del switch; incluir `hijos_detalle` al llamar `agregarMujer`.
+- `src/pages/DetalleMujer.tsx`:
+  - En modo edición: mismo editor.
+  - En modo vista: usar `HijosACargoLista`.
+  - Incluir el array en `useUnsavedChanges` y en el payload de `actualizarMujer`.
 
-## Cambios en frontend
+### 5. Store (`src/lib/mujeresStore.ts`)
+- Tipo `Mujer`: agregar `hijosDetalle?: HijoACargo[]`.
+- Mapeo en `getMujeres`: leer `row.hijos_detalle`.
+- `agregarMujer` / `actualizarMujer`: persistir `hijos_detalle` y derivar `numero_hijos = hijosDetalle?.length ?? 0`.
 
-### 1. Componente reutilizable
-Crear `src/components/ui/MetadatosRegistro.tsx`:
-- Recibe `createdAt: string` y `creadoPor?: string | null` (uuid).
-- Hace fetch a `profiles` para obtener `nombre apellido` o `email` del autor (con caché en memoria para no repetir).
-- Renderiza en texto pequeño y atenuado:  
-  `Creado por <Nombre Apellido> el dd/mm/aaaa HH:mm` o  
-  `Creado el dd/mm/aaaa HH:mm` si no hay autor.
+### Detalles técnicos
+- Cálculo de edad: función utilitaria en `src/lib/utils.ts` → `calcularEdad(fechaNacimiento: string): number` usando `parseLocalDate` (sin desfase de zona horaria, respeta la memoria del proyecto).
+- Fechas: input tipo date-picker existente, formato visual dd/mm/aaaa.
+- Al desmarcar "Tiene hijos a cargo" se conserva el array en memoria pero no se persiste (se vacía al guardar) — confirmar comportamiento si preferís borrarlo inmediatamente.
+- Sin cambios de RLS (la columna nueva hereda las policies de `mujeres`).
 
-### 2. Stores
-Modificar todos los stores con función `agregar...()` para incluir `creado_por: (await supabase.auth.getUser()).data.user?.id` en el insert. Actualizar las interfaces TS correspondientes para incluir `creadoPor` y `createdAt` cuando falten.
-
-Stores a tocar:
-`mujeresStore`, `centroDiaStore`, `trabajoCampoStore`, `gastosStore`, `contactosStore`, `reunionesStore`, `albumesStore`, `eventosStore`, `duplasStore`, `equipoStore`, `lugaresStore`, `nacionalidadesStore`, `cargosProfesionalesStore`.
-
-### 3. Vistas de detalle/edición
-Insertar `<MetadatosRegistro />` al pie de cada vista de detalle/edición:
-
-- `DetalleMujer.tsx`
-- `CentroDiaEditar.tsx` + `DetalleRegistro.tsx`
-- `TrabajoCampoEditar.tsx`
-- `pages/Actividades.tsx` (dialog de edición)
-- `gastos/DetalleGasto.tsx` + `FormularioGastos.tsx`
-- `contactos/DetalleContacto.tsx` + `FormularioContactos.tsx`
-- `Duplas.tsx` (edición)
-- `EquipoTrabajo.tsx` (edición)
-- `Galeria.tsx` (detalle de álbum/foto)
-- `Calendario.tsx` (detalle de evento)
-- `Reuniones.tsx` (detalle de reunión)
-
-Cuando el registro es nuevo (sin id), no se muestra.
-
-## Detalles técnicos
-
-- Formato: `dd/MM/yyyy HH:mm` con `formatDate` + `format(...,'HH:mm')` (regla 24h + es-AR del proyecto).
-- Clase Tailwind: `text-xs text-muted-foreground mt-4 pt-3 border-t border-border/40`.
-- Caché de profiles: `Map<uuid, {nombre, apellido, email}>` exportado desde el componente, se llena bajo demanda.
-- No editable: solo `<span>`, sin inputs.
-- En modo PHP (`VITE_BACKEND_MODE='php'`) el `creado_por` lo setea el cliente igual con el `user.id` actual; el backend PHP ya acepta columnas arbitrarias.
-
-## Orden de ejecución
-
-1. Migración SQL (agregar columnas).
-2. Componente `MetadatosRegistro`.
-3. Actualizar stores (insert con `creado_por`).
-4. Insertar componente en cada vista de detalle.
+### Archivos tocados
+- `supabase/migrations/<nuevo>.sql` (ALTER TABLE)
+- `src/integrations/supabase/types.ts` (autogenerado tras migración)
+- `src/lib/utils.ts` (calcularEdad)
+- `src/lib/mujeresStore.ts`
+- `src/components/mujeres/HijosACargoEditor.tsx` (nuevo)
+- `src/components/mujeres/HijosACargoLista.tsx` (nuevo)
+- `src/pages/MujerNueva.tsx`
+- `src/pages/DetalleMujer.tsx`

@@ -343,7 +343,9 @@ const DetalleMujer = () => {
           coberturaSalud: mujerActualizada.coberturaSalud || "",
           aportePrevisional: mujerActualizada.aportePrevisional || "",
         });
+        setHijosDetalle(mujerActualizada.hijosDetalle || []);
       }
+
       setEditMode(false);
       toast.success("Datos personales actualizados");
     } catch (error) {

@@ -301,7 +301,11 @@ const DetalleMujer = () => {
     }
     
     try {
-      await mujeresStore.actualizarMujer(mujer.id, formData);
+      await mujeresStore.actualizarMujer(mujer.id, {
+        ...formData,
+        hijosDetalle: formData.hijosACargo ? hijosDetalle.filter(h => h.nombre.trim()) : [],
+      });
+
       const mujeresActualizadas = await mujeresStore.getMujeres();
       const mujerActualizada = mujeresActualizadas.find(m => m.id === mujer.id);
       if (mujerActualizada) {

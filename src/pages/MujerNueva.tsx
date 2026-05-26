@@ -475,9 +475,19 @@ const MujerNueva = () => {
                       </div>
                       <Switch
                         checked={formData.hijosACargo}
-                        onCheckedChange={(checked) => setFormData({...formData, hijosACargo: checked})}
+                        onCheckedChange={(checked) => {
+                          setFormData({...formData, hijosACargo: checked});
+                          if (checked && hijosDetalle.length === 0) {
+                            setHijosDetalle([crearHijoVacio()]);
+                          }
+                        }}
                       />
                     </div>
+
+                    {formData.hijosACargo && (
+                      <HijosACargoEditor value={hijosDetalle} onChange={setHijosDetalle} />
+                    )}
+
 
                     <div className="flex items-center justify-between p-4 border rounded-lg">
                       <div className="space-y-0.5">

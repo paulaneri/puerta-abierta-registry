@@ -508,7 +508,7 @@ export const CalendarioMensual = ({
   return (
     <div className="space-y-4">
       {/* Navegación de mes */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <Button 
           variant="outline" 
           size="icon"
@@ -516,9 +516,19 @@ export const CalendarioMensual = ({
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <h2 className="text-xl font-semibold capitalize">
+        <h2 className="text-xl font-semibold capitalize flex-1 text-center">
           {format(mesActual, "MMMM yyyy", { locale: es })}
         </h2>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExportarImagen}
+          disabled={exportando || reunionesDelMes.length === 0}
+          title="Exportar mes como imagen"
+        >
+          <Download className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Exportar imagen</span>
+        </Button>
         <Button 
           variant="outline" 
           size="icon"
@@ -526,6 +536,17 @@ export const CalendarioMensual = ({
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
+      </div>
+
+      {/* Nodo oculto usado solo para exportar la imagen */}
+      <div style={{ position: 'fixed', left: '-10000px', top: 0, pointerEvents: 'none' }} aria-hidden>
+        <ExportableMonth
+          ref={exportRef}
+          mesActual={mesActual}
+          reuniones={reunionesDelMes}
+          numeroActaMap={numeroActaMap}
+          getNombreProfesional={getNombreProfesional}
+        />
       </div>
 
       {/* Estadísticas del mes */}

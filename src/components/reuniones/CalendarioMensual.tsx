@@ -124,7 +124,7 @@ export const CalendarioMensual = ({
 
   // Filtrar reuniones del mes actual
   const reunionesDelMes = reuniones.filter(r => {
-    const fechaReunion = new Date(r.fecha);
+    const fechaReunion = parseISO(r.fecha);
     return getMonth(fechaReunion) === getMonth(mesActual) && 
            getYear(fechaReunion) === getYear(mesActual);
   }).sort((a, b) => a.semana_numero - b.semana_numero);

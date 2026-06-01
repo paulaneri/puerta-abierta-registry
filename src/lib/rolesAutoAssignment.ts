@@ -151,27 +151,19 @@ export const calcularAsignacionesAutomaticas = (
       // Si ya viene asignado (fijo), no lo recalculamos
       if (asignacionReunion[rol]) continue;
 
-      // Filtrar candidatos con reglas estrictas
+      // Estricto: no haber tenido NINGÚN rol la semana anterior (ni persona ni rol se repiten)
       const candidatosEstrictos = profesionalesDisponibles.filter(p => {
-        // No puede estar ya asignado en esta reunión
         if (asignadosEstaReunion.has(p.id)) return false;
-        
-        // REGLA 1: No puede repetir el MISMO rol en dos reuniones consecutivas
-        if (rolAnteriorPorPersona.get(p.id) === rol) return false;
-        
-        // REGLA 2 (ACTA): Si tuvo acta la semana anterior, no puede tener NINGÚN rol esta semana
-        if ((rol === 'reflexion' || rol === 'coordinacion') && tuvoActaAnterior === p.id) {
-          return false;
-        }
-        
+        if (tuvoRolAnterior.has(p.id)) return false;
         return true;
       });
-      
-      // Candidatos relajados (solo sin repetir mismo rol, pero sí permite tener rol si tuvo acta antes)
+
+      // Relajado: permite haber tenido otro rol antes, pero nunca el mismo rol consecutivo,
+      // y manteniendo la restricción del acta.
       const candidatosRelajados = profesionalesDisponibles.filter(p => {
         if (asignadosEstaReunion.has(p.id)) return false;
-        // Solo evitar repetir el mismo rol
         if (rolAnteriorPorPersona.get(p.id) === rol) return false;
+        if ((rol === 'reflexion' || rol === 'coordinacion') && tuvoActaAnterior === p.id) return false;
         return true;
       });
       

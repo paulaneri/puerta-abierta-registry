@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -16,8 +16,10 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
-  Ban
+  Ban,
+  Download
 } from "lucide-react";
+import { toPng } from "html-to-image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, addMonths, subMonths, getMonth, getYear, parseISO } from "date-fns";
 import { es } from "date-fns/locale";
@@ -29,6 +31,7 @@ import {
 import { type Profesional } from "@/lib/equipoStore";
 import { supabase } from "@/integrations/supabase/client";
 import { calcularAsignacionesAutomaticas } from "@/lib/rolesAutoAssignment";
+import { ExportableMonth } from "./ExportableMonth";
 
 const ROLES: { value: RolReunion; label: string; icon: React.ReactNode; color: string }[] = [
   { value: 'reflexion', label: 'Reflexión', icon: <MessageSquare className="h-4 w-4" />, color: 'bg-blue-500' },
@@ -59,6 +62,33 @@ export const CalendarioMensual = ({
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [disponibilidad, setDisponibilidad] = useState<Map<string, Set<string>>>(new Map());
   const [editando, setEditando] = useState<{ reunionId: string; rol: RolReunion } | null>(null);
+  const [exportando, setExportando] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportarImagen = async () => {
+    if (!exportRef.current) return;
+    setExportando(true);
+    // Esperar un tick para que el nodo a renderizar esté visible en el DOM
+    await new Promise(r => setTimeout(r, 50));
+    try {
+      const dataUrl = await toPng(exportRef.current, {
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+        cacheBust: true,
+      });
+      const link = document.createElement('a');
+      const nombreMes = format(mesActual, "MMMM-yyyy", { locale: es });
+      link.download = `roles-reuniones-${nombreMes}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success('Imagen descargada');
+    } catch (e) {
+      console.error(e);
+      toast.error('No se pudo generar la imagen');
+    } finally {
+      setExportando(false);
+    }
+  };
 
   // Si cambia el año, mantener el mes actual (p.ej. enero-diciembre) dentro del nuevo año
   useEffect(() => {
@@ -479,7 +509,7 @@ export const CalendarioMensual = ({
   return (
     <div className="space-y-4">
       {/* Navegación de mes */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-2 flex-wrap">
         <Button 
           variant="outline" 
           size="icon"
@@ -487,9 +517,19 @@ export const CalendarioMensual = ({
         >
           <ChevronLeft className="h-4 w-4" />
         </Button>
-        <h2 className="text-xl font-semibold capitalize">
+        <h2 className="text-xl font-semibold capitalize flex-1 text-center">
           {format(mesActual, "MMMM yyyy", { locale: es })}
         </h2>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={handleExportarImagen}
+          disabled={exportando || reunionesDelMes.length === 0}
+          title="Exportar mes como imagen"
+        >
+          <Download className="h-4 w-4 sm:mr-2" />
+          <span className="hidden sm:inline">Exportar imagen</span>
+        </Button>
         <Button 
           variant="outline" 
           size="icon"
@@ -497,6 +537,17 @@ export const CalendarioMensual = ({
         >
           <ChevronRight className="h-4 w-4" />
         </Button>
+      </div>
+
+      {/* Nodo oculto usado solo para exportar la imagen */}
+      <div style={{ position: 'fixed', left: '-10000px', top: 0, pointerEvents: 'none' }} aria-hidden>
+        <ExportableMonth
+          ref={exportRef}
+          mesActual={mesActual}
+          reuniones={reunionesDelMes}
+          numeroActaMap={numeroActaMap}
+          getNombreProfesional={getNombreProfesional}
+        />
       </div>
 
       {/* Estadísticas del mes */}

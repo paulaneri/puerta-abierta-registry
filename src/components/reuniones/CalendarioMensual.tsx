@@ -61,6 +61,33 @@ export const CalendarioMensual = ({
   const [motivoCancelacion, setMotivoCancelacion] = useState("");
   const [disponibilidad, setDisponibilidad] = useState<Map<string, Set<string>>>(new Map());
   const [editando, setEditando] = useState<{ reunionId: string; rol: RolReunion } | null>(null);
+  const [exportando, setExportando] = useState(false);
+  const exportRef = useRef<HTMLDivElement>(null);
+
+  const handleExportarImagen = async () => {
+    if (!exportRef.current) return;
+    setExportando(true);
+    // Esperar un tick para que el nodo a renderizar esté visible en el DOM
+    await new Promise(r => setTimeout(r, 50));
+    try {
+      const dataUrl = await toPng(exportRef.current, {
+        pixelRatio: 2,
+        backgroundColor: '#ffffff',
+        cacheBust: true,
+      });
+      const link = document.createElement('a');
+      const nombreMes = format(mesActual, "MMMM-yyyy", { locale: es });
+      link.download = `roles-reuniones-${nombreMes}.png`;
+      link.href = dataUrl;
+      link.click();
+      toast.success('Imagen descargada');
+    } catch (e) {
+      console.error(e);
+      toast.error('No se pudo generar la imagen');
+    } finally {
+      setExportando(false);
+    }
+  };
 
   // Si cambia el año, mantener el mes actual (p.ej. enero-diciembre) dentro del nuevo año
   useEffect(() => {

@@ -31,6 +31,7 @@ import {
 import { type Profesional } from "@/lib/equipoStore";
 import { supabase } from "@/integrations/supabase/client";
 import { calcularAsignacionesAutomaticas } from "@/lib/rolesAutoAssignment";
+import { ExportableMonth } from "./ExportableMonth";
 
 const ROLES: { value: RolReunion; label: string; icon: React.ReactNode; color: string }[] = [
   { value: 'reflexion', label: 'Reflexión', icon: <MessageSquare className="h-4 w-4" />, color: 'bg-blue-500' },

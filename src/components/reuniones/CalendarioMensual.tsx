@@ -16,8 +16,10 @@ import {
   ChevronLeft,
   ChevronRight,
   RotateCcw,
-  Ban
+  Ban,
+  Download
 } from "lucide-react";
+import { toPng } from "html-to-image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format, addMonths, subMonths, getMonth, getYear, parseISO } from "date-fns";
 import { es } from "date-fns/locale";

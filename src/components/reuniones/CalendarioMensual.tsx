@@ -75,16 +75,19 @@ export const CalendarioMensual = ({
         pixelRatio: 2,
         backgroundColor: '#ffffff',
         cacheBust: true,
+        skipFonts: true,
       });
       const link = document.createElement('a');
       const nombreMes = format(mesActual, "MMMM-yyyy", { locale: es });
       link.download = `roles-reuniones-${nombreMes}.png`;
       link.href = dataUrl;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       toast.success('Imagen descargada');
-    } catch (e) {
-      console.error(e);
-      toast.error('No se pudo generar la imagen');
+    } catch (e: any) {
+      console.error('Error exportando imagen:', e);
+      toast.error(`No se pudo generar la imagen: ${e?.message || 'error desconocido'}`);
     } finally {
       setExportando(false);
     }

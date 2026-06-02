@@ -736,6 +736,24 @@ const DetalleMujer = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {!editMode && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    try {
+                      generarFichaMujerPDF(mujer);
+                      toast.success("PDF descargado");
+                    } catch (e) {
+                      console.error(e);
+                      toast.error("Error al generar el PDF");
+                    }
+                  }}
+                  title="Descargar ficha en PDF"
+                >
+                  <FileDown className="h-4 w-4 mr-2" />
+                  Descargar PDF
+                </Button>
+              )}
               <Button
                 variant={editMode ? "default" : "outline"}
                 onClick={() => editMode ? handleSavePersonalData() : setEditMode(true)}

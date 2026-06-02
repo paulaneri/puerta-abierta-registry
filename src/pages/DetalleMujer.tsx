@@ -11,7 +11,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ArrowLeft, Edit, Trash2, Plus, Eye, Download, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Plus, Eye, Download, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw, FileDown } from "lucide-react";
+import { generarFichaMujerPDF } from "@/lib/mujerPdf";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { mujeresStore, type Mujer, type Acompanamiento, type Documento, type HijoACargo } from "@/lib/mujeresStore";
 import { HijosACargoEditor, crearHijoVacio } from "@/components/mujeres/HijosACargoEditor";
@@ -735,6 +736,24 @@ const DetalleMujer = () => {
               </div>
             </div>
             <div className="flex items-center gap-2">
+              {!editMode && (
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    try {
+                      generarFichaMujerPDF(mujer);
+                      toast.success("PDF descargado");
+                    } catch (e) {
+                      console.error(e);
+                      toast.error("Error al generar el PDF");
+                    }
+                  }}
+                  title="Descargar ficha en PDF"
+                >
+                  <FileDown className="h-4 w-4 mr-2" />
+                  Descargar PDF
+                </Button>
+              )}
               <Button
                 variant={editMode ? "default" : "outline"}
                 onClick={() => editMode ? handleSavePersonalData() : setEditMode(true)}

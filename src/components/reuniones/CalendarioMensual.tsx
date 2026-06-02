@@ -39,6 +39,14 @@ const ROLES: { value: RolReunion; label: string; icon: React.ReactNode; color: s
   { value: 'acta', label: 'Acta', icon: <FileText className="h-4 w-4" />, color: 'bg-purple-500' },
 ];
 
+const dataUrlToBlob = (dataUrl: string) => {
+  const [header, base64] = dataUrl.split(',');
+  const mime = header.match(/:(.*?);/)?.[1] || 'image/png';
+  const binary = atob(base64);
+  const bytes = Uint8Array.from(binary, char => char.charCodeAt(0));
+  return new Blob([bytes], { type: mime });
+};
+
 interface CalendarioMensualProps {
   reuniones: ReunionConAsignaciones[];
   profesionales: Profesional[];
@@ -68,22 +76,57 @@ export const CalendarioMensual = ({
   const handleExportarImagen = async () => {
     if (!exportRef.current) return;
     setExportando(true);
-    // Esperar un tick para que el nodo a renderizar esté visible en el DOM
-    await new Promise(r => setTimeout(r, 50));
+
+    const nombreMes = format(mesActual, "MMMM-yyyy", { locale: es });
+    const nombreArchivo = `roles-reuniones-${nombreMes}.png`;
+    let fileHandle: any = null;
+
     try {
+      if ('showSaveFilePicker' in window) {
+        try {
+          fileHandle = await (window as any).showSaveFilePicker({
+            suggestedName: nombreArchivo,
+            types: [{
+              description: 'Imagen PNG',
+              accept: { 'image/png': ['.png'] },
+            }],
+          });
+        } catch (e: any) {
+          if (e?.name === 'AbortError') return;
+          console.warn('No se pudo abrir el selector de guardado, se usará descarga directa:', e);
+        }
+      }
+
+      // Esperar un tick para que el nodo a renderizar esté visible en el DOM
+      await new Promise(r => setTimeout(r, 50));
       const dataUrl = await toPng(exportRef.current, {
         pixelRatio: 2,
         backgroundColor: '#ffffff',
         cacheBust: true,
         skipFonts: true,
       });
+      const blob = dataUrlToBlob(dataUrl);
+
+      if (fileHandle) {
+        const writable = await fileHandle.createWritable();
+        await writable.write(blob);
+        await writable.close();
+        toast.success('Imagen guardada');
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
-      const nombreMes = format(mesActual, "MMMM-yyyy", { locale: es });
-      link.download = `roles-reuniones-${nombreMes}.png`;
-      link.href = dataUrl;
+      link.download = nombreArchivo;
+      link.href = url;
+      link.rel = 'noopener';
+      link.style.display = 'none';
       document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
+      window.setTimeout(() => {
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      }, 1000);
       toast.success('Imagen descargada');
     } catch (e: any) {
       console.error('Error exportando imagen:', e);

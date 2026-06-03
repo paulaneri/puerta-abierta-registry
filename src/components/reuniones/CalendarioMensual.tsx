@@ -79,24 +79,8 @@ export const CalendarioMensual = ({
 
     const nombreMes = format(mesActual, "MMMM-yyyy", { locale: es });
     const nombreArchivo = `roles-reuniones-${nombreMes}.png`;
-    let fileHandle: any = null;
 
     try {
-      if ('showSaveFilePicker' in window) {
-        try {
-          fileHandle = await (window as any).showSaveFilePicker({
-            suggestedName: nombreArchivo,
-            types: [{
-              description: 'Imagen PNG',
-              accept: { 'image/png': ['.png'] },
-            }],
-          });
-        } catch (e: any) {
-          if (e?.name === 'AbortError') return;
-          console.warn('No se pudo abrir el selector de guardado, se usará descarga directa:', e);
-        }
-      }
-
       // Esperar un tick para que el nodo a renderizar esté visible en el DOM
       await new Promise(r => setTimeout(r, 50));
       const dataUrl = await toPng(exportRef.current, {
@@ -106,28 +90,22 @@ export const CalendarioMensual = ({
         skipFonts: true,
       });
       const blob = dataUrlToBlob(dataUrl);
-
-      if (fileHandle) {
-        const writable = await fileHandle.createWritable();
-        await writable.write(blob);
-        await writable.close();
-        toast.success('Imagen guardada');
-        return;
-      }
-
       const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.download = nombreArchivo;
-      link.href = url;
-      link.rel = 'noopener';
-      link.style.display = 'none';
-      document.body.appendChild(link);
-      link.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true, view: window }));
-      window.setTimeout(() => {
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      }, 1000);
-      toast.success('Imagen descargada');
+      const win = window.open(url, '_blank');
+      if (!win) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.target = '_blank';
+        a.rel = 'noopener';
+        a.download = nombreArchivo;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        toast.message('Si no se abrió la pestaña, habilitá popups para este sitio.');
+      } else {
+        toast.success('Imagen lista. Usá "Guardar como…" en la pestaña que se abrió.');
+      }
+      setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e: any) {
       console.error('Error exportando imagen:', e);
       toast.error(`No se pudo generar la imagen: ${e?.message || 'error desconocido'}`);
@@ -135,6 +113,7 @@ export const CalendarioMensual = ({
       setExportando(false);
     }
   };
+
 
   // Si cambia el año, mantener el mes actual (p.ej. enero-diciembre) dentro del nuevo año
   useEffect(() => {

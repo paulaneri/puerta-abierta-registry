@@ -238,5 +238,21 @@ export function generarFichaMujerPDF(mujer: Mujer) {
   }
 
   const slug = nombreCompleto.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "participante";
-  doc.save(`ficha-${slug}.pdf`);
+  const filename = `ficha-${slug}.pdf`;
+  const blob = doc.output("blob");
+  const url = URL.createObjectURL(blob);
+  const win = window.open(url, "_blank");
+  if (!win) {
+    // Fallback: forzar navegación a la URL del blob en una pestaña/nueva ventana
+    const a = document.createElement("a");
+    a.href = url;
+    a.target = "_blank";
+    a.rel = "noopener";
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  return { opened: !!win, filename };
 }

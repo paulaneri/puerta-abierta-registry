@@ -741,8 +741,12 @@ const DetalleMujer = () => {
                   variant="outline"
                   onClick={() => {
                     try {
-                      generarFichaMujerPDF(mujer);
-                      toast.success("PDF descargado");
+                      const res = generarFichaMujerPDF(mujer);
+                      if (res?.opened) {
+                        toast.success('PDF abierto en una pestaña nueva. Guardalo desde el visor.');
+                      } else {
+                        toast.message('Si no se abrió la pestaña, habilitá popups para este sitio.');
+                      }
                     } catch (e) {
                       console.error(e);
                       toast.error("Error al generar el PDF");

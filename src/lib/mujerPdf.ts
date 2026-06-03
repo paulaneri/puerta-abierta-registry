@@ -256,4 +256,3 @@ export function generarFichaMujerPDF(mujer: Mujer) {
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
   return { opened: !!win, filename };
 }
-}

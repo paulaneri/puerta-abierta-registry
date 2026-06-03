@@ -89,6 +89,7 @@ const DetalleMujer = () => {
   const [docDescripcion, setDocDescripcion] = useState<string>("");
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [viewerDoc, setViewerDoc] = useState<Documento | null>(null);
+  const [pdfPreview, setPdfPreview] = useState<{ url: string; filename: string } | null>(null);
 
   // Estados para acompañamientos
   const [editingAcomp, setEditingAcomp] = useState<Acompanamiento | null>(null);
@@ -105,6 +106,24 @@ const DetalleMujer = () => {
 
   // Estados para nacionalidades
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
+
+  const cerrarPdfPreview = () => {
+    if (pdfPreview?.url) URL.revokeObjectURL(pdfPreview.url);
+    setPdfPreview(null);
+  };
+
+  const handleGenerarPdf = () => {
+    if (!mujer) return;
+    try {
+      if (pdfPreview?.url) URL.revokeObjectURL(pdfPreview.url);
+      const pdf = generarFichaMujerPDF(mujer);
+      setPdfPreview({ url: pdf.url, filename: pdf.filename });
+      toast.success("PDF listo para descargar.");
+    } catch (e) {
+      console.error(e);
+      toast.error("Error al generar el PDF");
+    }
+  };
 
   useEffect(() => {
     console.log("DetalleMujer - activeTab:", activeTab, "editMode:", editMode);
@@ -739,19 +758,7 @@ const DetalleMujer = () => {
               {!editMode && (
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    try {
-                      const res = generarFichaMujerPDF(mujer);
-                      if (res?.opened) {
-                        toast.success('PDF abierto en una pestaña nueva. Guardalo desde el visor.');
-                      } else {
-                        toast.message('Si no se abrió la pestaña, habilitá popups para este sitio.');
-                      }
-                    } catch (e) {
-                      console.error(e);
-                      toast.error("Error al generar el PDF");
-                    }
-                  }}
+                  onClick={handleGenerarPdf}
                   title="Descargar ficha en PDF"
                 >
                   <FileDown className="h-4 w-4 mr-2" />
@@ -1566,6 +1573,31 @@ const DetalleMujer = () => {
         isOpen={!!viewerDoc} 
         onClose={() => setViewerDoc(null)} 
       />
+
+      <Dialog open={!!pdfPreview} onOpenChange={(open) => !open && cerrarPdfPreview()}>
+        <DialogContent className="max-w-[95vw] sm:max-w-4xl h-[90vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle>Ficha completa en PDF</DialogTitle>
+          </DialogHeader>
+          {pdfPreview && (
+            <>
+              <div className="flex justify-end gap-2">
+                <Button asChild>
+                  <a href={pdfPreview.url} download={pdfPreview.filename}>
+                    <FileDown className="h-4 w-4 mr-2" />
+                    Descargar PDF
+                  </a>
+                </Button>
+              </div>
+              <iframe
+                src={pdfPreview.url}
+                title="Ficha completa en PDF"
+                className="min-h-0 flex-1 w-full rounded-md border bg-background"
+              />
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Modal de Acompañamiento */}
       <Dialog open={showAcompModal} onOpenChange={(open) => {

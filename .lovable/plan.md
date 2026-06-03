@@ -1,50 +1,32 @@
-## Objetivo
+# Problema
 
-Cuando en el registro de una mujer se marque "Sí" en *¿Tiene hijos a cargo?*, mostrar un mini-formulario dinámico para cargar cada hijo (Nombre, Fecha de nacimiento con edad calculada, CUIL), con botón **+** para agregar más filas y **🗑** para quitar. En la vista de detalle, mostrar la lista en un recuadro junto con la cantidad total.
+Tanto la **imagen** de Roles de Reuniones como el **PDF** de ficha de participante se generan correctamente (el toast "descargado" aparece), pero el archivo nunca llega al disco del usuario.
+
+Causa: el preview de Lovable corre dentro de un iframe sandboxed. En ese contexto, el truco clásico de `<a download>` + `link.click()` queda bloqueado silenciosamente por el navegador (y `showSaveFilePicker` tampoco está permitido dentro del iframe). Por eso la lógica se ejecuta sin error, pero no aparece ninguna descarga.
+
+# Solución
+
+Usar la única vía confiable dentro del iframe: abrir el blob en una pestaña nueva con `window.open(blobUrl, '_blank')`. El navegador muestra el archivo y el usuario puede guardarlo con Ctrl/Cmd+S o con el botón de descarga del visor (PDF/imagen). En la app desplegada (fuera del iframe) funciona igual.
 
 ## Cambios
 
-### 1. Base de datos (migración)
-- Agregar columna `hijos_detalle jsonb default '[]'` a `public.mujeres`.
-- Estructura por hijo: `{ id, nombre, fechaNacimiento, cuil }`.
-- `numero_hijos` se sincroniza automáticamente desde el largo del array al guardar (en el store, no en SQL).
+### 1. `src/components/reuniones/CalendarioMensual.tsx` – exportar imagen
+- Quitar la rama de `showSaveFilePicker` y el `<a download>` + `dispatchEvent`.
+- Después de obtener el `dataUrl` con `toPng`, convertirlo a Blob y abrirlo con `window.open(URL.createObjectURL(blob), '_blank')`.
+- Si `window.open` devuelve `null` (popup bloqueado), navegar la propia pestaña al data URL como fallback y mostrar un toast indicando que habilite popups.
+- Toast final: "Imagen lista, usá Guardar como… en la pestaña que se abrió".
 
-### 2. Componente reusable: `HijosACargoEditor`
-- Ubicación: `src/components/mujeres/HijosACargoEditor.tsx`.
-- Props: `value: HijoACargo[]`, `onChange(value)`.
-- Render: lista de filas con inputs *Nombre* / *Fecha de nacimiento* (date-picker dd/mm/aaaa) / *CUIL* + chip con edad calculada (`parseLocalDate` desde `src/lib/utils.ts`) + botón eliminar (con tooltip, ghost).
-- Botón **+ Agregar hijo/a** al final.
-- Validación suave: CUIL opcional, formato 11 dígitos si se ingresa.
+### 2. `src/lib/mujerPdf.ts` – descargar PDF
+- Reemplazar `doc.save(...)` por:
+  - `const blob = doc.output('blob');`
+  - `const url = URL.createObjectURL(blob);`
+  - `window.open(url, '_blank')`, con el mismo fallback que arriba.
+- Devolver el nombre sugerido para el toast.
 
-### 3. Componente de solo lectura: `HijosACargoLista`
-- Mismo directorio. Recibe `hijos: HijoACargo[]`.
-- Renderiza un `Card`/recuadro con encabezado *"Hijos/as a cargo (N)"* y una tabla compacta: Nombre · Fecha nac. (dd/mm/aaaa) · Edad · CUIL.
-- Si la lista está vacía pero `hijosACargo` es true, muestra "Sin detalle cargado".
+### 3. `src/pages/DetalleMujer.tsx` – mensaje del toast
+- Ajustar el toast del botón "Descargar PDF" para indicar que el PDF se abre en una pestaña nueva donde puede guardarlo.
 
-### 4. Integración en formularios
-- `src/pages/MujerNueva.tsx`: cuando `formData.hijosACargo === true`, renderizar `HijosACargoEditor` debajo del switch; incluir `hijos_detalle` al llamar `agregarMujer`.
-- `src/pages/DetalleMujer.tsx`:
-  - En modo edición: mismo editor.
-  - En modo vista: usar `HijosACargoLista`.
-  - Incluir el array en `useUnsavedChanges` y en el payload de `actualizarMujer`.
-
-### 5. Store (`src/lib/mujeresStore.ts`)
-- Tipo `Mujer`: agregar `hijosDetalle?: HijoACargo[]`.
-- Mapeo en `getMujeres`: leer `row.hijos_detalle`.
-- `agregarMujer` / `actualizarMujer`: persistir `hijos_detalle` y derivar `numero_hijos = hijosDetalle?.length ?? 0`.
-
-### Detalles técnicos
-- Cálculo de edad: función utilitaria en `src/lib/utils.ts` → `calcularEdad(fechaNacimiento: string): number` usando `parseLocalDate` (sin desfase de zona horaria, respeta la memoria del proyecto).
-- Fechas: input tipo date-picker existente, formato visual dd/mm/aaaa.
-- Al desmarcar "Tiene hijos a cargo" se conserva el array en memoria pero no se persiste (se vacía al guardar) — confirmar comportamiento si preferís borrarlo inmediatamente.
-- Sin cambios de RLS (la columna nueva hereda las policies de `mujeres`).
-
-### Archivos tocados
-- `supabase/migrations/<nuevo>.sql` (ALTER TABLE)
-- `src/integrations/supabase/types.ts` (autogenerado tras migración)
-- `src/lib/utils.ts` (calcularEdad)
-- `src/lib/mujeresStore.ts`
-- `src/components/mujeres/HijosACargoEditor.tsx` (nuevo)
-- `src/components/mujeres/HijosACargoLista.tsx` (nuevo)
-- `src/pages/MujerNueva.tsx`
-- `src/pages/DetalleMujer.tsx`
+## Notas técnicas
+- No se cambia el contenido visual ni la lógica de generación, solo la entrega del archivo.
+- En producción (dominio publicado) la pestaña nueva con el PDF/PNG igual permite descargar con el visor nativo del navegador, así que el comportamiento es consistente en preview y publicado.
+- Se mantiene `URL.revokeObjectURL` con un `setTimeout` largo (≥ 60 s) para que la pestaña nueva tenga tiempo de cargar el blob antes de invalidarlo.

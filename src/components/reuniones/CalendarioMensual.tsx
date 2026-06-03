@@ -91,20 +91,15 @@ export const CalendarioMensual = ({
       });
       const blob = dataUrlToBlob(dataUrl);
       const url = URL.createObjectURL(blob);
-      const win = window.open(url, '_blank');
-      if (!win) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.target = '_blank';
-        a.rel = 'noopener';
-        a.download = nombreArchivo;
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        toast.message('Si no se abrió la pestaña, habilitá popups para este sitio.');
-      } else {
-        toast.success('Imagen lista. Usá "Guardar como…" en la pestaña que se abrió.');
-      }
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = nombreArchivo;
+      a.rel = 'noopener';
+      a.style.display = 'none';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      toast.success('Imagen descargada.');
       setTimeout(() => URL.revokeObjectURL(url), 60_000);
     } catch (e: any) {
       console.error('Error exportando imagen:', e);

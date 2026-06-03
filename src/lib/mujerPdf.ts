@@ -241,18 +241,18 @@ export function generarFichaMujerPDF(mujer: Mujer) {
   const filename = `ficha-${slug}.pdf`;
   const blob = doc.output("blob");
   const url = URL.createObjectURL(blob);
-  const win = window.open(url, "_blank");
-  if (!win) {
-    // Fallback: forzar navegación a la URL del blob en una pestaña/nueva ventana
-    const a = document.createElement("a");
-    a.href = url;
-    a.target = "_blank";
-    a.rel = "noopener";
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-  }
+
+  // Forzar descarga directa con <a download>. Funciona dentro del iframe del
+  // preview de Lovable porque no requiere abrir ventanas nuevas (que el sandbox bloquea).
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.rel = "noopener";
+  a.style.display = "none";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  return { opened: !!win, filename };
+  return { opened: true, filename };
 }

@@ -1574,31 +1574,6 @@ const DetalleMujer = () => {
         onClose={() => setViewerDoc(null)} 
       />
 
-      <Dialog open={!!pdfPreview} onOpenChange={(open) => !open && cerrarPdfPreview()}>
-        <DialogContent className="max-w-[95vw] sm:max-w-4xl h-[90vh] flex flex-col">
-          <DialogHeader>
-            <DialogTitle>Ficha completa en PDF</DialogTitle>
-          </DialogHeader>
-          {pdfPreview && (
-            <>
-              <div className="flex justify-end gap-2">
-                <Button asChild>
-                  <a href={pdfPreview.url} download={pdfPreview.filename}>
-                    <FileDown className="h-4 w-4 mr-2" />
-                    Descargar PDF
-                  </a>
-                </Button>
-              </div>
-              <iframe
-                src={pdfPreview.url}
-                title="Ficha completa en PDF"
-                className="min-h-0 flex-1 w-full rounded-md border bg-background"
-              />
-            </>
-          )}
-        </DialogContent>
-      </Dialog>
-
       {/* Modal de Acompañamiento */}
       <Dialog open={showAcompModal} onOpenChange={(open) => {
         setShowAcompModal(open);

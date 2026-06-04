@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ArrowLeft, Edit, Trash2, Plus, Eye, Download, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw, FileDown } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Plus, Eye, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw, FileDown } from "lucide-react";
 import { generarFichaMujerPDF } from "@/lib/mujerPdf";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { mujeresStore, type Mujer, type Acompanamiento, type Documento, type HijoACargo } from "@/lib/mujeresStore";
@@ -106,44 +106,39 @@ const DetalleMujer = () => {
   // Estados para nacionalidades
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
 
-  const [pdfPreview, setPdfPreview] = useState<{ url: string; dataUri: string; filename: string } | null>(null);
-
-  const handleGenerarPdf = () => {
+  const handleGenerarPdf = async () => {
     if (!mujer) return;
     try {
       const pdf = generarFichaMujerPDF(mujer);
-      // Intento directo de descarga (puede ser bloqueado en iframe sandbox)
-      try {
-        const link = document.createElement("a");
-        link.href = pdf.url;
-        link.download = pdf.filename;
-        link.rel = "noopener";
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch {}
-      // Mostrar preview con botón para abrir en pestaña nueva (fallback confiable)
-      setPdfPreview({ url: pdf.url, dataUri: pdf.dataUri, filename: pdf.filename });
+      const saveFilePicker = (window as any).showSaveFilePicker;
+
+      if (typeof saveFilePicker === "function" && window.isSecureContext) {
+        try {
+          const fileHandle = await saveFilePicker.call(window, {
+            suggestedName: pdf.filename,
+            types: [{ description: "Documento PDF", accept: { "application/pdf": [".pdf"] } }],
+          });
+          const writable = await fileHandle.createWritable();
+          await writable.write(pdf.doc.output("blob"));
+          await writable.close();
+          toast.success("PDF guardado correctamente");
+          return;
+        } catch (pickerError) {
+          if (pickerError instanceof DOMException && pickerError.name === "AbortError") {
+            toast.info("Descarga cancelada");
+            return;
+          }
+          console.warn("No se pudo usar el selector nativo de archivo", pickerError);
+        }
+      }
+
+      pdf.doc.save(pdf.filename);
+      toast.success("PDF generado. Revisá la carpeta de descargas del navegador.");
     } catch (e) {
       console.error(e);
       toast.error("Error al generar el PDF");
     }
   };
-
-  const cerrarPdfPreview = () => {
-    if (pdfPreview) {
-      setTimeout(() => URL.revokeObjectURL(pdfPreview.url), 1000);
-    }
-    setPdfPreview(null);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (pdfPreview) URL.revokeObjectURL(pdfPreview.url);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
 
   useEffect(() => {
@@ -1766,38 +1761,6 @@ const DetalleMujer = () => {
         description="Esta acción no se puede deshacer. El registro de acompañamiento será eliminado permanentemente."
       />
       <MetadatosRegistro createdAt={meta?.created_at} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} className="mx-auto max-w-7xl px-4 pb-6" />
-
-      {/* Vista previa del PDF generado (fallback para iframe sandbox) */}
-      <Dialog open={!!pdfPreview} onOpenChange={(o) => !o && cerrarPdfPreview()}>
-        <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] flex flex-col p-4">
-          <DialogHeader>
-            <DialogTitle className="flex items-center justify-between gap-2 pr-8">
-              <span className="truncate">Ficha lista: {pdfPreview?.filename}</span>
-              {pdfPreview && (
-                <a
-                  href={pdfPreview.dataUri}
-                  download={pdfPreview.filename}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
-                >
-                  <Download className="h-4 w-4" /> Descargar PDF
-                </a>
-              )}
-            </DialogTitle>
-          </DialogHeader>
-          <p className="text-xs text-muted-foreground">
-            Si la descarga no inicia, hacé clic en "Descargar PDF" o usá el botón de descarga del visor.
-          </p>
-          {pdfPreview && (
-            <iframe
-              src={pdfPreview.dataUri}
-              title="Ficha PDF"
-              className="flex-1 w-full rounded border"
-            />
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

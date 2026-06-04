@@ -239,9 +239,5 @@ export function generarFichaMujerPDF(mujer: Mujer) {
 
   const slug = nombreCompleto.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "participante";
   const filename = `ficha-${slug}.pdf`;
-  const blob = doc.output("blob");
-  const url = URL.createObjectURL(blob);
-  const dataUri = doc.output("datauristring", { filename });
-
-  return { blob, url, dataUri, filename };
+  return { doc, filename };
 }

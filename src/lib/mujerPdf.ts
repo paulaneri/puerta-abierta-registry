@@ -241,6 +241,7 @@ export function generarFichaMujerPDF(mujer: Mujer) {
   const filename = `ficha-${slug}.pdf`;
   const blob = doc.output("blob");
   const url = URL.createObjectURL(blob);
+  const dataUri = doc.output("datauristring", { filename });
 
-  return { blob, url, filename };
+  return { blob, url, dataUri, filename };
 }

@@ -106,24 +106,45 @@ const DetalleMujer = () => {
   // Estados para nacionalidades
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
 
+  const [pdfPreview, setPdfPreview] = useState<{ url: string; dataUri: string; filename: string } | null>(null);
+
   const handleGenerarPdf = () => {
     if (!mujer) return;
     try {
       const pdf = generarFichaMujerPDF(mujer);
-      const link = document.createElement("a");
-      link.href = pdf.url;
-      link.download = pdf.filename;
-      link.style.display = "none";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(pdf.url), 60_000);
-      toast.success("Descarga del PDF iniciada.");
+      // Intento directo de descarga (puede ser bloqueado en iframe sandbox)
+      try {
+        const link = document.createElement("a");
+        link.href = pdf.url;
+        link.download = pdf.filename;
+        link.rel = "noopener";
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch {}
+      // Mostrar preview con botón para abrir en pestaña nueva (fallback confiable)
+      setPdfPreview({ url: pdf.url, dataUri: pdf.dataUri, filename: pdf.filename });
     } catch (e) {
       console.error(e);
       toast.error("Error al generar el PDF");
     }
   };
+
+  const cerrarPdfPreview = () => {
+    if (pdfPreview) {
+      setTimeout(() => URL.revokeObjectURL(pdfPreview.url), 1000);
+    }
+    setPdfPreview(null);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pdfPreview) URL.revokeObjectURL(pdfPreview.url);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   useEffect(() => {
     console.log("DetalleMujer - activeTab:", activeTab, "editMode:", editMode);
@@ -1745,6 +1766,38 @@ const DetalleMujer = () => {
         description="Esta acción no se puede deshacer. El registro de acompañamiento será eliminado permanentemente."
       />
       <MetadatosRegistro createdAt={meta?.created_at} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} className="mx-auto max-w-7xl px-4 pb-6" />
+
+      {/* Vista previa del PDF generado (fallback para iframe sandbox) */}
+      <Dialog open={!!pdfPreview} onOpenChange={(o) => !o && cerrarPdfPreview()}>
+        <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] flex flex-col p-4">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between gap-2 pr-8">
+              <span className="truncate">Ficha lista: {pdfPreview?.filename}</span>
+              {pdfPreview && (
+                <a
+                  href={pdfPreview.dataUri}
+                  download={pdfPreview.filename}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  <Download className="h-4 w-4" /> Descargar PDF
+                </a>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-muted-foreground">
+            Si la descarga no inicia, hacé clic en "Descargar PDF" o usá el botón de descarga del visor.
+          </p>
+          {pdfPreview && (
+            <iframe
+              src={pdfPreview.dataUri}
+              title="Ficha PDF"
+              className="flex-1 w-full rounded border"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

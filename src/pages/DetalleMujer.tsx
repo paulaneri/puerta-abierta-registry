@@ -89,7 +89,6 @@ const DetalleMujer = () => {
   const [docDescripcion, setDocDescripcion] = useState<string>("");
   const [uploadingDoc, setUploadingDoc] = useState(false);
   const [viewerDoc, setViewerDoc] = useState<Documento | null>(null);
-  const [pdfPreview, setPdfPreview] = useState<{ url: string; filename: string } | null>(null);
 
   // Estados para acompañamientos
   const [editingAcomp, setEditingAcomp] = useState<Acompanamiento | null>(null);
@@ -107,18 +106,19 @@ const DetalleMujer = () => {
   // Estados para nacionalidades
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
 
-  const cerrarPdfPreview = () => {
-    if (pdfPreview?.url) URL.revokeObjectURL(pdfPreview.url);
-    setPdfPreview(null);
-  };
-
   const handleGenerarPdf = () => {
     if (!mujer) return;
     try {
-      if (pdfPreview?.url) URL.revokeObjectURL(pdfPreview.url);
       const pdf = generarFichaMujerPDF(mujer);
-      setPdfPreview({ url: pdf.url, filename: pdf.filename });
-      toast.success("PDF listo para descargar.");
+      const link = document.createElement("a");
+      link.href = pdf.url;
+      link.download = pdf.filename;
+      link.style.display = "none";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      setTimeout(() => URL.revokeObjectURL(pdf.url), 60_000);
+      toast.success("Descarga del PDF iniciada.");
     } catch (e) {
       console.error(e);
       toast.error("Error al generar el PDF");

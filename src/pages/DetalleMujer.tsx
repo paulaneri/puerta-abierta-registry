@@ -106,24 +106,45 @@ const DetalleMujer = () => {
   // Estados para nacionalidades
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
 
+  const [pdfPreview, setPdfPreview] = useState<{ url: string; dataUri: string; filename: string } | null>(null);
+
   const handleGenerarPdf = () => {
     if (!mujer) return;
     try {
       const pdf = generarFichaMujerPDF(mujer);
-      const link = document.createElement("a");
-      link.href = pdf.url;
-      link.download = pdf.filename;
-      link.style.display = "none";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      setTimeout(() => URL.revokeObjectURL(pdf.url), 60_000);
-      toast.success("Descarga del PDF iniciada.");
+      // Intento directo de descarga (puede ser bloqueado en iframe sandbox)
+      try {
+        const link = document.createElement("a");
+        link.href = pdf.url;
+        link.download = pdf.filename;
+        link.rel = "noopener";
+        link.style.display = "none";
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch {}
+      // Mostrar preview con botón para abrir en pestaña nueva (fallback confiable)
+      setPdfPreview({ url: pdf.url, dataUri: pdf.dataUri, filename: pdf.filename });
     } catch (e) {
       console.error(e);
       toast.error("Error al generar el PDF");
     }
   };
+
+  const cerrarPdfPreview = () => {
+    if (pdfPreview) {
+      setTimeout(() => URL.revokeObjectURL(pdfPreview.url), 1000);
+    }
+    setPdfPreview(null);
+  };
+
+  useEffect(() => {
+    return () => {
+      if (pdfPreview) URL.revokeObjectURL(pdfPreview.url);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
 
   useEffect(() => {
     console.log("DetalleMujer - activeTab:", activeTab, "editMode:", editMode);

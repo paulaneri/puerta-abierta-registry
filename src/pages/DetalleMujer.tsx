@@ -106,10 +106,32 @@ const DetalleMujer = () => {
   // Estados para nacionalidades
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
 
-  const handleGenerarPdf = () => {
+  const handleGenerarPdf = async () => {
     if (!mujer) return;
     try {
       const pdf = generarFichaMujerPDF(mujer);
+      const saveFilePicker = (window as any).showSaveFilePicker;
+
+      if (typeof saveFilePicker === "function" && window.isSecureContext) {
+        try {
+          const fileHandle = await saveFilePicker.call(window, {
+            suggestedName: pdf.filename,
+            types: [{ description: "Documento PDF", accept: { "application/pdf": [".pdf"] } }],
+          });
+          const writable = await fileHandle.createWritable();
+          await writable.write(pdf.doc.output("blob"));
+          await writable.close();
+          toast.success("PDF guardado correctamente");
+          return;
+        } catch (pickerError) {
+          if (pickerError instanceof DOMException && pickerError.name === "AbortError") {
+            toast.info("Descarga cancelada");
+            return;
+          }
+          console.warn("No se pudo usar el selector nativo de archivo", pickerError);
+        }
+      }
+
       pdf.doc.save(pdf.filename);
       toast.success("PDF generado. Revisá la carpeta de descargas del navegador.");
     } catch (e) {

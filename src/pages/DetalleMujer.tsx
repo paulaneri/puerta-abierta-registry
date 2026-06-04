@@ -1766,6 +1766,38 @@ const DetalleMujer = () => {
         description="Esta acción no se puede deshacer. El registro de acompañamiento será eliminado permanentemente."
       />
       <MetadatosRegistro createdAt={meta?.created_at} updatedAt={meta?.updated_at} creadoPor={meta?.creado_por} className="mx-auto max-w-7xl px-4 pb-6" />
+
+      {/* Vista previa del PDF generado (fallback para iframe sandbox) */}
+      <Dialog open={!!pdfPreview} onOpenChange={(o) => !o && cerrarPdfPreview()}>
+        <DialogContent className="max-w-[95vw] w-[95vw] h-[90vh] flex flex-col p-4">
+          <DialogHeader>
+            <DialogTitle className="flex items-center justify-between gap-2 pr-8">
+              <span className="truncate">Ficha lista: {pdfPreview?.filename}</span>
+              {pdfPreview && (
+                <a
+                  href={pdfPreview.dataUri}
+                  download={pdfPreview.filename}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-md bg-primary px-3 py-1.5 text-sm font-medium text-primary-foreground hover:bg-primary/90"
+                >
+                  <Download className="h-4 w-4" /> Descargar PDF
+                </a>
+              )}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-xs text-muted-foreground">
+            Si la descarga no inicia, hacé clic en "Descargar PDF" o usá el botón de descarga del visor.
+          </p>
+          {pdfPreview && (
+            <iframe
+              src={pdfPreview.dataUri}
+              title="Ficha PDF"
+              className="flex-1 w-full rounded border"
+            />
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

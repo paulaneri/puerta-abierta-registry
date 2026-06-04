@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { ArrowLeft, Edit, Trash2, Plus, Eye, Download, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw, FileDown } from "lucide-react";
+import { ArrowLeft, Edit, Trash2, Plus, Eye, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw, FileDown } from "lucide-react";
 import { generarFichaMujerPDF } from "@/lib/mujerPdf";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { mujeresStore, type Mujer, type Acompanamiento, type Documento, type HijoACargo } from "@/lib/mujeresStore";
@@ -106,44 +106,17 @@ const DetalleMujer = () => {
   // Estados para nacionalidades
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
 
-  const [pdfPreview, setPdfPreview] = useState<{ url: string; dataUri: string; filename: string } | null>(null);
-
   const handleGenerarPdf = () => {
     if (!mujer) return;
     try {
       const pdf = generarFichaMujerPDF(mujer);
-      // Intento directo de descarga (puede ser bloqueado en iframe sandbox)
-      try {
-        const link = document.createElement("a");
-        link.href = pdf.url;
-        link.download = pdf.filename;
-        link.rel = "noopener";
-        link.style.display = "none";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      } catch {}
-      // Mostrar preview con botón para abrir en pestaña nueva (fallback confiable)
-      setPdfPreview({ url: pdf.url, dataUri: pdf.dataUri, filename: pdf.filename });
+      pdf.doc.save(pdf.filename);
+      toast.success("PDF generado. Revisá la carpeta de descargas del navegador.");
     } catch (e) {
       console.error(e);
       toast.error("Error al generar el PDF");
     }
   };
-
-  const cerrarPdfPreview = () => {
-    if (pdfPreview) {
-      setTimeout(() => URL.revokeObjectURL(pdfPreview.url), 1000);
-    }
-    setPdfPreview(null);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (pdfPreview) URL.revokeObjectURL(pdfPreview.url);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
 
   useEffect(() => {

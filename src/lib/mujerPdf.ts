@@ -96,15 +96,10 @@ export const entregarPdfGenerado = (doc: jsPDF, filename: string, popup?: Window
         <p>Si el visor no muestra el PDF, <a href="${safeDataUri}" download="${safeFilename}">descargalo desde acá</a>.</p>
       </object>
     </main>
-    <script>
-      setTimeout(function () {
-        var link = document.getElementById('download');
-        if (link) link.click();
-      }, 250);
-    </script>
   </body>
 </html>`);
     target.document.close();
+    target.document.getElementById("download")?.click();
     target.focus();
     setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
     return { modo: "ventana" as const, url };

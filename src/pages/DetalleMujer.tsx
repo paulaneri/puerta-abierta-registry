@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { ArrowLeft, Edit, Trash2, Plus, Eye, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw, FileDown } from "lucide-react";
-import { generarFichaMujerPDF } from "@/lib/mujerPdf";
+import { entregarPdfGenerado, generarFichaMujerPDF } from "@/lib/mujerPdf";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { mujeresStore, type Mujer, type Acompanamiento, type Documento, type HijoACargo } from "@/lib/mujeresStore";
 import { HijosACargoEditor, crearHijoVacio } from "@/components/mujeres/HijosACargoEditor";
@@ -106,35 +106,20 @@ const DetalleMujer = () => {
   // Estados para nacionalidades
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
 
-  const handleGenerarPdf = async () => {
+  const handleGenerarPdf = () => {
     if (!mujer) return;
+    const popup = window.open("", "_blank");
+
     try {
       const pdf = generarFichaMujerPDF(mujer);
-      const saveFilePicker = (window as any).showSaveFilePicker;
-
-      if (typeof saveFilePicker === "function" && window.isSecureContext) {
-        try {
-          const fileHandle = await saveFilePicker.call(window, {
-            suggestedName: pdf.filename,
-            types: [{ description: "Documento PDF", accept: { "application/pdf": [".pdf"] } }],
-          });
-          const writable = await fileHandle.createWritable();
-          await writable.write(pdf.doc.output("blob"));
-          await writable.close();
-          toast.success("PDF guardado correctamente");
-          return;
-        } catch (pickerError) {
-          if (pickerError instanceof DOMException && pickerError.name === "AbortError") {
-            toast.info("Descarga cancelada");
-            return;
-          }
-          console.warn("No se pudo usar el selector nativo de archivo", pickerError);
-        }
-      }
-
-      pdf.doc.save(pdf.filename);
-      toast.success("PDF generado. Revisá la carpeta de descargas del navegador.");
+      const entrega = entregarPdfGenerado(pdf.doc, pdf.filename, popup);
+      toast.success(
+        entrega.modo === "ventana"
+          ? "PDF generado. Se abrió una pestaña para verlo y descargarlo."
+          : "PDF descargado correctamente."
+      );
     } catch (e) {
+      if (popup && !popup.closed) popup.close();
       console.error(e);
       toast.error("Error al generar el PDF");
     }

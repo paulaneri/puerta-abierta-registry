@@ -110,6 +110,12 @@ export const entregarPdfGenerado = (doc: jsPDF, filename: string, popup?: Window
     return { modo: "ventana" as const, url };
   }
 
+  if (estaEnIframeSandbox()) {
+    window.location.assign(url);
+    setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
+    return { modo: "ventana" as const, url };
+  }
+
   abrirDescargaDirecta();
   setTimeout(() => URL.revokeObjectURL(url), 60_000);
   return { modo: "descarga" as const, url };

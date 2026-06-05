@@ -26,6 +26,95 @@ const val = (v?: string | number | null) => {
   return String(v);
 };
 
+const escapeHtml = (value: string) =>
+  value.replace(/[&<>"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char] || char));
+
+export const estaEnIframeSandbox = () => {
+  try {
+    return window.self !== window.top;
+  } catch {
+    return true;
+  }
+};
+
+export const entregarPdfGenerado = (doc: jsPDF, filename: string, popup?: Window | null) => {
+  const blob = doc.output("blob");
+
+  if (!(blob instanceof Blob) || blob.size === 0) {
+    throw new Error("El PDF se generó vacío");
+  }
+
+  const url = URL.createObjectURL(blob);
+  const abrirDescargaDirecta = () => {
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    link.rel = "noopener";
+    link.style.display = "none";
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  };
+
+  if (!estaEnIframeSandbox() && !popup) {
+    abrirDescargaDirecta();
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
+    return { modo: "descarga" as const, url };
+  }
+
+  const target = popup && !popup.closed ? popup : window.open("", "_blank");
+  if (target) {
+    const dataUri = doc.output("datauristring", { filename });
+    const safeFilename = escapeHtml(filename);
+    const safeUrl = escapeHtml(url);
+    const safeDataUri = escapeHtml(dataUri);
+
+    target.document.open();
+    target.document.write(`<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>${safeFilename}</title>
+    <style>
+      body { margin: 0; font-family: Arial, sans-serif; color: #1f2937; background: #f8fafc; }
+      header { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 18px; background: #ffffff; border-bottom: 1px solid #e5e7eb; }
+      strong { font-size: 14px; }
+      a { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 14px; border-radius: 6px; background: #7e22ce; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; }
+      main { height: calc(100vh - 69px); }
+      object { width: 100%; height: 100%; border: 0; background: #ffffff; }
+      p { margin: 24px; line-height: 1.5; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <strong>${safeFilename}</strong>
+      <a id="download" href="${safeUrl}" download="${safeFilename}">Descargar PDF</a>
+    </header>
+    <main>
+      <object data="${safeUrl}" type="application/pdf">
+        <p>Si el visor no muestra el PDF, <a href="${safeDataUri}" download="${safeFilename}">descargalo desde acá</a>.</p>
+      </object>
+    </main>
+    <script>
+      setTimeout(function () {
+        var link = document.getElementById('download');
+        if (link) link.click();
+      }, 250);
+    </script>
+  </body>
+</html>`);
+    target.document.close();
+    target.focus();
+    setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
+    return { modo: "ventana" as const, url };
+  }
+
+  abrirDescargaDirecta();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+  return { modo: "descarga" as const, url };
+};
+
 export function generarFichaMujerPDF(mujer: Mujer) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const pageWidth = doc.internal.pageSize.getWidth();

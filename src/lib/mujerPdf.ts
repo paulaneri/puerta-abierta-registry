@@ -37,83 +37,153 @@ export const estaEnIframeSandbox = () => {
   }
 };
 
-export const entregarPdfGenerado = (doc: jsPDF, filename: string, popup?: Window | null) => {
-  const blob = doc.output("blob");
-
+const validarBlobPdf = async (blob: Blob) => {
   if (!(blob instanceof Blob) || blob.size === 0) {
-    throw new Error("El PDF se generó vacío");
+    throw new Error("El PDF generado está vacío");
   }
+  const head = new Uint8Array(await blob.slice(0, 5).arrayBuffer());
+  const sig = String.fromCharCode(...head);
+  if (!sig.startsWith("%PDF")) {
+    throw new Error("El archivo generado no es un PDF válido");
+  }
+};
 
-  const url = URL.createObjectURL(blob);
-  const abrirDescargaDirecta = () => {
+type ModoEntrega = "descarga" | "ventana" | "manual";
+
+const intentarDescargaAnchor = (url: string, filename: string): boolean => {
+  try {
     const link = document.createElement("a");
     link.href = url;
     link.download = filename;
     link.rel = "noopener";
-    link.style.display = "none";
+    link.style.position = "fixed";
+    link.style.left = "-9999px";
     document.body.appendChild(link);
     link.click();
-    link.remove();
-  };
-
-  if (!estaEnIframeSandbox() && !popup) {
-    abrirDescargaDirecta();
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-    return { modo: "descarga" as const, url };
+    setTimeout(() => link.remove(), 0);
+    return true;
+  } catch (err) {
+    console.warn("[pdf] anchor download falló:", err);
+    return false;
   }
+};
 
-  const target = popup && !popup.closed ? popup : window.open("", "_blank");
-  if (target) {
-    const dataUri = doc.output("datauristring", { filename });
-    const safeFilename = escapeHtml(filename);
-    const safeUrl = escapeHtml(url);
-    const safeDataUri = escapeHtml(dataUri);
-
-    target.document.open();
-    target.document.write(`<!doctype html>
+const escribirVentanaManual = (popup: Window, url: string, filename: string) => {
+  const safeFilename = escapeHtml(filename);
+  const safeUrl = escapeHtml(url);
+  popup.document.open();
+  popup.document.write(`<!doctype html>
 <html lang="es">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>${safeFilename}</title>
     <style>
-      body { margin: 0; font-family: Arial, sans-serif; color: #1f2937; background: #f8fafc; }
-      header { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 18px; background: #ffffff; border-bottom: 1px solid #e5e7eb; }
-      strong { font-size: 14px; }
-      a { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 14px; border-radius: 6px; background: #7e22ce; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; }
-      main { height: calc(100vh - 69px); }
-      object { width: 100%; height: 100%; border: 0; background: #ffffff; }
-      p { margin: 24px; line-height: 1.5; }
+      :root { color-scheme: light; }
+      * { box-sizing: border-box; }
+      body { margin: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #1f2937; background: #f8fafc; display: flex; flex-direction: column; }
+      header { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 18px; background: #ffffff; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
+      .filename { font-size: 14px; font-weight: 600; word-break: break-all; }
+      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
+      button, a.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border-radius: 8px; background: #7e22ce; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; border: 0; cursor: pointer; }
+      a.btn.secondary { background: #ffffff; color: #7e22ce; border: 1px solid #7e22ce; }
+      main { flex: 1; display: flex; flex-direction: column; }
+      iframe { flex: 1; width: 100%; border: 0; background: #ffffff; min-height: 70vh; }
+      .hint { padding: 12px 18px; font-size: 13px; color: #475569; background: #fef3c7; border-bottom: 1px solid #fde68a; }
     </style>
   </head>
   <body>
     <header>
-      <strong>${safeFilename}</strong>
-      <a id="download" href="${safeUrl}" download="${safeFilename}">Descargar PDF</a>
+      <span class="filename">${safeFilename}</span>
+      <div class="actions">
+        <button id="btn-download" type="button">Descargar PDF</button>
+        <a class="btn secondary" href="${safeUrl}" target="_blank" rel="noopener">Abrir en pestaña</a>
+      </div>
     </header>
+    <div class="hint">Si la descarga no inicia automáticamente, hacé clic en <strong>Descargar PDF</strong>.</div>
     <main>
-      <object data="${safeUrl}" type="application/pdf">
-        <p>Si el visor no muestra el PDF, <a href="${safeDataUri}" download="${safeFilename}">descargalo desde acá</a>.</p>
-      </object>
+      <iframe src="${safeUrl}" title="${safeFilename}"></iframe>
     </main>
+    <script>
+      (function(){
+        var url = ${JSON.stringify(url)};
+        var filename = ${JSON.stringify(filename)};
+        function descargar(){
+          try {
+            var a = document.createElement('a');
+            a.href = url;
+            a.download = filename;
+            a.rel = 'noopener';
+            document.body.appendChild(a);
+            a.click();
+            a.remove();
+          } catch (e) {
+            window.open(url, '_blank');
+          }
+        }
+        document.getElementById('btn-download').addEventListener('click', descargar);
+        setTimeout(descargar, 250);
+      })();
+    </script>
   </body>
 </html>`);
-    target.document.close();
-    target.document.getElementById("download")?.click();
-    target.focus();
-    setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
-    return { modo: "ventana" as const, url };
+  popup.document.close();
+  try { popup.focus(); } catch {}
+};
+
+export const entregarPdfGenerado = async (
+  doc: jsPDF,
+  filename: string,
+  popup?: Window | null
+): Promise<{ modo: ModoEntrega }> => {
+  const blob = doc.output("blob");
+  await validarBlobPdf(blob);
+
+  const url = URL.createObjectURL(blob);
+  const cleanup = () => setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
+
+  const sandbox = estaEnIframeSandbox();
+
+  if (!sandbox) {
+    if (intentarDescargaAnchor(url, filename)) {
+      if (popup && !popup.closed) try { popup.close(); } catch {}
+      cleanup();
+      return { modo: "descarga" };
+    }
+    try {
+      doc.save(filename);
+      if (popup && !popup.closed) try { popup.close(); } catch {}
+      cleanup();
+      return { modo: "descarga" };
+    } catch (err) {
+      console.warn("[pdf] doc.save falló:", err);
+    }
   }
 
-  if (estaEnIframeSandbox()) {
-    window.location.assign(url);
-    setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
-    return { modo: "ventana" as const, url };
+  const target = popup && !popup.closed ? popup : window.open("", "_blank");
+  if (target && !target.closed) {
+    try {
+      escribirVentanaManual(target, url, filename);
+      cleanup();
+      return { modo: "ventana" };
+    } catch (err) {
+      console.warn("[pdf] no se pudo escribir en la ventana:", err);
+    }
   }
 
-  abrirDescargaDirecta();
-  setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  return { modo: "descarga" as const, url };
+  if (sandbox) {
+    try {
+      window.top?.location.assign(url);
+    } catch {
+      window.location.assign(url);
+    }
+    cleanup();
+    return { modo: "manual" };
+  }
+
+  intentarDescargaAnchor(url, filename);
+  cleanup();
+  return { modo: "descarga" };
 };
 
 export function generarFichaMujerPDF(mujer: Mujer) {

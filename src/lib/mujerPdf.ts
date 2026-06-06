@@ -26,29 +26,18 @@ const val = (v?: string | number | null) => {
   return String(v);
 };
 
-const escapeHtml = (value: string) =>
-  value.replace(/[&<>"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char] || char));
-
-export const estaEnIframeSandbox = () => {
-  try {
-    return window.self !== window.top;
-  } catch {
-    return true;
-  }
-};
-
-const validarBlobPdf = async (blob: Blob) => {
-  if (!(blob instanceof Blob) || blob.size === 0) {
+const validarArrayBufferPdf = (buffer: ArrayBuffer) => {
+  if (!(buffer instanceof ArrayBuffer) || buffer.byteLength === 0) {
     throw new Error("El PDF generado está vacío");
   }
-  const head = new Uint8Array(await blob.slice(0, 5).arrayBuffer());
+  const head = new Uint8Array(buffer.slice(0, 5));
   const sig = String.fromCharCode(...head);
   if (!sig.startsWith("%PDF")) {
     throw new Error("El archivo generado no es un PDF válido");
   }
 };
 
-type ModoEntrega = "descarga" | "ventana" | "manual";
+type ModoEntrega = "descarga" | "nativa";
 
 const intentarDescargaAnchor = (url: string, filename: string): boolean => {
   try {
@@ -133,57 +122,22 @@ const escribirVentanaManual = (popup: Window, url: string, filename: string) => 
 
 export const entregarPdfGenerado = async (
   doc: jsPDF,
-  filename: string,
-  popup?: Window | null
+  filename: string
 ): Promise<{ modo: ModoEntrega }> => {
-  const blob = doc.output("blob");
-  await validarBlobPdf(blob);
+  const buffer = doc.output("arraybuffer");
+  validarArrayBufferPdf(buffer);
 
+  const blob = new Blob([buffer], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
-  const cleanup = () => setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
-
-  const sandbox = estaEnIframeSandbox();
-
-  if (!sandbox) {
+  try {
     if (intentarDescargaAnchor(url, filename)) {
-      if (popup && !popup.closed) try { popup.close(); } catch {}
-      cleanup();
       return { modo: "descarga" };
     }
-    try {
-      doc.save(filename);
-      if (popup && !popup.closed) try { popup.close(); } catch {}
-      cleanup();
-      return { modo: "descarga" };
-    } catch (err) {
-      console.warn("[pdf] doc.save falló:", err);
-    }
+    doc.save(filename);
+    return { modo: "nativa" };
+  } finally {
+    setTimeout(() => URL.revokeObjectURL(url), 60_000);
   }
-
-  const target = popup && !popup.closed ? popup : window.open("", "_blank");
-  if (target && !target.closed) {
-    try {
-      escribirVentanaManual(target, url, filename);
-      cleanup();
-      return { modo: "ventana" };
-    } catch (err) {
-      console.warn("[pdf] no se pudo escribir en la ventana:", err);
-    }
-  }
-
-  if (sandbox) {
-    try {
-      window.top?.location.assign(url);
-    } catch {
-      window.location.assign(url);
-    }
-    cleanup();
-    return { modo: "manual" };
-  }
-
-  intentarDescargaAnchor(url, filename);
-  cleanup();
-  return { modo: "descarga" };
 };
 
 export function generarFichaMujerPDF(mujer: Mujer) {

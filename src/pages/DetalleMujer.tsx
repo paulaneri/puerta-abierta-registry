@@ -106,22 +106,30 @@ const DetalleMujer = () => {
   // Estados para nacionalidades
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
 
-  const handleGenerarPdf = () => {
-    if (!mujer) return;
-    const popup = window.open("", "_blank");
+  const [generandoPdf, setGenerandoPdf] = useState(false);
 
+  const handleGenerarPdf = async () => {
+    if (!mujer || generandoPdf) return;
+    const popup = window.open("", "_blank");
+    setGenerandoPdf(true);
     try {
       const pdf = generarFichaMujerPDF(mujer);
-      const entrega = entregarPdfGenerado(pdf.doc, pdf.filename, popup);
-      toast.success(
-        entrega.modo === "ventana"
-          ? "PDF generado. Se abrió una pestaña para verlo y descargarlo."
-          : "PDF descargado correctamente."
-      );
-    } catch (e) {
-      if (popup && !popup.closed) popup.close();
-      console.error(e);
-      toast.error("Error al generar el PDF");
+      const entrega = await entregarPdfGenerado(pdf.doc, pdf.filename, popup);
+      if (entrega.modo === "descarga") {
+        toast.success("PDF descargado correctamente.");
+      } else if (entrega.modo === "ventana") {
+        toast.success("PDF listo. Se abrió una pestaña para descargarlo.");
+      } else {
+        toast.message("PDF abierto. Usá Guardar como… para descargarlo.");
+      }
+    } catch (e: any) {
+      if (popup && !popup.closed) {
+        try { popup.close(); } catch {}
+      }
+      console.error("[pdf] error generando ficha:", e);
+      toast.error(e?.message || "No se pudo generar el PDF");
+    } finally {
+      setGenerandoPdf(false);
     }
   };
 

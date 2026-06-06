@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { ArrowLeft, Edit, Trash2, Plus, Eye, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw, FileDown } from "lucide-react";
-import { entregarPdfGenerado, generarFichaMujerPDF } from "@/lib/mujerPdf";
+import { crearUrlPdfGenerado, generarFichaMujerPDF } from "@/lib/mujerPdf";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { mujeresStore, type Mujer, type Acompanamiento, type Documento, type HijoACargo } from "@/lib/mujeresStore";
 import { HijosACargoEditor, crearHijoVacio } from "@/components/mujeres/HijosACargoEditor";
@@ -107,24 +107,38 @@ const DetalleMujer = () => {
   const [nacionalidades, setNacionalidades] = useState<Nacionalidad[]>([]);
 
   const [generandoPdf, setGenerandoPdf] = useState(false);
+  const [pdfDescarga, setPdfDescarga] = useState<{ url: string; filename: string } | null>(null);
 
-  const handleGenerarPdf = async () => {
-    if (!mujer || generandoPdf) return;
+  useEffect(() => {
+    return () => {
+      if (pdfDescarga?.url) URL.revokeObjectURL(pdfDescarga.url);
+    };
+  }, [pdfDescarga?.url]);
+
+  const handlePrepararPdf = () => {
+    if (!mujer || pdfDescarga || generandoPdf) return;
     setGenerandoPdf(true);
     try {
       const pdf = generarFichaMujerPDF(mujer);
-      const entrega = await entregarPdfGenerado(pdf.doc, pdf.filename);
-      if (entrega.modo === "descarga") {
-        toast.success("PDF descargado correctamente.");
-      } else {
-        toast.success("PDF generado correctamente.");
-      }
+      const url = crearUrlPdfGenerado(pdf.doc);
+      setPdfDescarga((actual) => {
+        if (actual?.url) URL.revokeObjectURL(actual.url);
+        return { url, filename: pdf.filename };
+      });
     } catch (e: any) {
       console.error("[pdf] error generando ficha:", e);
       toast.error(e?.message || "No se pudo generar el PDF");
     } finally {
       setGenerandoPdf(false);
     }
+  };
+
+  const handleDescargaPdf = () => {
+    if (!pdfDescarga) {
+      handlePrepararPdf();
+      return;
+    }
+    toast.success("PDF descargado correctamente.");
   };
 
 

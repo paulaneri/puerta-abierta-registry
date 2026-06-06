@@ -113,7 +113,7 @@ const DetalleMujer = () => {
     setGenerandoPdf(true);
     try {
       const pdf = generarFichaMujerPDF(mujer);
-      await entregarPdfGenerado(pdf.doc, pdf.filename);
+      const entrega = await entregarPdfGenerado(pdf.doc, pdf.filename);
       if (entrega.modo === "descarga") {
         toast.success("PDF descargado correctamente.");
       } else {
@@ -760,6 +760,7 @@ const DetalleMujer = () => {
             <div className="flex items-center gap-2">
               {!editMode && (
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={handleGenerarPdf}
                   title="Descargar ficha en PDF"

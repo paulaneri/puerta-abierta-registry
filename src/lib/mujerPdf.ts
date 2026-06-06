@@ -57,69 +57,6 @@ const intentarDescargaAnchor = (url: string, filename: string): boolean => {
   }
 };
 
-const escribirVentanaManual = (popup: Window, url: string, filename: string) => {
-  const safeFilename = escapeHtml(filename);
-  const safeUrl = escapeHtml(url);
-  popup.document.open();
-  popup.document.write(`<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${safeFilename}</title>
-    <style>
-      :root { color-scheme: light; }
-      * { box-sizing: border-box; }
-      body { margin: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #1f2937; background: #f8fafc; display: flex; flex-direction: column; }
-      header { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 18px; background: #ffffff; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
-      .filename { font-size: 14px; font-weight: 600; word-break: break-all; }
-      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-      button, a.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border-radius: 8px; background: #7e22ce; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; border: 0; cursor: pointer; }
-      a.btn.secondary { background: #ffffff; color: #7e22ce; border: 1px solid #7e22ce; }
-      main { flex: 1; display: flex; flex-direction: column; }
-      iframe { flex: 1; width: 100%; border: 0; background: #ffffff; min-height: 70vh; }
-      .hint { padding: 12px 18px; font-size: 13px; color: #475569; background: #fef3c7; border-bottom: 1px solid #fde68a; }
-    </style>
-  </head>
-  <body>
-    <header>
-      <span class="filename">${safeFilename}</span>
-      <div class="actions">
-        <button id="btn-download" type="button">Descargar PDF</button>
-        <a class="btn secondary" href="${safeUrl}" target="_blank" rel="noopener">Abrir en pestaña</a>
-      </div>
-    </header>
-    <div class="hint">Si la descarga no inicia automáticamente, hacé clic en <strong>Descargar PDF</strong>.</div>
-    <main>
-      <iframe src="${safeUrl}" title="${safeFilename}"></iframe>
-    </main>
-    <script>
-      (function(){
-        var url = ${JSON.stringify(url)};
-        var filename = ${JSON.stringify(filename)};
-        function descargar(){
-          try {
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.rel = 'noopener';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-          } catch (e) {
-            window.open(url, '_blank');
-          }
-        }
-        document.getElementById('btn-download').addEventListener('click', descargar);
-        setTimeout(descargar, 250);
-      })();
-    </script>
-  </body>
-</html>`);
-  popup.document.close();
-  try { popup.focus(); } catch {}
-};
-
 export const entregarPdfGenerado = async (
   doc: jsPDF,
   filename: string

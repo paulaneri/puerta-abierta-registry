@@ -37,44 +37,12 @@ const validarArrayBufferPdf = (buffer: ArrayBuffer) => {
   }
 };
 
-type ModoEntrega = "descarga" | "nativa";
-
-const intentarDescargaAnchor = (url: string, filename: string): boolean => {
-  try {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.rel = "noopener";
-    link.style.position = "fixed";
-    link.style.left = "-9999px";
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => link.remove(), 0);
-    return true;
-  } catch (err) {
-    console.warn("[pdf] anchor download falló:", err);
-    return false;
-  }
-};
-
-export const entregarPdfGenerado = async (
-  doc: jsPDF,
-  filename: string
-): Promise<{ modo: ModoEntrega }> => {
+export const crearUrlPdfGenerado = (doc: jsPDF) => {
   const buffer = doc.output("arraybuffer");
   validarArrayBufferPdf(buffer);
 
   const blob = new Blob([buffer], { type: "application/pdf" });
-  const url = URL.createObjectURL(blob);
-  try {
-    if (intentarDescargaAnchor(url, filename)) {
-      return { modo: "descarga" };
-    }
-    doc.save(filename);
-    return { modo: "nativa" };
-  } finally {
-    setTimeout(() => URL.revokeObjectURL(url), 60_000);
-  }
+  return URL.createObjectURL(blob);
 };
 
 export function generarFichaMujerPDF(mujer: Mujer) {

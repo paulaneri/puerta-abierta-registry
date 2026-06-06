@@ -769,9 +769,10 @@ const DetalleMujer = () => {
                   variant="outline"
                   onClick={handleGenerarPdf}
                   title="Descargar ficha en PDF"
+                  disabled={generandoPdf}
                 >
                   <FileDown className="h-4 w-4 mr-2" />
-                  Descargar PDF
+                  {generandoPdf ? "Generando…" : "Descargar PDF"}
                 </Button>
               )}
               <Button

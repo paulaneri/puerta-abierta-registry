@@ -26,164 +26,38 @@ const val = (v?: string | number | null) => {
   return String(v);
 };
 
-const escapeHtml = (value: string) =>
-  value.replace(/[&<>"]/g, (char) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[char] || char));
-
-export const estaEnIframeSandbox = () => {
-  try {
-    return window.self !== window.top;
-  } catch {
-    return true;
-  }
-};
-
-const validarBlobPdf = async (blob: Blob) => {
-  if (!(blob instanceof Blob) || blob.size === 0) {
+const validarArrayBufferPdf = (buffer: ArrayBuffer) => {
+  if (!(buffer instanceof ArrayBuffer) || buffer.byteLength === 0) {
     throw new Error("El PDF generado está vacío");
   }
-  const head = new Uint8Array(await blob.slice(0, 5).arrayBuffer());
+  const head = new Uint8Array(buffer.slice(0, 5));
   const sig = String.fromCharCode(...head);
   if (!sig.startsWith("%PDF")) {
     throw new Error("El archivo generado no es un PDF válido");
   }
 };
 
-type ModoEntrega = "descarga" | "ventana" | "manual";
+export const descargarPdfGenerado = (doc: jsPDF, filename: string) => {
+  const buffer = doc.output("arraybuffer");
+  validarArrayBufferPdf(buffer);
 
-const intentarDescargaAnchor = (url: string, filename: string): boolean => {
-  try {
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    link.rel = "noopener";
-    link.style.position = "fixed";
-    link.style.left = "-9999px";
-    document.body.appendChild(link);
-    link.click();
-    setTimeout(() => link.remove(), 0);
-    return true;
-  } catch (err) {
-    console.warn("[pdf] anchor download falló:", err);
-    return false;
-  }
-};
-
-const escribirVentanaManual = (popup: Window, url: string, filename: string) => {
-  const safeFilename = escapeHtml(filename);
-  const safeUrl = escapeHtml(url);
-  popup.document.open();
-  popup.document.write(`<!doctype html>
-<html lang="es">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>${safeFilename}</title>
-    <style>
-      :root { color-scheme: light; }
-      * { box-sizing: border-box; }
-      body { margin: 0; min-height: 100vh; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif; color: #1f2937; background: #f8fafc; display: flex; flex-direction: column; }
-      header { display: flex; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 18px; background: #ffffff; border-bottom: 1px solid #e5e7eb; flex-wrap: wrap; }
-      .filename { font-size: 14px; font-weight: 600; word-break: break-all; }
-      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-      button, a.btn { display: inline-flex; align-items: center; justify-content: center; min-height: 40px; padding: 0 16px; border-radius: 8px; background: #7e22ce; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; border: 0; cursor: pointer; }
-      a.btn.secondary { background: #ffffff; color: #7e22ce; border: 1px solid #7e22ce; }
-      main { flex: 1; display: flex; flex-direction: column; }
-      iframe { flex: 1; width: 100%; border: 0; background: #ffffff; min-height: 70vh; }
-      .hint { padding: 12px 18px; font-size: 13px; color: #475569; background: #fef3c7; border-bottom: 1px solid #fde68a; }
-    </style>
-  </head>
-  <body>
-    <header>
-      <span class="filename">${safeFilename}</span>
-      <div class="actions">
-        <button id="btn-download" type="button">Descargar PDF</button>
-        <a class="btn secondary" href="${safeUrl}" target="_blank" rel="noopener">Abrir en pestaña</a>
-      </div>
-    </header>
-    <div class="hint">Si la descarga no inicia automáticamente, hacé clic en <strong>Descargar PDF</strong>.</div>
-    <main>
-      <iframe src="${safeUrl}" title="${safeFilename}"></iframe>
-    </main>
-    <script>
-      (function(){
-        var url = ${JSON.stringify(url)};
-        var filename = ${JSON.stringify(filename)};
-        function descargar(){
-          try {
-            var a = document.createElement('a');
-            a.href = url;
-            a.download = filename;
-            a.rel = 'noopener';
-            document.body.appendChild(a);
-            a.click();
-            a.remove();
-          } catch (e) {
-            window.open(url, '_blank');
-          }
-        }
-        document.getElementById('btn-download').addEventListener('click', descargar);
-        setTimeout(descargar, 250);
-      })();
-    </script>
-  </body>
-</html>`);
-  popup.document.close();
-  try { popup.focus(); } catch {}
-};
-
-export const entregarPdfGenerado = async (
-  doc: jsPDF,
-  filename: string,
-  popup?: Window | null
-): Promise<{ modo: ModoEntrega }> => {
-  const blob = doc.output("blob");
-  await validarBlobPdf(blob);
-
+  const blob = new Blob([buffer], { type: "application/pdf" });
   const url = URL.createObjectURL(blob);
-  const cleanup = () => setTimeout(() => URL.revokeObjectURL(url), 5 * 60_000);
+  const link = document.createElement("a");
 
-  const sandbox = estaEnIframeSandbox();
+  link.href = url;
+  link.download = filename;
+  link.rel = "noopener";
+  link.style.position = "fixed";
+  link.style.left = "-9999px";
+  link.style.top = "0";
 
-  if (!sandbox) {
-    if (intentarDescargaAnchor(url, filename)) {
-      if (popup && !popup.closed) try { popup.close(); } catch {}
-      cleanup();
-      return { modo: "descarga" };
-    }
-    try {
-      doc.save(filename);
-      if (popup && !popup.closed) try { popup.close(); } catch {}
-      cleanup();
-      return { modo: "descarga" };
-    } catch (err) {
-      console.warn("[pdf] doc.save falló:", err);
-    }
-  }
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
 
-  const target = popup && !popup.closed ? popup : window.open("", "_blank");
-  if (target && !target.closed) {
-    try {
-      escribirVentanaManual(target, url, filename);
-      cleanup();
-      return { modo: "ventana" };
-    } catch (err) {
-      console.warn("[pdf] no se pudo escribir en la ventana:", err);
-    }
-  }
-
-  if (sandbox) {
-    try {
-      window.top?.location.assign(url);
-    } catch {
-      window.location.assign(url);
-    }
-    cleanup();
-    return { modo: "manual" };
-  }
-
-  intentarDescargaAnchor(url, filename);
-  cleanup();
-  return { modo: "descarga" };
+  return { filename, bytes: buffer.byteLength };
 };
 
 export function generarFichaMujerPDF(mujer: Mujer) {

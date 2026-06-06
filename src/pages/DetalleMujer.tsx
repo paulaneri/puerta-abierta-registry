@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { ArrowLeft, Edit, Trash2, Plus, Eye, Paperclip, X, Save, CalendarIcon, MapPin, RefreshCw, FileDown } from "lucide-react";
-import { entregarPdfGenerado, generarFichaMujerPDF } from "@/lib/mujerPdf";
+import { descargarPdfGenerado, generarFichaMujerPDF } from "@/lib/mujerPdf";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { mujeresStore, type Mujer, type Acompanamiento, type Documento, type HijoACargo } from "@/lib/mujeresStore";
 import { HijosACargoEditor, crearHijoVacio } from "@/components/mujeres/HijosACargoEditor";
@@ -108,24 +108,14 @@ const DetalleMujer = () => {
 
   const [generandoPdf, setGenerandoPdf] = useState(false);
 
-  const handleGenerarPdf = async () => {
+  const handleGenerarPdf = () => {
     if (!mujer || generandoPdf) return;
-    const popup = window.open("", "_blank");
     setGenerandoPdf(true);
     try {
       const pdf = generarFichaMujerPDF(mujer);
-      const entrega = await entregarPdfGenerado(pdf.doc, pdf.filename, popup);
-      if (entrega.modo === "descarga") {
-        toast.success("PDF descargado correctamente.");
-      } else if (entrega.modo === "ventana") {
-        toast.success("PDF listo. Se abrió una pestaña para descargarlo.");
-      } else {
-        toast.message("PDF abierto. Usá Guardar como… para descargarlo.");
-      }
+      descargarPdfGenerado(pdf.doc, pdf.filename);
+      toast.success("PDF descargado correctamente.");
     } catch (e: any) {
-      if (popup && !popup.closed) {
-        try { popup.close(); } catch {}
-      }
       console.error("[pdf] error generando ficha:", e);
       toast.error(e?.message || "No se pudo generar el PDF");
     } finally {
@@ -766,6 +756,7 @@ const DetalleMujer = () => {
             <div className="flex items-center gap-2">
               {!editMode && (
                 <Button
+                  type="button"
                   variant="outline"
                   onClick={handleGenerarPdf}
                   title="Descargar ficha en PDF"

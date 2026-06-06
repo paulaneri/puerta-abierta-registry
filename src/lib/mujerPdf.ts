@@ -37,12 +37,27 @@ const validarArrayBufferPdf = (buffer: ArrayBuffer) => {
   }
 };
 
-export const crearUrlPdfGenerado = (doc: jsPDF) => {
+export const descargarPdfGenerado = (doc: jsPDF, filename: string) => {
   const buffer = doc.output("arraybuffer");
   validarArrayBufferPdf(buffer);
 
   const blob = new Blob([buffer], { type: "application/pdf" });
-  return URL.createObjectURL(blob);
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = filename;
+  link.rel = "noopener";
+  link.style.position = "fixed";
+  link.style.left = "-9999px";
+  link.style.top = "0";
+
+  document.body.appendChild(link);
+  link.click();
+  link.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 60_000);
+
+  return { filename, bytes: buffer.byteLength };
 };
 
 export function generarFichaMujerPDF(mujer: Mujer) {

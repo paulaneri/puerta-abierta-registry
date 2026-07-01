@@ -38,6 +38,7 @@ const TrabajoCampoEditar = () => {
   const [trabajo, setTrabajo] = useState<TrabajoCampo | null>(null);
   const [cargando, setCargando] = useState(true);
   const [mujeresRegistradas, setMujeresRegistradas] = useState<{id: string, nombre: string, apellido: string}[]>([]);
+  const [profesionalesDisponibles, setProfesionalesDisponibles] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     fecha: new Date().toISOString().split('T')[0],

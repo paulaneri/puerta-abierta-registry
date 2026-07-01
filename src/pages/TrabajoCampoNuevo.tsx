@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { trabajoCampoStore, type TrabajoCampo as TrabajoCampoType } from "@/lib/trabajoCampoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
+import { equipoStore } from "@/lib/equipoStore";
 import LugarPredictiveInput from "@/components/LugarPredictiveInput";
 
 interface EncuentroMujer {
@@ -25,16 +26,10 @@ interface EncuentroMujer {
   esRegistrada: boolean;
 }
 
-const profesionalesDisponibles = [
-  "Ana García - Psicóloga",
-  "Carlos Rodríguez - Trabajador Social", 
-  "María López - Enfermera",
-  "Juan Pérez - Terapeuta Ocupacional"
-];
-
 const TrabajoCampoNuevo = () => {
   const navigate = useNavigate();
   const [mujeresRegistradas, setMujeresRegistradas] = useState<{id: string, nombre: string, apellido: string}[]>([]);
+  const [profesionalesDisponibles, setProfesionalesDisponibles] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     fecha: new Date().toISOString().split('T')[0],

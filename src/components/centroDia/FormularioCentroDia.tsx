@@ -436,10 +436,22 @@ const FormularioCentroDia = ({ registro, onClose, onSave }: FormularioCentroDiaP
 
           {/* Trabajo de Campo */}
           <div>
-            <Label htmlFor="trabajo-campo" className="flex items-center gap-2">
-              <MapPin className="h-4 w-4" />
-              Resumen del Trabajo de Campo
-            </Label>
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <Label htmlFor="trabajo-campo" className="flex items-center gap-2 mb-0">
+                <MapPin className="h-4 w-4" />
+                Resumen del Trabajo de Campo
+              </Label>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setTrabajoCampoDialogOpen(true)}
+                className="gap-2"
+              >
+                <Plus className="h-4 w-4" />
+                Cargar Trabajo de Campo
+              </Button>
+            </div>
             <Textarea
               id="trabajo-campo"
               value={registroActual.trabajoCampoResumen}
@@ -447,6 +459,20 @@ const FormularioCentroDia = ({ registro, onClose, onSave }: FormularioCentroDiaP
               placeholder="Resumen del trabajo de campo realizado este día..."
             />
           </div>
+
+          <TrabajoCampoDialog
+            open={trabajoCampoDialogOpen}
+            onOpenChange={setTrabajoCampoDialogOpen}
+            fechaInicial={registroActual.fecha}
+            onCreado={(descripcion) => {
+              setRegistroActual(prev => ({
+                ...prev,
+                trabajoCampoResumen: prev.trabajoCampoResumen
+                  ? `${prev.trabajoCampoResumen}\n${descripcion}`
+                  : descripcion,
+              }));
+            }}
+          />
 
           <div className="flex justify-end gap-2">
             <Button variant="outline" onClick={onClose}>

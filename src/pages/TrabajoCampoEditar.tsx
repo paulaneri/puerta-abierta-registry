@@ -71,6 +71,10 @@ const TrabajoCampoEditar = () => {
         }));
         setMujeresRegistradas(mujeresFormateadas);
 
+        // Cargar equipo activo
+        const equipo = await equipoStore.getProfesionalesActivos();
+        setProfesionalesDisponibles(equipo.map(p => `${p.nombre} ${p.apellido}${p.cargo ? ' - ' + p.cargo : ''}`));
+
         // Cargar trabajo de campo
         if (id) {
           const trabajoEncontrado = await trabajoCampoStore.getTrabajoPorId(id);

@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { trabajoCampoStore, type TrabajoCampo } from "@/lib/trabajoCampoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
+import { equipoStore } from "@/lib/equipoStore";
 import LugarPredictiveInput from "@/components/LugarPredictiveInput";
 import { formatDate } from "@/lib/utils";
 import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
@@ -28,13 +29,6 @@ interface EncuentroMujer {
   esRegistrada: boolean;
 }
 
-const profesionalesDisponibles = [
-  "Ana García - Psicóloga",
-  "Carlos Rodríguez - Trabajador Social", 
-  "María López - Enfermera",
-  "Juan Pérez - Terapeuta Ocupacional"
-];
-
 const TrabajoCampoEditar = () => {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
@@ -44,6 +38,7 @@ const TrabajoCampoEditar = () => {
   const [trabajo, setTrabajo] = useState<TrabajoCampo | null>(null);
   const [cargando, setCargando] = useState(true);
   const [mujeresRegistradas, setMujeresRegistradas] = useState<{id: string, nombre: string, apellido: string}[]>([]);
+  const [profesionalesDisponibles, setProfesionalesDisponibles] = useState<string[]>([]);
   
   const [formData, setFormData] = useState({
     fecha: new Date().toISOString().split('T')[0],
@@ -75,6 +70,10 @@ const TrabajoCampoEditar = () => {
           apellido: m.apellido 
         }));
         setMujeresRegistradas(mujeresFormateadas);
+
+        // Cargar equipo activo
+        const equipo = await equipoStore.getProfesionalesActivos();
+        setProfesionalesDisponibles(equipo.map(p => `${p.nombre} ${p.apellido}${p.cargo ? ' - ' + p.cargo : ''}`));
 
         // Cargar trabajo de campo
         if (id) {

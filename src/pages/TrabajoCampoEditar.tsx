@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { format } from "date-fns";
 import { trabajoCampoStore, type TrabajoCampo } from "@/lib/trabajoCampoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
+import { equipoStore } from "@/lib/equipoStore";
 import LugarPredictiveInput from "@/components/LugarPredictiveInput";
 import { formatDate } from "@/lib/utils";
 import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
@@ -27,13 +28,6 @@ interface EncuentroMujer {
   conversacion: string;
   esRegistrada: boolean;
 }
-
-const profesionalesDisponibles = [
-  "Ana García - Psicóloga",
-  "Carlos Rodríguez - Trabajador Social", 
-  "María López - Enfermera",
-  "Juan Pérez - Terapeuta Ocupacional"
-];
 
 const TrabajoCampoEditar = () => {
   const navigate = useNavigate();

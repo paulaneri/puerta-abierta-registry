@@ -15,6 +15,7 @@ import { centroDiaStore, type RegistroCentroDia } from "@/lib/centroDiaStore";
 import { mujeresStore, type Mujer } from "@/lib/mujeresStore";
 import { trabajoCampoStore } from "@/lib/trabajoCampoStore";
 import { equipoStore, type Profesional } from "@/lib/equipoStore";
+import TrabajoCampoDialog from "@/components/centroDia/TrabajoCampoDialog";
 
 interface FormularioCentroDiaProps {
   registro?: RegistroCentroDia;

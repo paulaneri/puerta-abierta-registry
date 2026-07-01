@@ -66,7 +66,19 @@ const TrabajoCampoNuevo = () => {
       }
     };
 
+    const cargarEquipo = async () => {
+      try {
+        const equipo = await equipoStore.getProfesionalesActivos();
+        const nombres = equipo.map(p => `${p.nombre} ${p.apellido}${p.cargo ? ' - ' + p.cargo : ''}`);
+        setProfesionalesDisponibles(nombres);
+      } catch (error) {
+        console.error('Error cargando equipo:', error);
+        setProfesionalesDisponibles([]);
+      }
+    };
+
     cargarMujeres();
+    cargarEquipo();
   }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {

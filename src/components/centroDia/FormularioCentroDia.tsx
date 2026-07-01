@@ -40,6 +40,7 @@ const FormularioCentroDia = ({ registro, onClose, onSave }: FormularioCentroDiaP
   const [profesionales, setProfesionales] = useState<Profesional[]>([]);
   const [nuevoTramite, setNuevoTramite] = useState({ tipo: '', cantidad: 1 });
   const [equipoSeleccionado, setEquipoSeleccionado] = useState<Profesional[]>([]);
+  const [trabajoCampoDialogOpen, setTrabajoCampoDialogOpen] = useState(false);
 
   useEffect(() => {
     const cargarDatos = async () => {

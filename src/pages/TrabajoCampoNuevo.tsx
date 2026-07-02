@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
-import { Plus, Trash2, ArrowLeft, Save, Calendar, Users, MapPin } from "lucide-react";
+import { Plus, Trash2, ArrowLeft, Save, Calendar, Users, MapPin, X } from "lucide-react";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { UnsavedChangesDialog } from "@/components/ui/unsaved-changes-dialog";
 import { toast } from "sonner";
@@ -280,19 +280,45 @@ const TrabajoCampoNuevo = () => {
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                {profesionalesDisponibles.map((profesional) => (
-                  <label key={profesional} className="flex items-center space-x-2 cursor-pointer p-2 hover:bg-muted/50 rounded">
-                    <input
-                      type="checkbox"
-                      checked={formData.profesionales.includes(profesional)}
-                      onChange={() => toggleProfesional(profesional)}
-                      className="rounded border-gray-300"
-                    />
-                    <span className="text-sm">{profesional}</span>
-                  </label>
-                ))}
+              <div className="mb-3">
+                <Select onValueChange={(value) => {
+                  if (value && !formData.profesionales.includes(value)) {
+                    setFormData(prev => ({ ...prev, profesionales: [...prev.profesionales, value] }));
+                    setHasChanges(true);
+                  }
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar profesional del equipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {profesionalesDisponibles
+                      .filter(p => !formData.profesionales.includes(p))
+                      .map((profesional) => (
+                        <SelectItem key={profesional} value={profesional}>
+                          {profesional}
+                        </SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
               </div>
+              {formData.profesionales.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                  {formData.profesionales.map((profesional) => (
+                    <Badge key={profesional} variant="secondary" className="flex items-center gap-2">
+                      {profesional}
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-auto p-0 ml-1"
+                        onClick={() => toggleProfesional(profesional)}
+                      >
+                        <X className="h-3 w-3" />
+                      </Button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
             </CardContent>
           </Card>
 

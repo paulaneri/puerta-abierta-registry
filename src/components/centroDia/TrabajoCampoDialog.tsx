@@ -4,10 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Badge } from "@/components/ui/badge";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { format } from "date-fns";
 import { toast } from "sonner";
-import { MapPin, Save } from "lucide-react";
+import { MapPin, Save, X } from "lucide-react";
 import LugarPredictiveInput from "@/components/LugarPredictiveInput";
 import { trabajoCampoStore } from "@/lib/trabajoCampoStore";
 import { equipoStore } from "@/lib/equipoStore";
@@ -122,21 +124,46 @@ const TrabajoCampoDialog = ({ open, onOpenChange, fechaInicial, onCreado }: Prop
 
           <div>
             <Label>Profesionales que participaron *</Label>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 mt-2 max-h-60 overflow-y-auto border rounded p-2">
-              {profesionalesDisponibles.length === 0 && (
-                <p className="text-sm text-muted-foreground col-span-2">No hay profesionales activos en Equipo de Trabajo.</p>
-              )}
-              {profesionalesDisponibles.map(prof => (
-                <label key={prof} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-muted/50 rounded">
-                  <input
-                    type="checkbox"
-                    checked={formData.profesionales.includes(prof)}
-                    onChange={() => toggleProfesional(prof)}
-                  />
-                  <span className="text-sm">{prof}</span>
-                </label>
-              ))}
-            </div>
+            {profesionalesDisponibles.length === 0 ? (
+              <p className="text-sm text-muted-foreground mt-2">No hay profesionales activos en Equipo de Trabajo.</p>
+            ) : (
+              <div className="mt-2">
+                <Select onValueChange={(value) => {
+                  if (value && !formData.profesionales.includes(value)) {
+                    setFormData(prev => ({ ...prev, profesionales: [...prev.profesionales, value] }));
+                  }
+                }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar profesional del equipo" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {profesionalesDisponibles
+                      .filter(p => !formData.profesionales.includes(p))
+                      .map(prof => (
+                        <SelectItem key={prof} value={prof}>{prof}</SelectItem>
+                      ))}
+                  </SelectContent>
+                </Select>
+                {formData.profesionales.length > 0 && (
+                  <div className="flex flex-wrap gap-2 mt-3">
+                    {formData.profesionales.map(prof => (
+                      <Badge key={prof} variant="secondary" className="flex items-center gap-2">
+                        {prof}
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-auto p-0 ml-1"
+                          onClick={() => toggleProfesional(prof)}
+                        >
+                          <X className="h-3 w-3" />
+                        </Button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 

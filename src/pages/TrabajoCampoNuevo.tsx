@@ -9,7 +9,6 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { DatePicker } from "@/components/ui/date-picker";
 import { Plus, Trash2, ArrowLeft, Save, Calendar, Users, MapPin, X } from "lucide-react";
-import { Badge as BadgeUI } from "@/components/ui/badge";
 import { useUnsavedChanges } from "@/hooks/useUnsavedChanges";
 import { UnsavedChangesDialog } from "@/components/ui/unsaved-changes-dialog";
 import { toast } from "sonner";

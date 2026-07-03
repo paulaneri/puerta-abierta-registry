@@ -1,6 +1,8 @@
 <?php
 // ============================================
 // API REST Principal - Router genérico CRUD
+// Con autorización por rol (equivalente a RLS) y
+// allow-list de columnas para prevenir inyección SQL por identificadores.
 // ============================================
 
 require_once __DIR__ . '/config.php';
@@ -8,7 +10,6 @@ require_once __DIR__ . '/jwt.php';
 
 setCorsHeaders();
 
-// Check installation
 if (!INSTALLED) {
     http_response_code(503);
     echo json_encode(['error' => 'La aplicación no está instalada. Ejecutá install.php']);
@@ -16,74 +17,97 @@ if (!INSTALLED) {
 }
 
 $user = require_auth();
+$userRole = $user['role'] ?? 'trabajador';
 $db = getDB();
 
 // Parse URL: /api/rest/v1/{table}
 $path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $segments = array_values(array_filter(explode('/', $path)));
 
-// Find table name (after 'v1')
 $tableIndex = array_search('v1', $segments);
 $table = ($tableIndex !== false && isset($segments[$tableIndex + 1])) ? $segments[$tableIndex + 1] : null;
 
-if (!$table) {
+if (!$table || !validIdentifier($table)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Tabla no especificada']);
+    echo json_encode(['error' => 'Tabla inválida']);
     exit;
 }
 
-// Allowed tables
-$allowedTables = [
-    'mujeres', 'equipo', 'centro_dia', 'trabajo_campo', 'gastos', 
-    'etiquetas_gastos', 'contactos', 'eventos', 'duplas_acompanamiento',
-    'reuniones_semanales', 'asignaciones_roles', 'disponibilidad_reuniones',
-    'actividades', 'albumes', 'fotos_album', 'lugares', 'nacionalidades',
-    'cargos_profesionales', 'profiles', 'user_roles'
-];
+// user_roles NUNCA se expone por CRUD genérico (privilege escalation).
+$blockedTables = ['user_roles', 'auth_users'];
+if (in_array($table, $blockedTables, true)) {
+    http_response_code(403);
+    echo json_encode(['error' => "Tabla '$table' no accesible por esta vía"]);
+    exit;
+}
 
-if (!in_array($table, $allowedTables)) {
+$perms = getTablePermissions();
+if (!isset($perms[$table])) {
     http_response_code(403);
     echo json_encode(['error' => "Tabla '$table' no permitida"]);
     exit;
 }
 
 $method = $_SERVER['REQUEST_METHOD'];
-
-switch ($method) {
-    case 'GET':
-        handleSelect($db, $table);
-        break;
-    case 'POST':
-        handleInsert($db, $table);
-        break;
-    case 'PATCH':
-        handleUpdate($db, $table);
-        break;
-    case 'DELETE':
-        handleDelete($db, $table);
-        break;
-    default:
-        http_response_code(405);
-        echo json_encode(['error' => 'Método no permitido']);
+$opMap = ['GET' => 'select', 'POST' => 'insert', 'PATCH' => 'update', 'DELETE' => 'delete'];
+$op = $opMap[$method] ?? null;
+if (!$op) {
+    http_response_code(405);
+    echo json_encode(['error' => 'Método no permitido']);
+    exit;
 }
 
-function handleSelect($db, $table) {
-    $select = $_GET['select'] ?? '*';
-    $where = buildWhereClause();
-    $order = buildOrderClause();
-    $limit = isset($_GET['limit']) ? (int)$_GET['limit'] : 1000;
-    $offset = isset($_GET['offset']) ? (int)$_GET['offset'] : 0;
-    
-    $sql = "SELECT $select FROM `$table`";
+if (!authorizeTableOp($table, $op, $userRole)) {
+    http_response_code(403);
+    echo json_encode(['error' => 'No autorizado para esta operación']);
+    exit;
+}
+
+$allowedCols = getAllowedColumns($db, $table);
+
+switch ($op) {
+    case 'select': handleSelect($db, $table, $allowedCols); break;
+    case 'insert': handleInsert($db, $table, $allowedCols); break;
+    case 'update': handleUpdate($db, $table, $allowedCols); break;
+    case 'delete': handleDelete($db, $table, $allowedCols); break;
+}
+
+// ============================================
+
+function handleSelect($db, $table, $allowedCols) {
+    // Validar 'select': solo '*' o lista de columnas conocidas separadas por coma.
+    $selectRaw = $_GET['select'] ?? '*';
+    if ($selectRaw === '*') {
+        $selectSql = '*';
+    } else {
+        $parts = array_map('trim', explode(',', $selectRaw));
+        foreach ($parts as $c) {
+            if (!validIdentifier($c) || !in_array($c, $allowedCols, true)) {
+                http_response_code(400);
+                echo json_encode(['error' => "Columna inválida en select: $c"]);
+                return;
+            }
+        }
+        $selectSql = implode(', ', array_map(fn($c) => "`$c`", $parts));
+    }
+
+    $where = buildWhereClause($allowedCols);
+    if ($where === false) return;
+    $order = buildOrderClause($allowedCols);
+    if ($order === false) return;
+
+    $limit = isset($_GET['limit']) ? max(0, min(10000, (int)$_GET['limit'])) : 1000;
+    $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
+
+    $sql = "SELECT $selectSql FROM `$table`";
     if ($where['sql']) $sql .= " WHERE " . $where['sql'];
     if ($order) $sql .= " ORDER BY $order";
     $sql .= " LIMIT $limit OFFSET $offset";
-    
+
     $stmt = $db->prepare($sql);
     $stmt->execute($where['params']);
     $results = $stmt->fetchAll();
-    
-    // Parse JSON fields
+
     foreach ($results as &$row) {
         foreach ($row as $key => &$value) {
             if (is_string($value) && (str_starts_with($value, '{') || str_starts_with($value, '['))) {
@@ -92,8 +116,7 @@ function handleSelect($db, $table) {
             }
         }
     }
-    
-    // Check if single row requested via header
+
     $prefer = $_SERVER['HTTP_PREFER'] ?? '';
     if (strpos($prefer, 'return=representation') !== false && count($results) === 1) {
         echo json_encode($results[0]);
@@ -102,119 +125,137 @@ function handleSelect($db, $table) {
     }
 }
 
-function handleInsert($db, $table) {
+function handleInsert($db, $table, $allowedCols) {
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$input) {
         http_response_code(400);
         echo json_encode(['error' => 'Datos inválidos']);
         return;
     }
-    
-    // Handle single or bulk insert
+
     $rows = isset($input[0]) ? $input : [$input];
     $results = [];
-    
+
     foreach ($rows as $row) {
-        // Add UUID if not present
         if (!isset($row['id'])) {
             $row['id'] = generateUUID();
         }
-        
-        // Encode JSON fields
-        foreach ($row as $key => &$value) {
-            if (is_array($value)) $value = json_encode($value);
+
+        // Filtrar columnas contra allow-list
+        $clean = [];
+        foreach ($row as $col => $val) {
+            if (!validIdentifier($col) || !in_array($col, $allowedCols, true)) {
+                http_response_code(400);
+                echo json_encode(['error' => "Columna inválida: $col"]);
+                return;
+            }
+            if (is_array($val)) $val = json_encode($val);
+            $clean[$col] = $val;
         }
-        
-        $columns = array_keys($row);
+
+        $columns = array_keys($clean);
         $placeholders = array_fill(0, count($columns), '?');
         $sql = "INSERT INTO `$table` (`" . implode('`, `', $columns) . "`) VALUES (" . implode(', ', $placeholders) . ")";
-        
+
         $stmt = $db->prepare($sql);
-        $stmt->execute(array_values($row));
-        
-        // Fetch inserted row
+        $stmt->execute(array_values($clean));
+
         $stmt2 = $db->prepare("SELECT * FROM `$table` WHERE id = ?");
-        $stmt2->execute([$row['id']]);
+        $stmt2->execute([$clean['id']]);
         $results[] = $stmt2->fetch();
     }
-    
+
     http_response_code(201);
     echo json_encode(count($results) === 1 ? $results[0] : $results);
 }
 
-function handleUpdate($db, $table) {
+function handleUpdate($db, $table, $allowedCols) {
     $input = json_decode(file_get_contents('php://input'), true);
     if (!$input) {
         http_response_code(400);
         echo json_encode(['error' => 'Datos inválidos']);
         return;
     }
-    
-    $where = buildWhereClause();
+
+    $where = buildWhereClause($allowedCols);
+    if ($where === false) return;
     if (!$where['sql']) {
         http_response_code(400);
         echo json_encode(['error' => 'Se requiere un filtro para actualizar']);
         return;
     }
-    
-    // Encode JSON fields
-    foreach ($input as $key => &$value) {
-        if (is_array($value)) $value = json_encode($value);
-    }
-    
+
     $sets = [];
     $params = [];
     foreach ($input as $col => $val) {
+        if (!validIdentifier($col) || !in_array($col, $allowedCols, true)) {
+            http_response_code(400);
+            echo json_encode(['error' => "Columna inválida: $col"]);
+            return;
+        }
+        if (is_array($val)) $val = json_encode($val);
         $sets[] = "`$col` = ?";
         $params[] = $val;
     }
-    
+    if (!$sets) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Sin campos para actualizar']);
+        return;
+    }
+
     $params = array_merge($params, $where['params']);
     $sql = "UPDATE `$table` SET " . implode(', ', $sets) . " WHERE " . $where['sql'];
-    
+
     $stmt = $db->prepare($sql);
     $stmt->execute($params);
-    
-    // Return updated rows
+
     $sql2 = "SELECT * FROM `$table` WHERE " . $where['sql'];
     $stmt2 = $db->prepare($sql2);
     $stmt2->execute($where['params']);
     $results = $stmt2->fetchAll();
-    
+
     echo json_encode($results);
 }
 
-function handleDelete($db, $table) {
-    $where = buildWhereClause();
+function handleDelete($db, $table, $allowedCols) {
+    $where = buildWhereClause($allowedCols);
+    if ($where === false) return;
     if (!$where['sql']) {
         http_response_code(400);
         echo json_encode(['error' => 'Se requiere un filtro para eliminar']);
         return;
     }
-    
+
     $sql = "DELETE FROM `$table` WHERE " . $where['sql'];
     $stmt = $db->prepare($sql);
     $stmt->execute($where['params']);
-    
+
     echo json_encode(['success' => true, 'deleted' => $stmt->rowCount()]);
 }
 
 // ============================================
 // Query builders (Supabase-style filters)
+// Con allow-list de columnas.
 // ============================================
 
-function buildWhereClause() {
+function buildWhereClause($allowedCols) {
     $conditions = [];
     $params = [];
-    
+
     foreach ($_GET as $key => $value) {
         if (in_array($key, ['select', 'order', 'limit', 'offset'])) continue;
-        
-        // Parse operator: column=op.value
+
+        // Validar identificador contra allow-list
+        if (!validIdentifier($key) || !in_array($key, $allowedCols, true)) {
+            http_response_code(400);
+            echo json_encode(['error' => "Filtro con columna inválida: $key"]);
+            return false;
+        }
+
         if (preg_match('/^(eq|neq|gt|gte|lt|lte|like|ilike|is|in)\.(.*)$/', $value, $m)) {
             $op = $m[1];
             $val = $m[2];
-            
+
             switch ($op) {
                 case 'eq': $conditions[] = "`$key` = ?"; $params[] = $val; break;
                 case 'neq': $conditions[] = "`$key` != ?"; $params[] = $val; break;
@@ -238,34 +279,35 @@ function buildWhereClause() {
             }
         }
     }
-    
+
     return ['sql' => implode(' AND ', $conditions), 'params' => $params];
 }
 
-function buildOrderClause() {
+function buildOrderClause($allowedCols) {
     $order = $_GET['order'] ?? '';
     if (!$order) return '';
-    
+
     $parts = [];
     foreach (explode(',', $order) as $item) {
         $item = trim($item);
-        if (str_ends_with($item, '.desc')) {
-            $parts[] = '`' . substr($item, 0, -5) . '` DESC';
-        } elseif (str_ends_with($item, '.asc')) {
-            $parts[] = '`' . substr($item, 0, -4) . '` ASC';
-        } else {
-            $parts[] = "`$item` ASC";
+        $dir = 'ASC';
+        $col = $item;
+        if (str_ends_with($item, '.desc')) { $dir = 'DESC'; $col = substr($item, 0, -5); }
+        elseif (str_ends_with($item, '.asc')) { $dir = 'ASC'; $col = substr($item, 0, -4); }
+
+        if (!validIdentifier($col) || !in_array($col, $allowedCols, true)) {
+            http_response_code(400);
+            echo json_encode(['error' => "Orden con columna inválida: $col"]);
+            return false;
         }
+        $parts[] = "`$col` $dir";
     }
     return implode(', ', $parts);
 }
 
 function generateUUID() {
-    return sprintf('%04x%04x-%04x-%04x-%04x-%04x%04x%04x',
-        mt_rand(0, 0xffff), mt_rand(0, 0xffff),
-        mt_rand(0, 0xffff),
-        mt_rand(0, 0x0fff) | 0x4000,
-        mt_rand(0, 0x3fff) | 0x8000,
-        mt_rand(0, 0xffff), mt_rand(0, 0xffff), mt_rand(0, 0xffff)
-    );
+    $data = random_bytes(16);
+    $data[6] = chr((ord($data[6]) & 0x0f) | 0x40);
+    $data[8] = chr((ord($data[8]) & 0x3f) | 0x80);
+    return vsprintf('%s%s-%s-%s-%s-%s%s%s', str_split(bin2hex($data), 4));
 }

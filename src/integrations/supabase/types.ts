@@ -973,16 +973,6 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      create_example_user: {
-        Args: {
-          user_apellido?: string
-          user_email: string
-          user_nombre?: string
-          user_password: string
-          user_role: Database["public"]["Enums"]["app_role"]
-        }
-        Returns: boolean
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

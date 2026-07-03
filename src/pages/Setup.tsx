@@ -293,18 +293,8 @@ export default function Setup() {
       if (error) throw error;
       if (!data.user) throw new Error("No se pudo crear el usuario.");
 
-      // Try to set admin role via RPC if available
-      try {
-        await client.rpc("create_example_user", {
-          user_email: email,
-          user_password: password,
-          user_role: "administrador",
-          user_nombre: nombre,
-          user_apellido: apellido,
-        });
-      } catch {
-        // Non-critical — the trigger will assign a default role
-      }
+      // El rol se asigna por trigger (handle_new_user) según el email;
+      // no exponemos ningún RPC público de asignación de roles.
 
       setAdminStatus("success");
       setAdminMessage(

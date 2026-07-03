@@ -1,7 +1,7 @@
 {
     "description": "DO NOT DELETE THIS FILE. This file is used to keep track of which files have been synced in the most recent deployment. If you delete this file a resync will need to be done (which can take a while) - read more: https://github.com/SamKirkland/FTP-Deploy-Action",
     "version": "1.0.0",
-    "generatedTime": 1783085158233,
+    "generatedTime": 1783088565610,
     "data": [
         {
             "type": "folder",
@@ -15,15 +15,15 @@
         },
         {
             "type": "file",
-            "name": "index.html",
-            "size": 1016,
-            "hash": "e811e164ab8c32801b48d811897224078bdac886476751cccadd0aa052f95ff3"
-        },
-        {
-            "type": "file",
             "name": "placeholder.svg",
             "size": 3253,
             "hash": "64badf7aabda0b9630b87020ffb6095cb858ccbcf66b355c2aa08b1063954d3b"
+        },
+        {
+            "type": "file",
+            "name": "index.html",
+            "size": 1016,
+            "hash": "2b622807579c853480b215f76bb520a1ac14261a07d21c45830cbd07c9b2e978"
         },
         {
             "type": "file",
@@ -33,9 +33,9 @@
         },
         {
             "type": "file",
-            "name": "assets/currentUser-DnCPDB9y.js",
+            "name": "assets/currentUser-DQQZHjTB.js",
             "size": 199,
-            "hash": "6f801f5cf83640e10ab9afe8ee7833837fc99479577fc09e5a05f59e834acf9e"
+            "hash": "1c574d36009fb517273136bb52b45ad55caeb7ad4ac4add6aa8d4db02beadaa0"
         },
         {
             "type": "file",
@@ -45,21 +45,21 @@
         },
         {
             "type": "file",
-            "name": "assets/index-CYmW0QKQ.js",
-            "size": 2074551,
-            "hash": "2346ef02583a152f5aded8c5c3952c6f9b2b6d0b111cb0a2a063462a62ca9a1b"
+            "name": "assets/index-C8rpXgJH.js",
+            "size": 2074417,
+            "hash": "cfe9a8d0383230b817236fa13ac3c695a24e5beba7a345c3586ffd17e5674b72"
         },
         {
             "type": "file",
-            "name": "assets/index-CpqYLD1N.css",
-            "size": 89320,
-            "hash": "d3ec298eb29373e03645e55e994e34b49ac359a49c9ab37a9a9d03fc47197a1a"
+            "name": "assets/index-CiSXXiDO.css",
+            "size": 88068,
+            "hash": "190ef3194586ffb2e550b87ccd5204de36996a584024f6e35f5b7cb048e61277"
         },
         {
             "type": "file",
-            "name": "assets/index.es-DmGdO49g.js",
+            "name": "assets/index.es-Do9fPSEa.js",
             "size": 150731,
-            "hash": "d8aa017cb8f129c16263a277abfa27552ca49dbea601e6e53eedd56db813f82a"
+            "hash": "4f9b20f832cef3c67d32f49d6b8037778c7f8b88cf8f583c204cb566288f49be"
         },
         {
             "type": "file",

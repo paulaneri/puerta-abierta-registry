@@ -504,8 +504,13 @@ const Estadisticas = () => {
           llamadasRecibidas,
           llamadasRealizadas,
           entrevistasRealizadas,
+          sensibilizacionAnoActual,
 
           participantesPorAno: Object.values(participantesPorAno).sort((a: any, b: any) => a.ano.localeCompare(b.ano)),
+          sensibilizacionPorAno: Object.values(sensibilizacionPorAnoMap).sort((a: any, b: any) =>
+            a.ano.localeCompare(b.ano),
+          ),
+
           trabajoCampoPorAno: Object.values(trabajoCampoPorAno).sort((a: any, b: any) => a.ano.localeCompare(b.ano)),
           acompanamiento: Object.values(acompanamiento).sort((a: any, b: any) => a.ano.localeCompare(b.ano)),
           contactosPorAno: Object.values(contactosPorAno).sort((a: any, b: any) => a.ano.localeCompare(b.ano)),

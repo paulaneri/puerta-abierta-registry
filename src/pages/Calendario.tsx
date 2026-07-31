@@ -1175,15 +1175,20 @@ const Calendario = () => {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Este evento se repite. ¿Deseas modificar solo esta instancia o todas las futuras?
+              Este evento se repite ({formData.repeticion}). ¿Querés aplicar los cambios solo a esta
+              fecha o a toda la serie?
             </p>
             <div className="flex flex-col gap-2">
               <Button 
                 onClick={() => handleRecurrenceChoice(true)}
                 variant="outline"
               >
-                Solo este evento ({formData.fecha})
+                Solo este evento
+                {fechaEventoEspecifico
+                  ? ` (${fechaEventoEspecifico.split('-').reverse().join('/')})`
+                  : ''}
               </Button>
+
               <Button 
                 onClick={() => handleRecurrenceChoice(false)}
               >

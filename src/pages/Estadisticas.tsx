@@ -826,6 +826,34 @@ const Estadisticas = () => {
             </Card>
           )}
 
+          {/* Actividades de Sensibilización por Año */}
+          {estadisticasGenerales.sensibilizacionPorAno.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Megaphone className="h-5 w-5 text-amber-600" />
+                  Actividades de Sensibilización
+                </CardTitle>
+                <CardDescription>Eventos de sensibilización registrados en el calendario</CardDescription>
+              </CardHeader>
+              <CardContent className="px-2 sm:px-6">
+                <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={estadisticasGenerales.sensibilizacionPorAno}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="ano" />
+                      <YAxis allowDecimals={false} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="cantidad" fill="var(--color-cantidad)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+
+
           {/* Acompañamientos por Año */}
           {estadisticasGenerales.acompanamiento.length > 0 && (
             <Card>

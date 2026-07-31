@@ -50,6 +50,9 @@ const MESES = [
 
 // Fecha límite lejana para eventos con repetición indefinida
 const FECHA_REPETICION_INDEFINIDA = '2099-12-31';
+// Marcador interno para ocultar una ocurrencia de una serie que fue movida a otra fecha
+const EXCEPCION_TITULO = '__EXCEPCION_CANCELADA__';
+
 
 const Calendario = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);

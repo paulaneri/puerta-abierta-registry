@@ -155,6 +155,8 @@ const Estadisticas = () => {
 
     // Year over year evolution data
     participantesPorAno: [] as any[],
+    sensibilizacionPorAno: [] as any[],
+
     trabajoCampoPorAno: [] as any[],
     acompanamiento: [] as any[],
     contactosPorAno: [] as any[],

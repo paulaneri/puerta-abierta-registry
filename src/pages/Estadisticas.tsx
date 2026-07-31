@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, parseLocalDate } from "@/lib/utils";
+import { eventosStore } from "@/lib/eventosStore";
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -22,7 +24,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { TrendingUp, Users, Globe, Heart, Baby, Calendar, Phone, FileText, Building2, Download } from "lucide-react";
+import { TrendingUp, Users, Globe, Heart, Baby, Calendar, Phone, FileText, Building2, Download, Megaphone } from "lucide-react";
 import { centroDiaStore } from "@/lib/centroDiaStore";
 import { mujeresStore } from "@/lib/mujeresStore";
 import { gastosStore } from "@/lib/gastosStore";
@@ -150,9 +152,13 @@ const Estadisticas = () => {
     llamadasRecibidas: 0,
     llamadasRealizadas: 0,
     entrevistasRealizadas: 0,
+    sensibilizacionAnoActual: 0,
+
 
     // Year over year evolution data
     participantesPorAno: [] as any[],
+    sensibilizacionPorAno: [] as any[],
+
     trabajoCampoPorAno: [] as any[],
     acompanamiento: [] as any[],
     contactosPorAno: [] as any[],
@@ -193,6 +199,20 @@ const Estadisticas = () => {
         const gastos = await gastosStore.getGastos();
         const trabajosCampo = await trabajoCampoStore.getTrabajosCampo();
         const registrosCentroDia = await centroDiaStore.getRegistros();
+        const eventos = await eventosStore.getEventos();
+
+        // Eventos de sensibilización
+        const eventosSensibilizacion = eventos.filter((e) => e.tipo === "sensibilizacion");
+        const sensibilizacionAnoActual = eventosSensibilizacion.filter(
+          (e) => parseLocalDate(e.fecha).getFullYear() === currentYear,
+        ).length;
+        const sensibilizacionPorAnoMap = eventosSensibilizacion.reduce((acc: any, e) => {
+          const ano = parseLocalDate(e.fecha).getFullYear().toString();
+          if (!acc[ano]) acc[ano] = { ano, cantidad: 0 };
+          acc[ano].cantidad += 1;
+          return acc;
+        }, {});
+
 
         // Current year statistics - all filtered by current year
         const mujeresAnoActual = mujeres.filter((m) => new Date(m.fechaRegistro).getFullYear() === currentYear);
@@ -484,8 +504,13 @@ const Estadisticas = () => {
           llamadasRecibidas,
           llamadasRealizadas,
           entrevistasRealizadas,
+          sensibilizacionAnoActual,
 
           participantesPorAno: Object.values(participantesPorAno).sort((a: any, b: any) => a.ano.localeCompare(b.ano)),
+          sensibilizacionPorAno: Object.values(sensibilizacionPorAnoMap).sort((a: any, b: any) =>
+            a.ano.localeCompare(b.ano),
+          ),
+
           trabajoCampoPorAno: Object.values(trabajoCampoPorAno).sort((a: any, b: any) => a.ano.localeCompare(b.ano)),
           acompanamiento: Object.values(acompanamiento).sort((a: any, b: any) => a.ano.localeCompare(b.ano)),
           contactosPorAno: Object.values(contactosPorAno).sort((a: any, b: any) => a.ano.localeCompare(b.ano)),
@@ -648,6 +673,19 @@ const Estadisticas = () => {
             </CardContent>
           </Card>
 
+          <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 min-h-[140px] flex flex-col">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-amber-700">Sensibilización</CardTitle>
+              <Megaphone className="h-4 w-4 text-amber-700" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-amber-700">{estadisticasGenerales.sensibilizacionAnoActual}</div>
+              <p className="text-xs text-muted-foreground">Actividades {currentYear}</p>
+            </CardContent>
+          </Card>
+
+
+
           <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 min-h-[140px] flex flex-col">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-green-700">Contactos {currentYear}</CardTitle>
@@ -787,6 +825,34 @@ const Estadisticas = () => {
               </CardContent>
             </Card>
           )}
+
+          {/* Actividades de Sensibilización por Año */}
+          {estadisticasGenerales.sensibilizacionPorAno.length > 0 && (
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Megaphone className="h-5 w-5 text-amber-600" />
+                  Actividades de Sensibilización
+                </CardTitle>
+                <CardDescription>Eventos de sensibilización registrados en el calendario</CardDescription>
+              </CardHeader>
+              <CardContent className="px-2 sm:px-6">
+                <ChartContainer config={chartConfig} className="h-[250px] sm:h-[300px] w-full">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={estadisticasGenerales.sensibilizacionPorAno}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis dataKey="ano" />
+                      <YAxis allowDecimals={false} />
+                      <ChartTooltip content={<ChartTooltipContent />} />
+                      <Bar dataKey="cantidad" fill="var(--color-cantidad)" radius={[4, 4, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </ChartContainer>
+              </CardContent>
+            </Card>
+          )}
+
+
 
           {/* Acompañamientos por Año */}
           {estadisticasGenerales.acompanamiento.length > 0 && (

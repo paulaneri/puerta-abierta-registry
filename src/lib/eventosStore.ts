@@ -8,7 +8,7 @@ interface Evento {
   hora_inicio: string; // HH:MM
   hora_fin: string; // HH:MM
   lugar: string;
-  tipo: 'reunion' | 'taller' | 'actividad' | 'seguimiento' | 'celebracion' | 'otro';
+  tipo: 'reunion' | 'taller' | 'actividad' | 'seguimiento' | 'celebracion' | 'sensibilizacion' | 'otro';
   participantes: string[];
   recordatorio: boolean;
   repeticion?: 'ninguna' | 'semanal' | 'mensual' | 'anualmente';

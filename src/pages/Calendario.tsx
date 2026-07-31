@@ -966,6 +966,8 @@ const Calendario = () => {
                     <SelectItem value="actividad">Actividad</SelectItem>
                     <SelectItem value="seguimiento">Seguimiento</SelectItem>
                     <SelectItem value="celebracion">Celebración</SelectItem>
+                    <SelectItem value="sensibilizacion">Sensibilización</SelectItem>
+
                     <SelectItem value="otro">Otro</SelectItem>
                   </SelectContent>
                 </Select>

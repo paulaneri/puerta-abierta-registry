@@ -197,6 +197,20 @@ const Estadisticas = () => {
         const gastos = await gastosStore.getGastos();
         const trabajosCampo = await trabajoCampoStore.getTrabajosCampo();
         const registrosCentroDia = await centroDiaStore.getRegistros();
+        const eventos = await eventosStore.getEventos();
+
+        // Eventos de sensibilización
+        const eventosSensibilizacion = eventos.filter((e) => e.tipo === "sensibilizacion");
+        const sensibilizacionAnoActual = eventosSensibilizacion.filter(
+          (e) => parseLocalDate(e.fecha).getFullYear() === currentYear,
+        ).length;
+        const sensibilizacionPorAnoMap = eventosSensibilizacion.reduce((acc: any, e) => {
+          const ano = parseLocalDate(e.fecha).getFullYear().toString();
+          if (!acc[ano]) acc[ano] = { ano, cantidad: 0 };
+          acc[ano].cantidad += 1;
+          return acc;
+        }, {});
+
 
         // Current year statistics - all filtered by current year
         const mujeresAnoActual = mujeres.filter((m) => new Date(m.fechaRegistro).getFullYear() === currentYear);

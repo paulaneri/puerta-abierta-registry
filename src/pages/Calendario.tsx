@@ -50,6 +50,9 @@ const MESES = [
 
 // Fecha límite lejana para eventos con repetición indefinida
 const FECHA_REPETICION_INDEFINIDA = '2099-12-31';
+// Marcador interno para ocultar una ocurrencia de una serie que fue movida a otra fecha
+const EXCEPCION_TITULO = '__EXCEPCION_CANCELADA__';
+
 
 const Calendario = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);
@@ -286,14 +289,27 @@ const Calendario = () => {
     if (!editingEvento || !pendingEventUpdate) return;
 
     if (soloEste) {
+      // Crear una instancia independiente (excepción) con los datos nuevos
       await eventosStore.agregarEvento({
         ...pendingEventUpdate,
-        fecha: fechaEventoEspecifico,
         repeticion: 'ninguna',
         fecha_fin_repeticion: undefined,
       });
+
+      // Si la excepción se movió a otra fecha, ocultar la ocurrencia original
+      if (pendingEventUpdate.fecha !== fechaEventoEspecifico) {
+        await eventosStore.agregarEvento({
+          ...pendingEventUpdate,
+          titulo: EXCEPCION_TITULO,
+          fecha: fechaEventoEspecifico,
+          repeticion: 'ninguna',
+          fecha_fin_repeticion: undefined,
+        });
+      }
+      toast.success("Evento modificado", { description: "Se modificó únicamente esta fecha de la serie" });
     } else {
       await eventosStore.actualizarEvento(editingEvento.id, pendingEventUpdate);
+      toast.success("Serie modificada", { description: "Se modificaron todos los eventos de la serie" });
     }
 
     const eventosActualizados = await eventosStore.getEventos();
@@ -304,6 +320,7 @@ const Calendario = () => {
     setFechaEventoEspecifico("");
     resetForm();
   };
+
 
   const handleEliminarEvento = async (id: string) => {
     const eventoAEliminar = eventos.find(e => e.id === id);
@@ -417,10 +434,13 @@ const Calendario = () => {
 
     const tieneExcepcion = eventosEncontrados.some(e => !e.repeticion || e.repeticion === 'ninguna');
     if (tieneExcepcion) {
-      return eventosEncontrados.filter(e => !e.repeticion || e.repeticion === 'ninguna');
+      return eventosEncontrados.filter(
+        e => (!e.repeticion || e.repeticion === 'ninguna') && e.titulo !== EXCEPCION_TITULO
+      );
     }
-    
-    return eventosEncontrados;
+
+    return eventosEncontrados.filter(e => e.titulo !== EXCEPCION_TITULO);
+
   };
 
   // Función para obtener actividades con fecha límite
@@ -1155,15 +1175,20 @@ const Calendario = () => {
           </DialogHeader>
           <div className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Este evento se repite. ¿Deseas modificar solo esta instancia o todas las futuras?
+              Este evento se repite ({formData.repeticion}). ¿Querés aplicar los cambios solo a esta
+              fecha o a toda la serie?
             </p>
             <div className="flex flex-col gap-2">
               <Button 
                 onClick={() => handleRecurrenceChoice(true)}
                 variant="outline"
               >
-                Solo este evento ({formData.fecha})
+                Solo este evento
+                {fechaEventoEspecifico
+                  ? ` (${fechaEventoEspecifico.split('-').reverse().join('/')})`
+                  : ''}
               </Button>
+
               <Button 
                 onClick={() => handleRecurrenceChoice(false)}
               >

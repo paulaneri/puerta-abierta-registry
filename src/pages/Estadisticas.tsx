@@ -150,6 +150,8 @@ const Estadisticas = () => {
     llamadasRecibidas: 0,
     llamadasRealizadas: 0,
     entrevistasRealizadas: 0,
+    sensibilizacionAnoActual: 0,
+
 
     // Year over year evolution data
     participantesPorAno: [] as any[],

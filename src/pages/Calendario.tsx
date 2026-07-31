@@ -286,14 +286,27 @@ const Calendario = () => {
     if (!editingEvento || !pendingEventUpdate) return;
 
     if (soloEste) {
+      // Crear una instancia independiente (excepción) con los datos nuevos
       await eventosStore.agregarEvento({
         ...pendingEventUpdate,
-        fecha: fechaEventoEspecifico,
         repeticion: 'ninguna',
         fecha_fin_repeticion: undefined,
       });
+
+      // Si la excepción se movió a otra fecha, ocultar la ocurrencia original
+      if (pendingEventUpdate.fecha !== fechaEventoEspecifico) {
+        await eventosStore.agregarEvento({
+          ...pendingEventUpdate,
+          titulo: EXCEPCION_TITULO,
+          fecha: fechaEventoEspecifico,
+          repeticion: 'ninguna',
+          fecha_fin_repeticion: undefined,
+        });
+      }
+      toast.success("Evento modificado", { description: "Se modificó únicamente esta fecha de la serie" });
     } else {
       await eventosStore.actualizarEvento(editingEvento.id, pendingEventUpdate);
+      toast.success("Serie modificada", { description: "Se modificaron todos los eventos de la serie" });
     }
 
     const eventosActualizados = await eventosStore.getEventos();
@@ -304,6 +317,7 @@ const Calendario = () => {
     setFechaEventoEspecifico("");
     resetForm();
   };
+
 
   const handleEliminarEvento = async (id: string) => {
     const eventoAEliminar = eventos.find(e => e.id === id);

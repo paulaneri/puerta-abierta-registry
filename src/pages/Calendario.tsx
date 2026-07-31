@@ -434,10 +434,13 @@ const Calendario = () => {
 
     const tieneExcepcion = eventosEncontrados.some(e => !e.repeticion || e.repeticion === 'ninguna');
     if (tieneExcepcion) {
-      return eventosEncontrados.filter(e => !e.repeticion || e.repeticion === 'ninguna');
+      return eventosEncontrados.filter(
+        e => (!e.repeticion || e.repeticion === 'ninguna') && e.titulo !== EXCEPCION_TITULO
+      );
     }
-    
-    return eventosEncontrados;
+
+    return eventosEncontrados.filter(e => e.titulo !== EXCEPCION_TITULO);
+
   };
 
   // Función para obtener actividades con fecha límite

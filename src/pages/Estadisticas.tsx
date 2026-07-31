@@ -24,7 +24,7 @@ import {
   Pie,
   Cell,
 } from "recharts";
-import { TrendingUp, Users, Globe, Heart, Baby, Calendar, Phone, FileText, Building2, Download } from "lucide-react";
+import { TrendingUp, Users, Globe, Heart, Baby, Calendar, Phone, FileText, Building2, Download, Megaphone } from "lucide-react";
 import { centroDiaStore } from "@/lib/centroDiaStore";
 import { mujeresStore } from "@/lib/mujeresStore";
 import { gastosStore } from "@/lib/gastosStore";

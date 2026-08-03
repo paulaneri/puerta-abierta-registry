@@ -20,7 +20,7 @@ const tiposEvento = [
   { value: 'actividad', label: 'Actividad', color: 'bg-purple-500' },
   { value: 'seguimiento', label: 'Seguimiento', color: 'bg-orange-500' },
   { value: 'celebracion', label: 'Celebración', color: 'bg-pink-500' },
-  { value: 'sensibilizacion', label: 'Sensibilización', color: 'bg-amber-500' },
+  { value: 'sensibilizacion', label: 'Sensibilización', color: 'bg-orange-500' },
 
   { value: 'cumpleaños', label: 'Cumpleaños', color: 'bg-pink-600' },
   { value: 'otro', label: 'Otro', color: 'bg-gray-500' }

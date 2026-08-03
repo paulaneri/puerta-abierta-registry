@@ -53,6 +53,24 @@ const FECHA_REPETICION_INDEFINIDA = '2099-12-31';
 // Marcador interno para ocultar una ocurrencia de una serie que fue movida a otra fecha
 const EXCEPCION_TITULO = '__EXCEPCION_CANCELADA__';
 
+const getTipoEventoLabel = (tipo: Evento['tipo']) => {
+  const labels: Record<Evento['tipo'], string> = {
+    reunion: 'Reunión',
+    taller: 'Taller',
+    actividad: 'Actividad',
+    seguimiento: 'Seguimiento',
+    celebracion: 'Celebración',
+    sensibilizacion: 'Sensibilización',
+    otro: 'Otro',
+  };
+  return labels[tipo];
+};
+
+const getTipoEventoClassName = (tipo: Evento['tipo']) =>
+  tipo === 'sensibilizacion'
+    ? 'bg-warning text-warning-foreground hover:bg-warning/90'
+    : 'bg-accent text-accent-foreground hover:bg-accent/80';
+
 
 const Calendario = () => {
   const [eventos, setEventos] = useState<Evento[]>([]);
@@ -270,8 +288,13 @@ const Calendario = () => {
       
       const eventoActualizado = await eventosStore.actualizarEvento(editingEvento.id, eventData);
       if (eventoActualizado) {
-        const eventosActualizados = await eventosStore.getEventos();
-        setEventos(eventosActualizados);
+        setEventos(prev => prev.map(evento => evento.id === eventoActualizado.id ? eventoActualizado : evento));
+        toast.success("Evento modificado", {
+          description: `Tipo: ${getTipoEventoLabel(eventoActualizado.tipo)}`,
+        });
+      } else {
+        toast.error("No se pudo modificar el evento");
+        return;
       }
     } else {
       const nuevoEvento = await eventosStore.agregarEvento(eventData);
@@ -308,8 +331,14 @@ const Calendario = () => {
       }
       toast.success("Evento modificado", { description: "Se modificó únicamente esta fecha de la serie" });
     } else {
-      await eventosStore.actualizarEvento(editingEvento.id, pendingEventUpdate);
-      toast.success("Serie modificada", { description: "Se modificaron todos los eventos de la serie" });
+      const serieActualizada = await eventosStore.actualizarEvento(editingEvento.id, pendingEventUpdate);
+      if (!serieActualizada) {
+        toast.error("No se pudo modificar la serie");
+        return;
+      }
+      toast.success("Serie modificada", {
+        description: `Tipo: ${getTipoEventoLabel(serieActualizada.tipo)} · Se modificaron todos los eventos`,
+      });
     }
 
     const eventosActualizados = await eventosStore.getEventos();
@@ -606,7 +635,7 @@ const Calendario = () => {
                   {eventosDelDia.slice(0, 1).map(evento => (
                     <div
                       key={evento.id}
-                      className="px-1 py-0.5 rounded bg-accent text-accent-foreground cursor-pointer hover:bg-accent/80 transition-colors"
+                      className={`px-1 py-0.5 rounded cursor-pointer transition-colors ${getTipoEventoClassName(evento.tipo)}`}
                       onClick={(e) => {
                         e.stopPropagation();
                         openEditDialog(evento, format(day, 'yyyy-MM-dd'));
@@ -728,7 +757,7 @@ const Calendario = () => {
                           </div>
                           {evento.lugar && <div className="text-sm text-muted-foreground">📍 {evento.lugar}</div>}
                         </div>
-                        <Badge variant="secondary">{evento.tipo}</Badge>
+                        <Badge className={getTipoEventoClassName(evento.tipo)}>{getTipoEventoLabel(evento.tipo)}</Badge>
                       </div>
                     </div>
                   );
@@ -801,7 +830,7 @@ const Calendario = () => {
                     <div className="flex-1">
                       <div className="flex items-center space-x-2 mb-2">
                         <h3 className="font-semibold">{evento.titulo}</h3>
-                        <Badge variant="secondary">{evento.tipo}</Badge>
+                        <Badge className={getTipoEventoClassName(evento.tipo)}>{getTipoEventoLabel(evento.tipo)}</Badge>
                         {evento.repeticion && evento.repeticion !== 'ninguna' && (
                           <Badge variant="outline">
                             {evento.repeticion}

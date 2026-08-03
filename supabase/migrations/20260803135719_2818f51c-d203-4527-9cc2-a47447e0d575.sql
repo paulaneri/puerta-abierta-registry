@@ -1,0 +1,2 @@
+ALTER TABLE public.eventos DROP CONSTRAINT IF EXISTS eventos_tipo_check;
+ALTER TABLE public.eventos ADD CONSTRAINT eventos_tipo_check CHECK (tipo = ANY (ARRAY['reunion','taller','actividad','seguimiento','celebracion','sensibilizacion','otro']));

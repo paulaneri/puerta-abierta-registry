@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Users, UserCheck, Settings, Shield, Briefcase, Plus, Edit, Trash2, UserPlus, MapPin, Eye, EyeOff, Copy, Check, HardDriveDownload, RefreshCw, CheckCircle2, Circle, AlertTriangle, Loader2, ArrowUpCircle } from 'lucide-react';
+import { Users, UserCheck, Settings, Shield, Briefcase, Plus, Edit, Trash2, UserPlus, MapPin, Eye, EyeOff, Copy, Check, HardDriveDownload } from 'lucide-react';
 import { cargosProfesionalesStore, type CargoProfesional } from '@/lib/cargosProfesionalesStore';
 import { nacionalidadesStore, type Nacionalidad } from '@/lib/nacionalidadesStore';
 import { equipoStore } from '@/lib/equipoStore';
@@ -22,15 +22,6 @@ import { CreateUserFromTeamForm } from '@/components/admin/CreateUserFromTeamFor
 import { PermisosRolesForm } from '@/components/admin/PermisosRolesForm';
 import { lugaresStore, type Lugar } from '@/lib/lugaresStore';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import {
-  VERSIONS,
-  CURRENT_VERSION,
-  getInstalledVersion,
-  getPendingUpdates,
-  markVersionInstalled,
-  isNewerThan,
-  type AppVersion,
-} from '@/lib/appVersion';
 
 export default function Administracion() {
   const { hasPermission, getAllUsers, updateUserRole, updateUserProfile, inviteUser, deleteUser, updateUserEmail } = useRoles();
@@ -540,7 +531,7 @@ export default function Administracion() {
       </div>
 
       <Tabs defaultValue="usuarios" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-1">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1">
           <TabsTrigger value="usuarios" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
             <Users className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Usuarios</span>
@@ -570,14 +561,6 @@ export default function Administracion() {
             <HardDriveDownload className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Configuración</span>
             <span className="sm:hidden">Config</span>
-          </TabsTrigger>
-          <TabsTrigger value="actualizaciones" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm relative">
-            <ArrowUpCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Actualizaciones</span>
-            <span className="sm:hidden">Updates</span>
-            {getPendingUpdates().length > 0 && (
-              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive" />
-            )}
           </TabsTrigger>
         </TabsList>
 
@@ -1252,240 +1235,8 @@ export default function Administracion() {
           </Card>
         </TabsContent>
 
-        {/* ── ACTUALIZACIONES TAB ─────────────────────────────────────── */}
-        <TabsContent value="actualizaciones" className="space-y-6">
-          <UpdatesPanel />
-        </TabsContent>
-
       </Tabs>
     </div>
-  );
-}
-
-// ─── UpdatesPanel Component ────────────────────────────────────────────────────
-
-function UpdatesPanel() {
-  const [installedVersion, setInstalledVersion] = useState(getInstalledVersion);
-  const [runningMigration, setRunningMigration] = useState<string | null>(null);
-  const [migrationResults, setMigrationResults] = useState<Record<string, { success: boolean; message: string }>>({});
-
-  const pending = VERSIONS.filter((v) => isNewerThan(v.version, installedVersion));
-  const applied = VERSIONS.filter((v) => !isNewerThan(v.version, installedVersion));
-
-  const typeBadge: Record<AppVersion['type'], string> = {
-    major: 'bg-destructive/10 text-destructive border-destructive/20',
-    minor: 'bg-primary/10 text-primary border-primary/20',
-    patch: 'bg-muted text-muted-foreground border-border',
-    hotfix: 'bg-secondary/10 text-secondary border-secondary/20',
-  };
-
-  const handleApply = async (version: AppVersion) => {
-    setRunningMigration(version.version);
-    let result = { success: true, message: 'Actualización aplicada correctamente.' };
-    if (version.migrate) {
-      try {
-        result = await version.migrate();
-      } catch (e) {
-        result = { success: false, message: e instanceof Error ? e.message : 'Error desconocido' };
-      }
-    }
-    markVersionInstalled(version.version);
-    setInstalledVersion(version.version);
-    setMigrationResults((prev) => ({ ...prev, [version.version]: result }));
-    setRunningMigration(null);
-    if (result.success) {
-      toast.success(`v${version.version} aplicada: ${result.message}`);
-    } else {
-      toast.error(`v${version.version}: ${result.message}`);
-    }
-  };
-
-  const handleApplyAll = async () => {
-    for (const v of pending) {
-      await handleApply(v);
-    }
-  };
-
-  return (
-    <div className="space-y-6">
-      {/* Header */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ArrowUpCircle className="h-5 w-5 text-primary" />
-            Sistema de Actualizaciones
-          </CardTitle>
-          <CardDescription>
-            Seguimiento de versiones al estilo WordPress. Cada actualización puede incluir migraciones opcionales.
-            Versión instalada: <span className="font-mono font-semibold">v{installedVersion}</span> — 
-            Versión actual: <span className="font-mono font-semibold">v{CURRENT_VERSION}</span>
-          </CardDescription>
-        </CardHeader>
-        {pending.length > 0 && (
-          <CardContent>
-            <div className="flex items-center justify-between p-3 rounded-lg border border-destructive/20 bg-destructive/5">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-destructive" />
-                <span className="text-sm font-medium">
-                  {pending.length} actualización{pending.length > 1 ? 'es' : ''} pendiente{pending.length > 1 ? 's' : ''}
-                </span>
-              </div>
-              <Button
-                size="sm"
-                onClick={handleApplyAll}
-                disabled={runningMigration !== null}
-                className="gap-2"
-              >
-                {runningMigration ? <Loader2 className="h-3 w-3 animate-spin" /> : <ArrowUpCircle className="h-3 w-3" />}
-                Aplicar todas
-              </Button>
-            </div>
-          </CardContent>
-        )}
-        {pending.length === 0 && (
-          <CardContent>
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/40 border text-sm text-muted-foreground">
-              <CheckCircle2 className="h-4 w-4 text-primary" />
-              La aplicación está actualizada a la última versión disponible.
-            </div>
-          </CardContent>
-        )}
-      </Card>
-
-      {/* Pending updates */}
-      {pending.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-            <Circle className="h-3 w-3 text-destructive fill-destructive" />
-            Actualizaciones pendientes
-          </h3>
-          {pending.map((v) => (
-            <VersionCard
-              key={v.version}
-              version={v}
-              status="pending"
-              typeBadge={typeBadge}
-              onApply={handleApply}
-              isRunning={runningMigration === v.version}
-              result={migrationResults[v.version]}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Applied versions */}
-      {applied.length > 0 && (
-        <div className="space-y-3">
-          <h3 className="text-sm font-semibold text-muted-foreground flex items-center gap-2">
-            <CheckCircle2 className="h-3 w-3 text-primary" />
-            Versiones instaladas
-          </h3>
-          {[...applied].reverse().map((v) => (
-            <VersionCard
-              key={v.version}
-              version={v}
-              status="applied"
-              typeBadge={typeBadge}
-              onApply={handleApply}
-              isRunning={false}
-              result={migrationResults[v.version]}
-            />
-          ))}
-        </div>
-      )}
-
-      {/* Developer note */}
-      <Card className="border-dashed">
-        <CardContent className="pt-4">
-          <p className="text-xs text-muted-foreground">
-            <span className="font-semibold">Para desarrolladores:</span> Para agregar una nueva versión, editá el archivo{' '}
-            <code className="bg-muted px-1 rounded">src/lib/appVersion.ts</code> y agregá un nuevo objeto al array{' '}
-            <code className="bg-muted px-1 rounded">VERSIONS</code> con el número de versión, descripción y
-            opcionalmente una función <code className="bg-muted px-1 rounded">migrate()</code> que se ejecutará al aplicar la actualización.
-          </p>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
-
-interface VersionCardProps {
-  version: AppVersion;
-  status: 'pending' | 'applied';
-  typeBadge: Record<string, string>;
-  onApply: (v: AppVersion) => Promise<void>;
-  isRunning: boolean;
-  result?: { success: boolean; message: string };
-}
-
-function VersionCard({ version, status, typeBadge, onApply, isRunning, result }: VersionCardProps) {
-  const [expanded, setExpanded] = useState(status === 'pending');
-
-  return (
-    <Card className={status === 'applied' ? 'opacity-70' : ''}>
-      <CardHeader className="pb-2">
-        <div className="flex items-start justify-between gap-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-mono font-bold text-sm">v{version.version}</span>
-            <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${typeBadge[version.type]}`}>
-              {version.type}
-            </Badge>
-            <span className="text-xs text-muted-foreground">{version.date}</span>
-            {status === 'applied' && (
-              <span className="flex items-center gap-1 text-xs text-primary">
-                <CheckCircle2 className="h-3 w-3" /> instalada
-              </span>
-            )}
-          </div>
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {status === 'pending' && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => onApply(version)}
-                disabled={isRunning}
-                className="h-7 text-xs gap-1"
-              >
-                {isRunning ? (
-                  <><Loader2 className="h-3 w-3 animate-spin" /> Aplicando…</>
-                ) : (
-                  <><ArrowUpCircle className="h-3 w-3" /> Aplicar</>
-                )}
-              </Button>
-            )}
-            <Button size="sm" variant="ghost" onClick={() => setExpanded((e) => !e)} className="h-7 text-xs">
-              {expanded ? 'Ocultar' : 'Ver más'}
-            </Button>
-          </div>
-        </div>
-        <CardDescription className="text-sm">{version.title}</CardDescription>
-      </CardHeader>
-      {expanded && (
-        <CardContent className="space-y-3 pt-0">
-          <p className="text-sm text-muted-foreground">{version.description}</p>
-          <ul className="space-y-1">
-            {version.changes.map((c, i) => (
-              <li key={i} className="flex items-start gap-2 text-sm">
-                <span className="text-primary mt-0.5">•</span>
-                <span>{c}</span>
-              </li>
-            ))}
-          </ul>
-          {version.migrate && (
-            <div className="flex items-center gap-2 text-xs text-muted-foreground bg-muted/40 rounded px-2 py-1">
-              <RefreshCw className="h-3 w-3 flex-shrink-0" />
-              Incluye migración automática
-            </div>
-          )}
-          {result && (
-            <div className={`flex items-start gap-2 text-xs rounded p-2 ${result.success ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'}`}>
-              {result.success ? <CheckCircle2 className="h-3 w-3 mt-0.5 flex-shrink-0" /> : <AlertTriangle className="h-3 w-3 mt-0.5 flex-shrink-0" />}
-              {result.message}
-            </div>
-          )}
-        </CardContent>
-      )}
-    </Card>
   );
 }
 

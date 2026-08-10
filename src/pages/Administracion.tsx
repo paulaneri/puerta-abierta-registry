@@ -22,15 +22,6 @@ import { CreateUserFromTeamForm } from '@/components/admin/CreateUserFromTeamFor
 import { PermisosRolesForm } from '@/components/admin/PermisosRolesForm';
 import { lugaresStore, type Lugar } from '@/lib/lugaresStore';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import {
-  VERSIONS,
-  CURRENT_VERSION,
-  getInstalledVersion,
-  getPendingUpdates,
-  markVersionInstalled,
-  isNewerThan,
-  type AppVersion,
-} from '@/lib/appVersion';
 
 export default function Administracion() {
   const { hasPermission, getAllUsers, updateUserRole, updateUserProfile, inviteUser, deleteUser, updateUserEmail } = useRoles();

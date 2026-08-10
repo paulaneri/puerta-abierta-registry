@@ -13,7 +13,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Users, UserCheck, Settings, Shield, Briefcase, Plus, Edit, Trash2, UserPlus, MapPin, Eye, EyeOff, Copy, Check, HardDriveDownload, RefreshCw, CheckCircle2, Circle, AlertTriangle, Loader2, ArrowUpCircle } from 'lucide-react';
+import { Users, UserCheck, Settings, Shield, Briefcase, Plus, Edit, Trash2, UserPlus, MapPin, Eye, EyeOff, Copy, Check, HardDriveDownload } from 'lucide-react';
 import { cargosProfesionalesStore, type CargoProfesional } from '@/lib/cargosProfesionalesStore';
 import { nacionalidadesStore, type Nacionalidad } from '@/lib/nacionalidadesStore';
 import { equipoStore } from '@/lib/equipoStore';
@@ -540,7 +540,7 @@ export default function Administracion() {
       </div>
 
       <Tabs defaultValue="usuarios" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-7 gap-1">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1">
           <TabsTrigger value="usuarios" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
             <Users className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Usuarios</span>
@@ -570,14 +570,6 @@ export default function Administracion() {
             <HardDriveDownload className="h-3 w-3 sm:h-4 sm:w-4" />
             <span className="hidden sm:inline">Configuración</span>
             <span className="sm:hidden">Config</span>
-          </TabsTrigger>
-          <TabsTrigger value="actualizaciones" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm relative">
-            <ArrowUpCircle className="h-3 w-3 sm:h-4 sm:w-4" />
-            <span className="hidden sm:inline">Actualizaciones</span>
-            <span className="sm:hidden">Updates</span>
-            {getPendingUpdates().length > 0 && (
-              <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-destructive" />
-            )}
           </TabsTrigger>
         </TabsList>
 

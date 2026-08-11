@@ -13,6 +13,7 @@ import { trabajoCampoStore } from "@/lib/trabajoCampoStore";
 import { eventosStore, type Evento } from "@/lib/eventosStore";
 import { PhotoCarousel } from "@/components/galeria/PhotoCarousel";
 import { parseLocalDate } from "@/lib/utils";
+import { NovedadesBanner } from "@/components/NovedadesBanner";
 
 const tiposEvento = [
   { value: 'reunion', label: 'Reunión', color: 'bg-blue-500' },
@@ -195,6 +196,9 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/5 to-secondary/5 p-4 sm:p-6">
       <div className="max-w-7xl mx-auto space-y-8 sm:space-y-12">
+        {/* Novedades de la plataforma */}
+        <NovedadesBanner />
+
         {/* Hero Section */}
         <div className="text-center py-6 sm:py-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground mb-4 sm:mb-6">

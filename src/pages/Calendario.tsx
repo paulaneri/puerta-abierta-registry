@@ -104,6 +104,8 @@ const Calendario = () => {
   const [showRecurrenceDialog, setShowRecurrenceDialog] = useState(false);
   const [pendingEventUpdate, setPendingEventUpdate] = useState<any>(null);
   const [fechaEventoEspecifico, setFechaEventoEspecifico] = useState<string>("");
+  const [grupoSeleccionado, setGrupoSeleccionado] = useState<string>("");
+  const [miembroSeleccionado, setMiembroSeleccionado] = useState<string>("");
 
 
   useEffect(() => {
@@ -237,6 +239,8 @@ const Calendario = () => {
       setFormData(prev => ({ ...prev, fecha: format(date, 'yyyy-MM-dd') }));
     }
     setEditingEvento(null);
+    setGrupoSeleccionado("");
+    setMiembroSeleccionado("");
     setIsDialogOpen(true);
   };
 
@@ -258,6 +262,8 @@ const Calendario = () => {
       fecha_fin_repeticion: evento.fecha_fin_repeticion || "",
       todoElDia: esTodoElDia,
     });
+    setGrupoSeleccionado("");
+    setMiembroSeleccionado("");
     setIsDialogOpen(true);
   };
 
@@ -301,6 +307,9 @@ const Calendario = () => {
       if (nuevoEvento) {
         const eventosActualizados = await eventosStore.getEventos();
         setEventos(eventosActualizados);
+      } else {
+        toast.error("No se pudo crear el evento");
+        return;
       }
     }
 
@@ -1069,19 +1078,28 @@ const Calendario = () => {
             <div>
               <Label className="text-sm">Participantes</Label>
               <div className="grid grid-cols-2 gap-2">
-                <Select onValueChange={(value) => {
+                <Select value={grupoSeleccionado} onValueChange={(value) => {
+                  setGrupoSeleccionado(value);
                   const profesionalesActivos = profesionales.filter(p => p.estado === 'activo');
                   let nombres: string[] = [];
                   if (value === 'todos_activos') {
-                    nombres = profesionalesActivos.map(p => `${p.nombre} ${p.apellido}`);
+                    nombres = profesionalesActivos.map(p => `${p.nombre} ${p.apellido}`.trim());
                   } else if (value === 'equipo_ampliado') {
-                    nombres = profesionalesActivos.filter(p => p.equipoAmpliado).map(p => `${p.nombre} ${p.apellido}`);
+                    nombres = profesionalesActivos.filter(p => p.equipoAmpliado).map(p => `${p.nombre} ${p.apellido}`.trim());
                   } else if (value === 'equipo_coordinador') {
-                    nombres = profesionalesActivos.filter(p => !p.equipoAmpliado).map(p => `${p.nombre} ${p.apellido}`);
+                    nombres = profesionalesActivos.filter(p => !p.equipoAmpliado).map(p => `${p.nombre} ${p.apellido}`.trim());
                   }
-                  if (nombres.length > 0) {
-                    setFormData(prev => ({ ...prev, participantes: nombres.join(', ') }));
+                  if (nombres.length === 0) {
+                    toast.error("No hay profesionales activos en ese grupo");
+                    return;
                   }
+                  setFormData(prev => {
+                    const actuales = prev.participantes
+                      ? prev.participantes.split(',').map(p => p.trim()).filter(Boolean)
+                      : [];
+                    const unicos = Array.from(new Set([...actuales, ...nombres]));
+                    return { ...prev, participantes: unicos.join(', ') };
+                  });
                 }}>
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Grupo..." />
@@ -1092,15 +1110,19 @@ const Calendario = () => {
                     <SelectItem value="equipo_coordinador">Equipo Coordinador</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select onValueChange={(value) => {
+                <Select value={miembroSeleccionado} onValueChange={(value) => {
+                  setMiembroSeleccionado(value);
                   const profesionalesActivos = profesionales.filter(p => p.estado === 'activo');
                   const profesional = profesionalesActivos.find(p => p.id.toString() === value);
                   if (profesional) {
-                    const nombreCompleto = `${profesional.nombre} ${profesional.apellido}`;
-                    const participantesActuales = formData.participantes ? formData.participantes.split(',').map(p => p.trim()) : [];
-                    if (!participantesActuales.includes(nombreCompleto)) {
-                      setFormData(prev => ({ ...prev, participantes: [...participantesActuales, nombreCompleto].join(', ') }));
-                    }
+                    const nombreCompleto = `${profesional.nombre} ${profesional.apellido}`.trim();
+                    setFormData(prev => {
+                      const actuales = prev.participantes
+                        ? prev.participantes.split(',').map(p => p.trim()).filter(Boolean)
+                        : [];
+                      if (actuales.includes(nombreCompleto)) return prev;
+                      return { ...prev, participantes: [...actuales, nombreCompleto].join(', ') };
+                    });
                   }
                 }}>
                   <SelectTrigger className="h-9">

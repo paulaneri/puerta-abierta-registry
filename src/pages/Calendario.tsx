@@ -104,6 +104,8 @@ const Calendario = () => {
   const [showRecurrenceDialog, setShowRecurrenceDialog] = useState(false);
   const [pendingEventUpdate, setPendingEventUpdate] = useState<any>(null);
   const [fechaEventoEspecifico, setFechaEventoEspecifico] = useState<string>("");
+  const [grupoSeleccionado, setGrupoSeleccionado] = useState<string>("");
+  const [miembroSeleccionado, setMiembroSeleccionado] = useState<string>("");
 
 
   useEffect(() => {

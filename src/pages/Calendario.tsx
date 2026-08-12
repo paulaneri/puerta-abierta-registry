@@ -239,6 +239,8 @@ const Calendario = () => {
       setFormData(prev => ({ ...prev, fecha: format(date, 'yyyy-MM-dd') }));
     }
     setEditingEvento(null);
+    setGrupoSeleccionado("");
+    setMiembroSeleccionado("");
     setIsDialogOpen(true);
   };
 

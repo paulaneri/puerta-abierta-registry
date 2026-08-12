@@ -1108,15 +1108,19 @@ const Calendario = () => {
                     <SelectItem value="equipo_coordinador">Equipo Coordinador</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select onValueChange={(value) => {
+                <Select value={miembroSeleccionado} onValueChange={(value) => {
+                  setMiembroSeleccionado(value);
                   const profesionalesActivos = profesionales.filter(p => p.estado === 'activo');
                   const profesional = profesionalesActivos.find(p => p.id.toString() === value);
                   if (profesional) {
-                    const nombreCompleto = `${profesional.nombre} ${profesional.apellido}`;
-                    const participantesActuales = formData.participantes ? formData.participantes.split(',').map(p => p.trim()) : [];
-                    if (!participantesActuales.includes(nombreCompleto)) {
-                      setFormData(prev => ({ ...prev, participantes: [...participantesActuales, nombreCompleto].join(', ') }));
-                    }
+                    const nombreCompleto = `${profesional.nombre} ${profesional.apellido}`.trim();
+                    setFormData(prev => {
+                      const actuales = prev.participantes
+                        ? prev.participantes.split(',').map(p => p.trim()).filter(Boolean)
+                        : [];
+                      if (actuales.includes(nombreCompleto)) return prev;
+                      return { ...prev, participantes: [...actuales, nombreCompleto].join(', ') };
+                    });
                   }
                 }}>
                   <SelectTrigger className="h-9">

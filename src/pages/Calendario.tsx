@@ -305,6 +305,9 @@ const Calendario = () => {
       if (nuevoEvento) {
         const eventosActualizados = await eventosStore.getEventos();
         setEventos(eventosActualizados);
+      } else {
+        toast.error("No se pudo crear el evento");
+        return;
       }
     }
 

@@ -262,6 +262,8 @@ const Calendario = () => {
       fecha_fin_repeticion: evento.fecha_fin_repeticion || "",
       todoElDia: esTodoElDia,
     });
+    setGrupoSeleccionado("");
+    setMiembroSeleccionado("");
     setIsDialogOpen(true);
   };
 

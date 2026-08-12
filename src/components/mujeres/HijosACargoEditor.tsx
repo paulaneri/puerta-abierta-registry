@@ -16,6 +16,7 @@ export interface HijoACargo {
 interface Props {
   value: HijoACargo[];
   onChange: (value: HijoACargo[]) => void;
+  bare?: boolean;
 }
 
 export const crearHijoVacio = (): HijoACargo => ({
@@ -25,7 +26,7 @@ export const crearHijoVacio = (): HijoACargo => ({
   cuil: "",
 });
 
-export const HijosACargoEditor = ({ value, onChange }: Props) => {
+export const HijosACargoEditor = ({ value, onChange, bare }: Props) => {
   const hijos = value && value.length > 0 ? value : [];
 
   const actualizar = (id: string, patch: Partial<HijoACargo>) => {
@@ -36,7 +37,7 @@ export const HijosACargoEditor = ({ value, onChange }: Props) => {
   const eliminar = (id: string) => onChange(hijos.filter((h) => h.id !== id));
 
   return (
-    <div className="border rounded-lg p-4 bg-card space-y-3">
+    <div className={bare ? "space-y-3" : "border rounded-lg p-4 bg-card space-y-3"}>
       <div className="flex items-center justify-between">
         <Label className="text-sm font-semibold">
           Hijos/as a cargo {hijos.length > 0 && `(${hijos.length})`}

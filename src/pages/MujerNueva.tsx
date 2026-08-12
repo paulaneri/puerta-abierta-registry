@@ -466,27 +466,30 @@ const MujerNueva = () => {
                   </div>
 
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between p-4 border rounded-lg">
-                      <div className="space-y-0.5">
-                        <Label>¿Tiene hijos a cargo?</Label>
-                        <p className="text-sm text-muted-foreground">
-                          Indica si la participante tiene hijos a su cargo
-                        </p>
+                    <div className="p-4 border rounded-lg space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div className="space-y-0.5">
+                          <Label>¿Tiene hijos a cargo?</Label>
+                          <p className="text-sm text-muted-foreground">
+                            Indica si la participante tiene hijos a su cargo
+                          </p>
+                        </div>
+                        <Switch
+                          checked={formData.hijosACargo}
+                          onCheckedChange={(checked) => {
+                            setFormData({...formData, hijosACargo: checked});
+                            if (checked && hijosDetalle.length === 0) {
+                              setHijosDetalle([crearHijoVacio()]);
+                            }
+                          }}
+                        />
                       </div>
-                      <Switch
-                        checked={formData.hijosACargo}
-                        onCheckedChange={(checked) => {
-                          setFormData({...formData, hijosACargo: checked});
-                          if (checked && hijosDetalle.length === 0) {
-                            setHijosDetalle([crearHijoVacio()]);
-                          }
-                        }}
-                      />
+
+                      {formData.hijosACargo && (
+                        <HijosACargoEditor value={hijosDetalle} onChange={setHijosDetalle} bare />
+                      )}
                     </div>
 
-                    {formData.hijosACargo && (
-                      <HijosACargoEditor value={hijosDetalle} onChange={setHijosDetalle} />
-                    )}
 
 
                     <div className="flex items-center justify-between p-4 border rounded-lg">

@@ -4,12 +4,13 @@ import type { HijoACargo } from "./HijosACargoEditor";
 
 interface Props {
   hijos: HijoACargo[];
+  bare?: boolean;
 }
 
-export const HijosACargoLista = ({ hijos }: Props) => {
+export const HijosACargoLista = ({ hijos, bare }: Props) => {
   const lista = hijos || [];
   return (
-    <div className="border rounded-lg p-4 bg-card">
+    <div className={bare ? "" : "border rounded-lg p-4 bg-card"}>
       <div className="flex items-center justify-between mb-2">
         <h4 className="text-sm font-semibold">Hijos/as a cargo</h4>
         <span className="text-xs text-muted-foreground">

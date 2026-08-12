@@ -1076,19 +1076,28 @@ const Calendario = () => {
             <div>
               <Label className="text-sm">Participantes</Label>
               <div className="grid grid-cols-2 gap-2">
-                <Select onValueChange={(value) => {
+                <Select value={grupoSeleccionado} onValueChange={(value) => {
+                  setGrupoSeleccionado(value);
                   const profesionalesActivos = profesionales.filter(p => p.estado === 'activo');
                   let nombres: string[] = [];
                   if (value === 'todos_activos') {
-                    nombres = profesionalesActivos.map(p => `${p.nombre} ${p.apellido}`);
+                    nombres = profesionalesActivos.map(p => `${p.nombre} ${p.apellido}`.trim());
                   } else if (value === 'equipo_ampliado') {
-                    nombres = profesionalesActivos.filter(p => p.equipoAmpliado).map(p => `${p.nombre} ${p.apellido}`);
+                    nombres = profesionalesActivos.filter(p => p.equipoAmpliado).map(p => `${p.nombre} ${p.apellido}`.trim());
                   } else if (value === 'equipo_coordinador') {
-                    nombres = profesionalesActivos.filter(p => !p.equipoAmpliado).map(p => `${p.nombre} ${p.apellido}`);
+                    nombres = profesionalesActivos.filter(p => !p.equipoAmpliado).map(p => `${p.nombre} ${p.apellido}`.trim());
                   }
-                  if (nombres.length > 0) {
-                    setFormData(prev => ({ ...prev, participantes: nombres.join(', ') }));
+                  if (nombres.length === 0) {
+                    toast.error("No hay profesionales activos en ese grupo");
+                    return;
                   }
+                  setFormData(prev => {
+                    const actuales = prev.participantes
+                      ? prev.participantes.split(',').map(p => p.trim()).filter(Boolean)
+                      : [];
+                    const unicos = Array.from(new Set([...actuales, ...nombres]));
+                    return { ...prev, participantes: unicos.join(', ') };
+                  });
                 }}>
                   <SelectTrigger className="h-9">
                     <SelectValue placeholder="Grupo..." />

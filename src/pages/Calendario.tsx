@@ -1020,7 +1020,12 @@ const Calendario = () => {
                     <Label className="text-sm">Hora inicio *</Label>
                     <TimeInput24h
                       value={formData.hora_inicio}
-                      onChange={(value) => setFormData(prev => ({ ...prev, hora_inicio: value }))}
+                      onChange={(value) => {
+                        const [h, m] = value.split(':').map(Number);
+                        const finHora = (h + 1) % 24;
+                        const finStr = `${String(finHora).padStart(2, '0')}:${String(m).padStart(2, '0')}`;
+                        setFormData(prev => ({ ...prev, hora_inicio: value, hora_fin: finStr }));
+                      }}
                     />
                   </div>
                   <div>

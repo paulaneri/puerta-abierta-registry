@@ -27,8 +27,8 @@ export const NovedadesBanner = () => {
     setNovedades(pendientes);
     pendientesRef.current = pendientes.map((n) => n.id);
 
-    // Al salir de la Home (navegar dentro de la plataforma) se marcan vistas
-    return () => marcarNovedadesVistas(pendientesRef.current);
+    // Se marcan vistas apenas se muestran: solo aparecen una vez por usuario
+    marcarNovedadesVistas(pendientesRef.current);
   }, []);
 
   if (novedades.length === 0) return null;

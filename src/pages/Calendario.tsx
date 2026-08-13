@@ -2,7 +2,7 @@ import { supabase } from "@/integrations/supabase/client";
 import React, { useState, useEffect } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSameMonth, addDays } from 'date-fns';
 import { es } from 'date-fns/locale';
-import { ChevronLeft, ChevronRight, CalendarDays, List, Plus, Edit, Trash2, CheckSquare } from 'lucide-react';
+import { ChevronLeft, ChevronRight, CalendarDays, List, Plus, Edit, Trash2, CheckSquare, Mail } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,7 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { TimeInput24h } from "@/components/ui/time-input-24h";
 import { DatePicker } from "@/components/ui/date-picker";
 import { toast } from "sonner";
+import { obtenerEmailsParticipantes, abrirAvisoEvento } from "@/lib/eventoAviso";
 
 interface Cumpleanos {
   id: string;
@@ -265,6 +266,44 @@ const Calendario = () => {
     setGrupoSeleccionado("");
     setMiembroSeleccionado("");
     setIsDialogOpen(true);
+  };
+
+  const handleEnviarAviso = () => {
+    const participantes = formData.participantes
+      .split(',')
+      .map(p => p.trim())
+      .filter(Boolean);
+
+    if (participantes.length === 0) {
+      toast.error("Agregá participantes antes de enviar el aviso");
+      return;
+    }
+
+    const { emails, sinEmail } = obtenerEmailsParticipantes(participantes, profesionales);
+
+    if (emails.length === 0) {
+      toast.error("Ningún participante tiene email cargado en Equipo de Trabajo");
+      return;
+    }
+
+    abrirAvisoEvento(
+      {
+        titulo: formData.titulo || 'Evento',
+        descripcion: formData.descripcion,
+        fecha: formData.fecha,
+        hora_inicio: formData.todoElDia ? '00:00' : formData.hora_inicio,
+        hora_fin: formData.todoElDia ? '23:59' : formData.hora_fin,
+        lugar: formData.lugar,
+        participantes,
+      },
+      emails,
+    );
+
+    if (sinEmail.length > 0) {
+      toast.warning(`Sin email cargado: ${sinEmail.join(', ')}`);
+    } else {
+      toast.success(`Aviso preparado para ${emails.length} persona(s)`);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -1212,7 +1251,11 @@ const Calendario = () => {
               ) : (
                 <div></div>
               )}
-              <div className="flex space-x-2">
+              <div className="flex flex-wrap gap-2 justify-end">
+                <Button type="button" variant="outline" size="sm" onClick={handleEnviarAviso}>
+                  <Mail className="h-4 w-4 mr-1" />
+                  Enviar aviso por email
+                </Button>
                 <Button type="button" variant="outline" size="sm" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>

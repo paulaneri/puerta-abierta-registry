@@ -1212,7 +1212,11 @@ const Calendario = () => {
               ) : (
                 <div></div>
               )}
-              <div className="flex space-x-2">
+              <div className="flex flex-wrap gap-2 justify-end">
+                <Button type="button" variant="outline" size="sm" onClick={handleEnviarAviso}>
+                  <Mail className="h-4 w-4 mr-1" />
+                  Enviar aviso por email
+                </Button>
                 <Button type="button" variant="outline" size="sm" onClick={() => setIsDialogOpen(false)}>
                   Cancelar
                 </Button>

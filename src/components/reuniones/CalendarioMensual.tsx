@@ -17,7 +17,8 @@ import {
   ChevronRight,
   RotateCcw,
   Ban,
-  Download
+  Download,
+  StickyNote
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -72,6 +73,31 @@ export const CalendarioMensual = ({
   const [editando, setEditando] = useState<{ reunionId: string; rol: RolReunion } | null>(null);
   const [exportando, setExportando] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
+  const [reunionComentario, setReunionComentario] = useState<ReunionConAsignaciones | null>(null);
+  const [textoComentario, setTextoComentario] = useState("");
+  const [guardandoComentario, setGuardandoComentario] = useState(false);
+
+  const abrirComentario = (reunion: ReunionConAsignaciones) => {
+    setReunionComentario(reunion);
+    setTextoComentario(reunion.observaciones || "");
+  };
+
+  const handleGuardarComentario = async () => {
+    if (!reunionComentario) return;
+    setGuardandoComentario(true);
+    const ok = await reunionesStore.actualizarReunion(reunionComentario.id, {
+      observaciones: textoComentario.trim(),
+    });
+    setGuardandoComentario(false);
+    if (ok) {
+      toast.success(textoComentario.trim() ? 'Comentario guardado' : 'Comentario eliminado');
+      setReunionComentario(null);
+      setTextoComentario("");
+      onReunionesChange();
+    } else {
+      toast.error('No se pudo guardar el comentario');
+    }
+  };
 
   const handleExportarImagen = async () => {
     if (!exportRef.current) return;

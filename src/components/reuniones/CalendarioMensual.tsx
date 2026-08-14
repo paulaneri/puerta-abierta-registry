@@ -17,7 +17,8 @@ import {
   ChevronRight,
   RotateCcw,
   Ban,
-  Download
+  Download,
+  StickyNote
 } from "lucide-react";
 import { toPng } from "html-to-image";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -72,6 +73,31 @@ export const CalendarioMensual = ({
   const [editando, setEditando] = useState<{ reunionId: string; rol: RolReunion } | null>(null);
   const [exportando, setExportando] = useState(false);
   const exportRef = useRef<HTMLDivElement>(null);
+  const [reunionComentario, setReunionComentario] = useState<ReunionConAsignaciones | null>(null);
+  const [textoComentario, setTextoComentario] = useState("");
+  const [guardandoComentario, setGuardandoComentario] = useState(false);
+
+  const abrirComentario = (reunion: ReunionConAsignaciones) => {
+    setReunionComentario(reunion);
+    setTextoComentario(reunion.observaciones || "");
+  };
+
+  const handleGuardarComentario = async () => {
+    if (!reunionComentario) return;
+    setGuardandoComentario(true);
+    const ok = await reunionesStore.actualizarReunion(reunionComentario.id, {
+      observaciones: textoComentario.trim(),
+    });
+    setGuardandoComentario(false);
+    if (ok) {
+      toast.success(textoComentario.trim() ? 'Comentario guardado' : 'Comentario eliminado');
+      setReunionComentario(null);
+      setTextoComentario("");
+      onReunionesChange();
+    } else {
+      toast.error('No se pudo guardar el comentario');
+    }
+  };
 
   const handleExportarImagen = async () => {
     if (!exportRef.current) return;
@@ -720,6 +746,40 @@ export const CalendarioMensual = ({
                         </div>
                       )}
 
+                      {/* Comentario de la reunión */}
+                      <div className="mt-3">
+                        {reunion.observaciones ? (
+                          <div className="flex items-start gap-2 p-2 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900">
+                            <StickyNote className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                            <p className="text-xs sm:text-sm whitespace-pre-wrap break-words flex-1">
+                              {reunion.observaciones}
+                            </p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 shrink-0"
+                              onClick={() => abrirComentario(reunion)}
+                              title="Editar comentario"
+                            >
+                              <Pencil className="h-3 w-3 text-primary" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs text-muted-foreground"
+                            onClick={() => abrirComentario(reunion)}
+                            title="Agregar comentario a esta reunión"
+                          >
+                            <StickyNote className="h-3.5 w-3.5 mr-1" />
+                            Agregar comentario
+                          </Button>
+                        )}
+                      </div>
+
                       {reunion.motivo_cancelacion && (
                         <p className="text-sm text-destructive/80 mt-2 p-2 bg-destructive/5 rounded">
                           <strong>Motivo:</strong> {reunion.motivo_cancelacion}
@@ -788,6 +848,54 @@ export const CalendarioMensual = ({
             </Button>
             <Button variant="destructive" onClick={handleCancelarReunion} className="w-full sm:w-auto">
               Confirmar Cancelación
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog de comentario de reunión */}
+      <Dialog
+        open={!!reunionComentario}
+        onOpenChange={(open) => {
+          if (!open) {
+            setReunionComentario(null);
+            setTextoComentario("");
+          }
+        }}
+      >
+        <DialogContent className="w-[95vw] max-w-md">
+          <DialogHeader>
+            <DialogTitle>Comentario de la reunión</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {reunionComentario && (
+              <p className="text-sm text-muted-foreground capitalize">
+                {format(parseISO(reunionComentario.fecha), "EEEE d 'de' MMMM 'de' yyyy", { locale: es })}
+              </p>
+            )}
+            <Textarea
+              placeholder="Ej: tratar el tema de presupuesto, viene una invitada, etc."
+              value={textoComentario}
+              onChange={(e) => setTextoComentario(e.target.value)}
+              rows={4}
+            />
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setReunionComentario(null)}
+              className="w-full sm:w-auto"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={handleGuardarComentario}
+              disabled={guardandoComentario}
+              className="w-full sm:w-auto"
+            >
+              Guardar
             </Button>
           </DialogFooter>
         </DialogContent>

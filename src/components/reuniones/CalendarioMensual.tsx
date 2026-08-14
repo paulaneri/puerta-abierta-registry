@@ -852,6 +852,54 @@ export const CalendarioMensual = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Dialog de comentario de reunión */}
+      <Dialog
+        open={!!reunionComentario}
+        onOpenChange={(open) => {
+          if (!open) {
+            setReunionComentario(null);
+            setTextoComentario("");
+          }
+        }}
+      >
+        <DialogContent className="w-[95vw] max-w-md">
+          <DialogHeader>
+            <DialogTitle>Comentario de la reunión</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3">
+            {reunionComentario && (
+              <p className="text-sm text-muted-foreground capitalize">
+                {format(parseISO(reunionComentario.fecha), "EEEE d 'de' MMMM 'de' yyyy", { locale: es })}
+              </p>
+            )}
+            <Textarea
+              placeholder="Ej: tratar el tema de presupuesto, viene una invitada, etc."
+              value={textoComentario}
+              onChange={(e) => setTextoComentario(e.target.value)}
+              rows={4}
+            />
+          </div>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setReunionComentario(null)}
+              className="w-full sm:w-auto"
+            >
+              Cancelar
+            </Button>
+            <Button
+              type="button"
+              onClick={handleGuardarComentario}
+              disabled={guardandoComentario}
+              className="w-full sm:w-auto"
+            >
+              Guardar
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

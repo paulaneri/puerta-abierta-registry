@@ -41,7 +41,7 @@ export const NovedadesBanner = () => {
   if (novedades.length === 0) return null;
 
   const cerrar = () => {
-    marcarNovedadesVistas(pendientesRef.current);
+    void marcarNovedadesVistas(pendientesRef.current);
     pendientesRef.current = [];
     setNovedades([]);
   };

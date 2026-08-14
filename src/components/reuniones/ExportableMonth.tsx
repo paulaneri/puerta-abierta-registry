@@ -130,6 +130,16 @@ export const ExportableMonth = forwardRef<HTMLDivElement, Props>(
                   </div>
                 )}
 
+                {reunion.observaciones && (
+                  <div style={{
+                    marginTop: 12, fontSize: 13, color: '#92400e',
+                    background: '#fef3c7', border: '1px solid #fcd34d',
+                    borderRadius: 12, padding: '10px 12px', whiteSpace: 'pre-wrap',
+                  }}>
+                    <strong>Comentario: </strong>{reunion.observaciones}
+                  </div>
+                )}
+
                 {reunion.motivo_cancelacion && (
                   <div style={{ marginTop: 10, fontSize: 13, color: '#b91c1c' }}>
                     <strong>Motivo:</strong> {reunion.motivo_cancelacion}

@@ -5,6 +5,8 @@
 // Solo cambios de la plataforma (funcionalidades), nunca contenidos.
 // ─────────────────────────────────────────────────────────────────────────────
 
+import { supabase } from "@/integrations/supabase/client";
+
 export interface Novedad {
   id: string;      // identificador único y estable
   fecha: string;   // ISO date (aaaa-mm-dd)
@@ -39,29 +41,79 @@ export const NOVEDADES: Novedad[] = [
 ];
 
 const VISTAS_KEY = "pa_novedades_vistas";
+const META_KEY = "novedades_vistas";
 
-export const getNovedadesVistas = (): string[] => {
+const claveLocal = (userId?: string | null) =>
+  userId ? `${VISTAS_KEY}_${userId}` : VISTAS_KEY;
+
+const leerLocal = (userId?: string | null): string[] => {
   try {
-    const raw = localStorage.getItem(VISTAS_KEY);
+    const raw = localStorage.getItem(claveLocal(userId));
     return raw ? (JSON.parse(raw) as string[]) : [];
   } catch {
     return [];
   }
 };
 
-/** Novedades que esta persona todavía no vio */
-export const getNovedadesPendientes = (): Novedad[] => {
-  const vistas = getNovedadesVistas();
-  return NOVEDADES.filter((n) => !vistas.includes(n.id));
+const guardarLocal = (ids: string[], userId?: string | null) => {
+  try {
+    localStorage.setItem(claveLocal(userId), JSON.stringify(ids));
+  } catch {
+    /* almacenamiento no disponible */
+  }
+};
+
+/** @deprecated usar getNovedadesPendientes (async) */
+export const getNovedadesVistas = (): string[] => leerLocal();
+
+/**
+ * Novedades que esta persona todavía no vio.
+ * El registro se guarda en el perfil del usuario (metadata de Supabase), de
+ * modo que persiste entre sesiones, dispositivos y navegadores.
+ */
+export const getNovedadesPendientes = async (): Promise<Novedad[]> => {
+  let userId: string | null = null;
+  let vistas: string[] = [];
+
+  try {
+    const { data } = await supabase.auth.getUser();
+    userId = data.user?.id ?? null;
+    const meta = data.user?.user_metadata?.[META_KEY];
+    if (Array.isArray(meta)) vistas = meta as string[];
+  } catch {
+    /* sin sesión: se usa solo el almacenamiento local */
+  }
+
+  const locales = leerLocal(userId);
+  const todas = new Set([...vistas, ...locales, ...leerLocal()]);
+
+  return NOVEDADES.filter((n) => !todas.has(n.id));
 };
 
 /** Marca novedades como vistas para que no vuelvan a aparecer */
-export const marcarNovedadesVistas = (ids: string[]) => {
+export const marcarNovedadesVistas = async (ids: string[]) => {
   if (!ids.length) return;
-  const vistas = new Set([...getNovedadesVistas(), ...ids]);
+
+  let userId: string | null = null;
+  let previas: string[] = [];
+
   try {
-    localStorage.setItem(VISTAS_KEY, JSON.stringify([...vistas]));
+    const { data } = await supabase.auth.getUser();
+    userId = data.user?.id ?? null;
+    const meta = data.user?.user_metadata?.[META_KEY];
+    if (Array.isArray(meta)) previas = meta as string[];
   } catch {
-    /* almacenamiento no disponible */
+    /* sin sesión */
+  }
+
+  const todas = [...new Set([...previas, ...leerLocal(userId), ...ids])];
+  guardarLocal(todas, userId);
+
+  if (userId) {
+    try {
+      await supabase.auth.updateUser({ data: { [META_KEY]: todas } });
+    } catch {
+      /* si falla, queda al menos el registro local */
+    }
   }
 };

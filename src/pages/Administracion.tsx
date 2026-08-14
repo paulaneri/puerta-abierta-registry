@@ -688,7 +688,7 @@ export default function Administracion() {
                     <TableRow>
                       <TableHead>Email</TableHead>
                       <TableHead>Nombre</TableHead>
-                      <TableHead>Rol</TableHead>
+                      <TableHead>Perfil</TableHead>
                       <TableHead className="text-right">Acciones</TableHead>
                     </TableRow>
                   </TableHeader>

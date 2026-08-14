@@ -23,12 +23,19 @@ export const NovedadesBanner = () => {
   const pendientesRef = useRef<string[]>([]);
 
   useEffect(() => {
-    const pendientes = getNovedadesPendientes();
-    setNovedades(pendientes);
-    pendientesRef.current = pendientes.map((n) => n.id);
+    let activo = true;
+    (async () => {
+      const pendientes = await getNovedadesPendientes();
+      if (!activo) return;
+      setNovedades(pendientes);
+      pendientesRef.current = pendientes.map((n) => n.id);
 
-    // Se marcan vistas apenas se muestran: solo aparecen una vez por usuario
-    marcarNovedadesVistas(pendientesRef.current);
+      // Se marcan vistas apenas se muestran: solo aparecen una vez por usuario
+      void marcarNovedadesVistas(pendientesRef.current);
+    })();
+    return () => {
+      activo = false;
+    };
   }, []);
 
   if (novedades.length === 0) return null;

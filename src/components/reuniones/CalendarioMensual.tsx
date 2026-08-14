@@ -746,6 +746,40 @@ export const CalendarioMensual = ({
                         </div>
                       )}
 
+                      {/* Comentario de la reunión */}
+                      <div className="mt-3">
+                        {reunion.observaciones ? (
+                          <div className="flex items-start gap-2 p-2 rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-900">
+                            <StickyNote className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+                            <p className="text-xs sm:text-sm whitespace-pre-wrap break-words flex-1">
+                              {reunion.observaciones}
+                            </p>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 w-6 p-0 shrink-0"
+                              onClick={() => abrirComentario(reunion)}
+                              title="Editar comentario"
+                            >
+                              <Pencil className="h-3 w-3 text-primary" />
+                            </Button>
+                          </div>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="sm"
+                            className="h-7 px-2 text-xs text-muted-foreground"
+                            onClick={() => abrirComentario(reunion)}
+                            title="Agregar comentario a esta reunión"
+                          >
+                            <StickyNote className="h-3.5 w-3.5 mr-1" />
+                            Agregar comentario
+                          </Button>
+                        )}
+                      </div>
+
                       {reunion.motivo_cancelacion && (
                         <p className="text-sm text-destructive/80 mt-2 p-2 bg-destructive/5 rounded">
                           <strong>Motivo:</strong> {reunion.motivo_cancelacion}

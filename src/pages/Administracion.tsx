@@ -13,13 +13,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Users, UserCheck, Settings, Shield, Briefcase, Plus, Edit, Trash2, UserPlus, MapPin, Eye, EyeOff, Copy, Check, HardDriveDownload } from 'lucide-react';
+import { Users, UserCheck, Settings, Shield, Briefcase, Plus, Edit, Trash2, UserPlus, MapPin, Eye, EyeOff, Copy, Check, HardDriveDownload, KeyRound } from 'lucide-react';
 import { cargosProfesionalesStore, type CargoProfesional } from '@/lib/cargosProfesionalesStore';
 import { nacionalidadesStore, type Nacionalidad } from '@/lib/nacionalidadesStore';
 import { equipoStore } from '@/lib/equipoStore';
 import { supabase } from '@/integrations/supabase/client';
 import { CreateUserFromTeamForm } from '@/components/admin/CreateUserFromTeamForm';
 import { PermisosRolesForm } from '@/components/admin/PermisosRolesForm';
+import { CambiarPasswordDialog } from '@/components/admin/CambiarPasswordDialog';
 import { lugaresStore, type Lugar } from '@/lib/lugaresStore';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
@@ -29,6 +30,7 @@ export default function Administracion() {
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<UserProfile | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [passwordUser, setPasswordUser] = useState<UserProfile | null>(null);
   const [isInviteDialogOpen, setIsInviteDialogOpen] = useState(false);
 
   // Estados para gestión de cargos
@@ -753,6 +755,19 @@ export default function Administracion() {
                               <Tooltip>
                                 <TooltipTrigger asChild>
                                   <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setPasswordUser(user)}
+                                  >
+                                    <KeyRound className="h-4 w-4" />
+                                  </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>Cambiar contraseña</TooltipContent>
+                              </Tooltip>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteUser(user.id, user.email)}
@@ -773,6 +788,13 @@ export default function Administracion() {
               )}
             </CardContent>
           </Card>
+
+          <CambiarPasswordDialog
+            open={!!passwordUser}
+            onOpenChange={(o) => { if (!o) setPasswordUser(null); }}
+            userId={passwordUser?.id ?? ''}
+            userEmail={passwordUser?.email ?? ''}
+          />
         </TabsContent>
 
         <TabsContent value="cargos" className="space-y-6">

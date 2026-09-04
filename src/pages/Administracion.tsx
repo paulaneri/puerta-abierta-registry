@@ -788,6 +788,13 @@ export default function Administracion() {
               )}
             </CardContent>
           </Card>
+
+          <CambiarPasswordDialog
+            open={!!passwordUser}
+            onOpenChange={(o) => { if (!o) setPasswordUser(null); }}
+            userId={passwordUser?.id ?? ''}
+            userEmail={passwordUser?.email ?? ''}
+          />
         </TabsContent>
 
         <TabsContent value="cargos" className="space-y-6">

@@ -96,9 +96,10 @@ const Index = () => {
               if (fechaActual <= fechaFin) {
                 eventosExpandidos.push({
                   ...evento,
-                  fecha: fechaActual.toISOString().split('T')[0]
+                  fecha: format(fechaActual, 'yyyy-MM-dd')
                 });
               }
+
             }
           }
         });

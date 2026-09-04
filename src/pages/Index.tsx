@@ -316,14 +316,20 @@ const Index = () => {
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6 text-muted-foreground">
                             <div className="flex items-center gap-2">
                               <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
-                              <span className="text-xs sm:text-sm">{format(parseISO(evento.fecha), "d 'de' MMMM", { locale: es })}</span>
+                              <span className="text-xs sm:text-sm">{format(parseLocalDate(evento.fecha), "d 'de' MMMM", { locale: es })}</span>
                             </div>
-                            {!esCumpleaños && evento.hora_inicio && (
-                              <div className="flex items-center gap-2">
-                                <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
-                                <span className="text-xs sm:text-sm">{evento.hora_inicio}</span>
-                              </div>
-                            )}
+                            {!esCumpleaños && evento.hora_inicio && (() => {
+                              const inicio = evento.hora_inicio.substring(0, 5);
+                              const fin = ((evento as any).hora_fin || '').substring(0, 5);
+                              const esTodoElDia = inicio === '00:00' && fin === '23:59';
+                              return (
+                                <div className="flex items-center gap-2">
+                                  <Clock className="h-3 w-3 sm:h-4 sm:w-4" />
+                                  <span className="text-xs sm:text-sm">{esTodoElDia ? 'Todo el día' : (fin ? `${inicio} - ${fin}` : inicio)}</span>
+                                </div>
+                              );
+                            })()}
+
                             {evento.lugar && (
                               <div className="flex items-center gap-2">
                                 <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />

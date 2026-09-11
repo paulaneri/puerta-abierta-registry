@@ -799,9 +799,9 @@ const DetalleMujer = () => {
       <main className="w-full px-4 sm:px-6 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-6">
-            <TabsTrigger value="datos" className="text-sm font-medium">Datos Personales</TabsTrigger>
-            <TabsTrigger value="acompanamiento" className="text-sm font-medium">Acompañamientos</TabsTrigger>
-            <TabsTrigger value="trabajo-campo" className="text-sm font-medium">Trabajo de Campo</TabsTrigger>
+            <TabsTrigger value="datos" className="text-xs sm:text-sm font-medium px-1">Datos Personales</TabsTrigger>
+            <TabsTrigger value="acompanamiento" className="text-xs sm:text-sm font-medium px-1">Acompañamientos</TabsTrigger>
+            <TabsTrigger value="trabajo-campo" className="text-xs sm:text-sm font-medium px-1">Trabajo de Campo</TabsTrigger>
           </TabsList>
 
           {/* Datos Personales Tab */}

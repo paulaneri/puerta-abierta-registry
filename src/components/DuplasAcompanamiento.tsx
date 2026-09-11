@@ -253,7 +253,7 @@ const DuplasAcompanamiento = () => {
                 </DialogDescription>
               </DialogHeader>
               <div className="space-y-4 py-4">
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label htmlFor="profesional1">Profesional 1 *</Label>
                     <Select value={formData.profesional1Id} onValueChange={(value) => setFormData({...formData, profesional1Id: value})}>

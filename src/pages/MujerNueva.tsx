@@ -274,7 +274,7 @@ const MujerNueva = () => {
       </header>
 
       {/* Main Content */}
-      <main className="w-full px-6 py-8">
+      <main className="w-full px-4 sm:px-6 py-6 sm:py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-8">
             <TabsTrigger value="datos">Datos Personales</TabsTrigger>

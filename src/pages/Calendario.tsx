@@ -1010,7 +1010,7 @@ const Calendario = () => {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div>
                 <Label className="text-sm">Fecha *</Label>
                 <DatePicker
@@ -1061,7 +1061,7 @@ const Calendario = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {!formData.todoElDia ? (
                 <>
                   <div>
@@ -1116,7 +1116,7 @@ const Calendario = () => {
 
             <div>
               <Label className="text-sm">Participantes</Label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                 <Select value={grupoSeleccionado} onValueChange={(value) => {
                   setGrupoSeleccionado(value);
                   const profesionalesActivos = profesionales.filter(p => p.estado === 'activo');
@@ -1184,7 +1184,7 @@ const Calendario = () => {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3 items-end">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
               <div className="flex items-center space-x-2 pb-1">
                 <Checkbox
                   id="recordatorio"
@@ -1336,7 +1336,7 @@ const Calendario = () => {
               )}
 
               {personaSeleccionada.fecha_nacimiento && (
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <Label className="text-sm text-muted-foreground">Fecha de nacimiento</Label>
                     <p className="font-medium">

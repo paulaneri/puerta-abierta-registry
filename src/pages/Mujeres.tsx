@@ -680,7 +680,7 @@ const Mujeres = () => {
       </header>
 
       {/* Main Content */}
-      <main className="w-full px-6 py-8">
+      <main className="w-full px-4 sm:px-6 py-6 sm:py-8">
         {/* Search and Stats */}
         <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
           <div className="flex flex-wrap items-center gap-3">

@@ -1155,39 +1155,42 @@ const DetalleMujer = () => {
                    )}
                  </div>
 
-                <div className="border rounded-lg p-4 bg-card space-y-4">
-                  <div className="flex items-center justify-between gap-4">
-                    <Label className="text-sm font-semibold">Hijos a cargo</Label>
-                    {editMode ? (
-                      <div className="flex items-center gap-3">
-                        <Switch
-                          checked={formData.hijosACargo}
-                          onCheckedChange={(v) => {
-                            setFormData({ ...formData, hijosACargo: !!v });
-                            if (v && hijosDetalle.length === 0) {
-                              setHijosDetalle([crearHijoVacio()]);
-                            }
-                          }}
-                        />
-                        <span className="text-sm text-muted-foreground">{formData.hijosACargo ? "Sí" : "No"}</span>
-                      </div>
-                    ) : (
-                      <span className="text-sm">
-                        {mujer.hijosACargo
-                          ? `Sí${(mujer.hijosDetalle && mujer.hijosDetalle.length > 0) ? ` (${mujer.hijosDetalle.length})` : ""}`
-                          : "No"}
-                      </span>
-                    )}
-                  </div>
-
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between gap-4">
+                      <CardTitle className="text-base font-semibold">Hijos a cargo</CardTitle>
+                      {editMode ? (
+                        <div className="flex items-center gap-3">
+                          <Switch
+                            checked={formData.hijosACargo}
+                            onCheckedChange={(v) => {
+                              setFormData({ ...formData, hijosACargo: !!v });
+                              if (v && hijosDetalle.length === 0) {
+                                setHijosDetalle([crearHijoVacio()]);
+                              }
+                            }}
+                          />
+                          <span className="text-sm text-muted-foreground">{formData.hijosACargo ? "Sí" : "No"}</span>
+                        </div>
+                      ) : (
+                        <span className="text-sm">
+                          {mujer.hijosACargo
+                            ? `Sí${(mujer.hijosDetalle && mujer.hijosDetalle.length > 0) ? ` (${mujer.hijosDetalle.length})` : ""}`
+                            : "No"}
+                        </span>
+                      )}
+                    </div>
+                  </CardHeader>
                   {(editMode ? formData.hijosACargo : mujer.hijosACargo) && (
-                    editMode ? (
-                      <HijosACargoEditor value={hijosDetalle} onChange={setHijosDetalle} bare />
-                    ) : (
-                      <HijosACargoLista hijos={mujer.hijosDetalle || []} bare />
-                    )
+                    <CardContent className="pt-0">
+                      {editMode ? (
+                        <HijosACargoEditor value={hijosDetalle} onChange={setHijosDetalle} bare />
+                      ) : (
+                        <HijosACargoLista hijos={mujer.hijosDetalle || []} bare />
+                      )}
+                    </CardContent>
                   )}
-                </div>
+                </Card>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>

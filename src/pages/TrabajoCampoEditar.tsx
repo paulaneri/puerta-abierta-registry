@@ -17,6 +17,8 @@ import { trabajoCampoStore, type TrabajoCampo } from "@/lib/trabajoCampoStore";
 import { mujeresStore } from "@/lib/mujeresStore";
 import { equipoStore } from "@/lib/equipoStore";
 import LugarPredictiveInput from "@/components/LugarPredictiveInput";
+import UbicacionesEditor from "@/components/trabajoCampo/UbicacionesEditor";
+import type { UbicacionRecorrido } from "@/components/trabajoCampo/tipos";
 import { formatDate } from "@/lib/utils";
 import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
 import { useRecordMetadata } from "@/hooks/useRecordMetadata";
@@ -45,7 +47,8 @@ const TrabajoCampoEditar = () => {
     lugar: "",
     descripcion: "",
     profesionales: [] as string[],
-    encuentros: [] as EncuentroMujer[]
+    encuentros: [] as EncuentroMujer[],
+    ubicaciones: [] as UbicacionRecorrido[]
   });
 
   const [nuevoEncuentro, setNuevoEncuentro] = useState({
@@ -85,7 +88,8 @@ const TrabajoCampoEditar = () => {
               lugar: trabajoEncontrado.lugar,
               descripcion: trabajoEncontrado.descripcion,
               profesionales: trabajoEncontrado.profesionales,
-              encuentros: trabajoEncontrado.encuentros
+              encuentros: trabajoEncontrado.encuentros,
+              ubicaciones: trabajoEncontrado.ubicaciones || []
             });
           } else {
             toast.error("Trabajo de campo no encontrado");
@@ -185,7 +189,8 @@ const TrabajoCampoEditar = () => {
   const eliminarEncuentro = (id: number) => {
     setFormData(prev => ({
       ...prev,
-      encuentros: prev.encuentros.filter(e => e.id !== id)
+      encuentros: prev.encuentros.filter(e => e.id !== id),
+      ubicaciones: prev.ubicaciones.filter(u => u.encuentroId !== id)
     }));
   };
 

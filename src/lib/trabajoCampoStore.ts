@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { parseUbicaciones, type UbicacionRecorrido } from "@/components/trabajoCampo/tipos";
 
 interface EncuentroMujer {
   id: number;
@@ -15,6 +16,7 @@ export interface TrabajoCampo {
   descripcion: string;
   profesionales: string[];
   encuentros: EncuentroMujer[];
+  ubicaciones: UbicacionRecorrido[];
   actividad: string;
   resultados?: string;
   createdAt?: string;
@@ -63,6 +65,7 @@ export const trabajoCampoStore = (() => {
           resultados: row.resultados || '',
           profesionales: row.participantes || [],
           encuentros: parseEncuentros(row.encuentros), // Use helper function to parse
+          ubicaciones: parseUbicaciones((row as any).ubicaciones),
           createdAt: row.created_at,
           updatedAt: row.updated_at
         })) || [];
@@ -98,6 +101,7 @@ export const trabajoCampoStore = (() => {
             participantes: trabajo.profesionales,
             profesional_responsable: trabajo.profesionales[0] || '',
             encuentros: JSON.stringify(trabajo.encuentros || []),
+            ubicaciones: trabajo.ubicaciones || [],
             creado_por,
           } as any)
           .select()
@@ -114,6 +118,7 @@ export const trabajoCampoStore = (() => {
           resultados: data.resultados || '',
           profesionales: data.participantes || [],
           encuentros: parseEncuentros(data.encuentros),
+          ubicaciones: parseUbicaciones((data as any).ubicaciones),
           createdAt: data.created_at,
           updatedAt: data.updated_at
         };
@@ -138,6 +143,9 @@ export const trabajoCampoStore = (() => {
         }
         if (trabajoActualizado.encuentros !== undefined) {
           updateData.encuentros = JSON.stringify(trabajoActualizado.encuentros);
+        }
+        if (trabajoActualizado.ubicaciones !== undefined) {
+          updateData.ubicaciones = trabajoActualizado.ubicaciones;
         }
 
         const { error } = await supabase
@@ -186,6 +194,7 @@ export const trabajoCampoStore = (() => {
           resultados: data.resultados || '',
           profesionales: data.participantes || [],
           encuentros: parseEncuentros(data.encuentros),
+          ubicaciones: parseUbicaciones((data as any).ubicaciones),
           createdAt: data.created_at,
           updatedAt: data.updated_at
         };
@@ -214,6 +223,7 @@ export const trabajoCampoStore = (() => {
           resultados: data.resultados || '',
           profesionales: data.participantes || [],
           encuentros: parseEncuentros(data.encuentros),
+          ubicaciones: parseUbicaciones((data as any).ubicaciones),
           createdAt: data.created_at,
           updatedAt: data.updated_at
         };
@@ -270,6 +280,7 @@ export const trabajoCampoStore = (() => {
             actividad: trabajo.descripcion, // usar descripción como actividad por defecto
             profesionales: trabajo.profesionales || [],
             encuentros: trabajo.encuentros || [],
+            ubicaciones: [],
             resultados: ''
           });
         }

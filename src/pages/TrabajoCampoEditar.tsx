@@ -466,6 +466,28 @@ const TrabajoCampoEditar = () => {
             </CardContent>
           </Card>
 
+          {/* Mapa del recorrido */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Mapa del recorrido
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UbicacionesEditor
+                encuentros={formData.encuentros}
+                ubicaciones={formData.ubicaciones}
+                onChange={(ubicaciones) => {
+                  setFormData(prev => ({ ...prev, ubicaciones }));
+                  setHasChanges(true);
+                }}
+              />
+            </CardContent>
+          </Card>
+
+
+
           {/* Acciones */}
           <div className="flex justify-end gap-3">
             <Button type="button" variant="outline" onClick={() => handleNavigateBack('/trabajo-campo')}>

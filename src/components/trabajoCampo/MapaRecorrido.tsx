@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { Fragment, useEffect, useMemo } from "react";
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap, useMapEvents } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -109,7 +109,7 @@ const MapaRecorrido = ({
           const ordenadas = [...recorrido.ubicaciones].sort((a, b) => a.orden - b.orden);
           const linea = ordenadas.map((u) => [u.lat, u.lng] as [number, number]);
           return (
-            <div key={recorrido.id}>
+            <Fragment key={recorrido.id}>
               {linea.length > 1 && (
                 <Polyline positions={linea} pathOptions={{ color: recorrido.color, weight: 4, opacity: 0.8 }} />
               )}
@@ -139,7 +139,7 @@ const MapaRecorrido = ({
                   </Popup>
                 </Marker>
               ))}
-            </div>
+            </Fragment>
           );
         })}
       </MapContainer>

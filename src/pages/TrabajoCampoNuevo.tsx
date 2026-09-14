@@ -17,6 +17,8 @@ import { trabajoCampoStore, type TrabajoCampo as TrabajoCampoType } from "@/lib/
 import { mujeresStore } from "@/lib/mujeresStore";
 import { equipoStore } from "@/lib/equipoStore";
 import LugarPredictiveInput from "@/components/LugarPredictiveInput";
+import UbicacionesEditor from "@/components/trabajoCampo/UbicacionesEditor";
+import type { UbicacionRecorrido } from "@/components/trabajoCampo/tipos";
 
 interface EncuentroMujer {
   id: number;
@@ -36,7 +38,8 @@ const TrabajoCampoNuevo = () => {
     lugar: "",
     descripcion: "",
     profesionales: [] as string[],
-    encuentros: [] as EncuentroMujer[]
+    encuentros: [] as EncuentroMujer[],
+    ubicaciones: [] as UbicacionRecorrido[]
   });
 
   const [nuevoEncuentro, setNuevoEncuentro] = useState({
@@ -180,7 +183,8 @@ const TrabajoCampoNuevo = () => {
   const eliminarEncuentro = (id: number) => {
     setFormData(prev => ({
       ...prev,
-      encuentros: prev.encuentros.filter(e => e.id !== id)
+      encuentros: prev.encuentros.filter(e => e.id !== id),
+      ubicaciones: prev.ubicaciones.filter(u => u.encuentroId !== id)
     }));
   };
 
@@ -452,6 +456,26 @@ const TrabajoCampoNuevo = () => {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Mapa del recorrido */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Mapa del recorrido
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <UbicacionesEditor
+                encuentros={formData.encuentros}
+                ubicaciones={formData.ubicaciones}
+                onChange={(ubicaciones) => {
+                  setFormData(prev => ({ ...prev, ubicaciones }));
+                  setHasChanges(true);
+                }}
+              />
             </CardContent>
           </Card>
 

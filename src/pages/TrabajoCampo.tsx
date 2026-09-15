@@ -11,7 +11,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { DatePicker } from "@/components/ui/date-picker";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
-import { ArrowLeft, Plus, Edit, Trash2, MapPin, Calendar, Users, MessageSquare, Archive, ArchiveRestore, Search } from "lucide-react";
+import { ArrowLeft, Plus, Edit, Trash2, MapPin, Calendar, Users, MessageSquare, Archive, ArchiveRestore, Search, Map as MapIcon } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import MapaRecorrido from "@/components/trabajoCampo/MapaRecorrido";
+import type { UbicacionRecorrido } from "@/components/trabajoCampo/tipos";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MultiSelectToolbar } from "@/components/ui/multi-select-toolbar";
 import { Link, useNavigate } from "react-router-dom";
@@ -38,6 +42,7 @@ interface TrabajoCampo {
   actividad: string;
   profesionales: string[];
   encuentros: EncuentroMujer[];
+  ubicaciones?: UbicacionRecorrido[];
   resultados?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -50,8 +55,11 @@ const profesionalesDisponibles = [
   "Juan Pérez - Terapeuta Ocupacional"
 ];
 
+const COLORES_MAPA = ["#f97316", "#2563eb", "#16a34a", "#db2777", "#7c3aed", "#0891b2", "#ca8a04"];
+
 const TrabajoCampo = () => {
   const navigate = useNavigate();
+  const [trabajoMapa, setTrabajoMapa] = useState<TrabajoCampo | null>(null);
   const [trabajosCampo, setTrabajosCampo] = useState<TrabajoCampo[]>([]);
   const [mujeresRegistradas, setMujeresRegistradas] = useState<{id: string, nombre: string, apellido: string}[]>([]);
   const [añoSeleccionado, setAñoSeleccionado] = useState(new Date().getFullYear());
@@ -100,6 +108,12 @@ const TrabajoCampo = () => {
     trabajo.descripcion.toLowerCase().includes(searchTerm.toLowerCase()) ||
     trabajo.profesionales.some(prof => prof.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const trabajosConMapa = filteredTrabajos.filter(
+    (t) => (t.ubicaciones || []).some((u) => typeof u.lat === "number" && typeof u.lng === "number")
+  );
+
+
 
   const archivarTrabajo = async (id: string, archivado: boolean) => {
     const success = await trabajoCampoStore.archivarTrabajo(id, archivado);
@@ -299,6 +313,13 @@ const TrabajoCampo = () => {
         </div>
 
         {/* Results */}
+        <Tabs defaultValue="listado" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 mb-4 sm:w-auto sm:inline-grid">
+            <TabsTrigger value="listado">Listado</TabsTrigger>
+            <TabsTrigger value="mapa">Mapa</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="listado">
         {filteredTrabajos.length === 0 ? (
           <Card>
             <CardContent className="text-center py-12">
@@ -374,6 +395,24 @@ const TrabajoCampo = () => {
                           <div className="flex justify-end gap-2">
                             <Tooltip>
                               <TooltipTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => setTrabajoMapa(trabajo)}
+                                  disabled={!trabajo.ubicaciones || trabajo.ubicaciones.length === 0}
+                                >
+                                  <MapIcon className="h-4 w-4" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                {trabajo.ubicaciones && trabajo.ubicaciones.length > 0
+                                  ? "Ver mapa del recorrido"
+                                  : "Sin puntos en el mapa"}
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
                                 <Button variant="ghost" size="sm" onClick={() => handleEdit(trabajo)}>
                                   <Edit className="h-4 w-4" />
                                 </Button>
@@ -423,7 +462,94 @@ const TrabajoCampo = () => {
             </CardContent>
           </Card>
         )}
+          </TabsContent>
+
+          <TabsContent value="mapa">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <MapIcon className="h-5 w-5" />
+                  Mapa general de recorridos
+                </CardTitle>
+                <CardDescription>
+                  Recorridos de las salidas que cumplen los filtros actuales.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {trabajosConMapa.length === 0 ? (
+                  <p className="text-muted-foreground text-center py-8">
+                    Todavía no hay recorridos marcados en el mapa.
+                  </p>
+                ) : (
+                  <>
+                    <MapaRecorrido
+                      recorridos={trabajosConMapa.map((t, i) => ({
+                        id: t.id,
+                        color: COLORES_MAPA[i % COLORES_MAPA.length],
+                        etiquetaGrupo: `${formatDate(t.fecha)} - ${t.lugar}`,
+                        ubicaciones: t.ubicaciones || [],
+                      }))}
+                      altura="h-[320px] sm:h-[500px]"
+                    />
+                    <div className="flex flex-wrap gap-3">
+                      {trabajosConMapa.map((t, i) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => handleEdit(t)}
+                          className="flex items-center gap-2 rounded-md border px-3 py-1.5 text-sm hover:bg-accent"
+                        >
+                          <span
+                            className="h-3 w-3 rounded-full"
+                            style={{ background: COLORES_MAPA[i % COLORES_MAPA.length] }}
+                          />
+                          {formatDate(t.fecha)} - {t.lugar}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
       </main>
+
+      <Dialog open={!!trabajoMapa} onOpenChange={(open) => !open && setTrabajoMapa(null)}>
+        <DialogContent className="max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>
+              Recorrido del {trabajoMapa ? formatDate(trabajoMapa.fecha) : ""}
+              {trabajoMapa?.lugar ? ` - ${trabajoMapa.lugar}` : ""}
+            </DialogTitle>
+          </DialogHeader>
+          {trabajoMapa && (
+            <div className="space-y-3">
+              <MapaRecorrido
+                recorridos={[{
+                  id: trabajoMapa.id,
+                  color: COLORES_MAPA[0],
+                  ubicaciones: trabajoMapa.ubicaciones || [],
+                }]}
+                altura="h-[300px] sm:h-[420px]"
+              />
+              <ol className="space-y-1 text-sm">
+                {[...(trabajoMapa.ubicaciones || [])]
+                  .sort((a, b) => a.orden - b.orden)
+                  .map((u, i) => (
+                    <li key={u.id} className="flex gap-2">
+                      <span className="font-semibold">{i + 1}.</span>
+                      <span>
+                        {u.etiqueta || (u.tipo === "parada" ? "Parada" : "Encuentro")}
+                        {u.nota ? ` - ${u.nota}` : ""}
+                      </span>
+                    </li>
+                  ))}
+              </ol>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       <ConfirmDialog
         open={deleteConfirmOpen}

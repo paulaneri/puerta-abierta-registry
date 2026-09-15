@@ -27,7 +27,7 @@ export const parseUbicaciones = (data: any): UbicacionRecorrido[] => {
     .filter((u) => u && typeof u.lat === 'number' && typeof u.lng === 'number')
     .map((u, i) => ({
       id: String(u.id ?? `${Date.now()}-${i}`),
-      tipo: u.tipo === 'parada' ? 'parada' : 'encuentro',
+      tipo: (u.tipo === 'parada' ? 'parada' : 'encuentro') as UbicacionRecorrido['tipo'],
       encuentroId: u.encuentroId ?? null,
       etiqueta: String(u.etiqueta ?? ''),
       lat: Number(u.lat),

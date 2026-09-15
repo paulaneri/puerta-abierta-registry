@@ -568,7 +568,8 @@ const DetalleMujer = () => {
           encuentros: [
             { id: 1, nombre: "Carmen", apellido: "Martínez", conversacion: "Habló sobre su situación habitacional, necesita apoyo para gestiones", esRegistrada: true },
             { id: 2, nombre: "Lucía", apellido: "Sánchez", conversacion: "Primera vez que la vemos, mostró interés en participar del centro", esRegistrada: false }
-          ]
+          ],
+          ubicaciones: []
         },
         {
           id: "2",
@@ -580,7 +581,8 @@ const DetalleMujer = () => {
           encuentros: [
             { id: 3, nombre: "Lucía", apellido: "Sánchez", conversacion: "Se acercó para consultar sobre talleres disponibles, mostró mucho interés", esRegistrada: false },
             { id: 4, nombre: "Ana", apellido: "González", conversacion: "Consulta sobre documentación", esRegistrada: true }
-          ]
+          ],
+          ubicaciones: []
         }
       ];
       // Note: We can't call setTrabajosCampo anymore as it's deprecated, but this is just for displaying example data

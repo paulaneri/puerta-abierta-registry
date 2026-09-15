@@ -109,6 +109,12 @@ const TrabajoCampo = () => {
     trabajo.profesionales.some(prof => prof.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
+  const trabajosConMapa = filteredTrabajos.filter(
+    (t) => (t.ubicaciones || []).some((u) => typeof u.lat === "number" && typeof u.lng === "number")
+  );
+
+
+
   const archivarTrabajo = async (id: string, archivado: boolean) => {
     const success = await trabajoCampoStore.archivarTrabajo(id, archivado);
     if (success) {

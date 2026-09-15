@@ -172,3 +172,10 @@ All colors MUST be HSL.
     @apply min-w-full;
   }
 }
+/* Mantener el mapa Leaflet por debajo de diálogos y menús */
+.leaflet-container,
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom {
+  z-index: 0 !important;
+}

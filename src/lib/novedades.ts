@@ -15,6 +15,36 @@ export interface Novedad {
 
 export const NOVEDADES: Novedad[] = [
   {
+    id: "2026-09-15-mapa-trabajo-campo",
+    fecha: "2026-09-15",
+    mensaje:
+      "Trabajo de Campo ahora tiene mapa: marcá dónde se encontró a cada mujer y mirá el recorrido de cada salida o todos juntos en la pestaña Mapa.",
+  },
+  {
+    id: "2026-09-10-responsive",
+    fecha: "2026-09-10",
+    mensaje:
+      "La aplicación se ve y se usa mejor desde el celular y la tablet.",
+  },
+  {
+    id: "2026-09-05-contrasenas-perfil",
+    fecha: "2026-09-05",
+    mensaje:
+      "En Administración la columna ahora se llama Perfil y se puede crear o cambiar la contraseña de cada usuaria.",
+  },
+  {
+    id: "2026-09-01-comentarios-reuniones",
+    fecha: "2026-09-01",
+    mensaje:
+      "En Roles de Reuniones podés dejar un comentario en cada reunión y se incluye en la imagen del mes.",
+  },
+  {
+    id: "2026-08-25-ficha-pdf",
+    fecha: "2026-08-25",
+    mensaje:
+      "Desde la ficha de cada participante podés descargar un PDF con toda su información.",
+  },
+  {
     id: "2026-08-11-novedades",
     fecha: "2026-08-11",
     mensaje:

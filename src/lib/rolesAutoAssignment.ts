@@ -10,8 +10,19 @@ interface AsignacionRol {
 interface ReunionParaAsignar {
   id: string;
   semana_numero: number;
+  fecha?: string;
   asignaciones: AsignacionRol[];
 }
+
+/** Mes (1-12) desde el cual rige: nadie repite el mismo rol en un mismo mes */
+export const MES_INICIO_REGLA_MENSUAL = 10;
+
+export const mesDeReunion = (r: { fecha?: string }): number | null => {
+  if (!r.fecha) return null;
+  const m = parseInt(r.fecha.slice(5, 7), 10);
+  return isNaN(m) ? null : m;
+};
+
 
 
 
@@ -190,14 +201,43 @@ export const calcularAsignacionesAutomaticas = (
         continue;
       }
       
+      // Regla desde octubre: nadie repite el mismo rol dentro del mismo mes
+      const mesActual = mesDeReunion(reunion);
+      if (mesActual !== null && mesActual >= MES_INICIO_REGLA_MENSUAL) {
+        const yaTuvoRolEnMes = (pid: string) =>
+          reunionesOrdenadas.some((r, j) => {
+            if (j === i || mesDeReunion(r) !== mesActual) return false;
+            const asig = resultado.get(r.id);
+            if (asig) return asig[rol] === pid;
+            return r.asignaciones.some(a => a.rol === rol && a.profesional_id === pid);
+          });
+        const sinRepetirMes = candidatos.filter(p => !yaTuvoRolEnMes(p.id));
+        if (sinRepetirMes.length > 0) {
+          candidatos = sinRepetirMes;
+        } else {
+          const relajadosMes = candidatosFallback.filter(p => !yaTuvoRolEnMes(p.id));
+          if (relajadosMes.length > 0) candidatos = relajadosMes;
+        }
+      }
+
+      const totalRoles = (pid: string) => {
+        const c = contadorRoles.get(pid);
+        return c ? (c.get('reflexion') || 0) + (c.get('coordinacion') || 0) + (c.get('acta') || 0) : 0;
+      };
+
       // Ordenar candidatos por prioridad
       candidatos.sort((a, b) => {
         // Primera prioridad: quien no tuvo rol la semana anterior
         const tuvoPrevA = tuvoRolAnterior.has(a.id) ? 1 : 0;
         const tuvoPrevB = tuvoRolAnterior.has(b.id) ? 1 : 0;
         if (tuvoPrevA !== tuvoPrevB) return tuvoPrevA - tuvoPrevB;
-        
-        // Segunda prioridad: quien menos veces ha tenido este rol específico
+
+        // Segunda prioridad: equiparar la cantidad total de roles entre integrantes
+        const totA = totalRoles(a.id);
+        const totB = totalRoles(b.id);
+        if (totA !== totB) return totA - totB;
+
+        // Tercera prioridad: quien menos veces ha tenido este rol específico
         const countA = contadorRoles.get(a.id)?.get(rol) || 0;
         const countB = contadorRoles.get(b.id)?.get(rol) || 0;
         return countA - countB;

@@ -89,31 +89,65 @@ const Galeria = () => {
     }
   };
 
+  const motivoError = (error: any, file: File): string => {
+    const msg = String(error?.message || error?.error || '').toLowerCase();
+    const status = Number(error?.statusCode || error?.status || 0);
+    if (!navigator.onLine || msg.includes('failed to fetch') || msg.includes('network'))
+      return 'sin conexión a internet o conexión inestable';
+    if (status === 413 || msg.includes('too large') || msg.includes('exceeded') || msg.includes('size'))
+      return `la foto pesa demasiado (${(file.size / 1024 / 1024).toFixed(1)} MB)`;
+    if (msg.includes('mime') || msg.includes('type'))
+      return 'el tipo de archivo no está permitido';
+    if (msg.includes('invalid key') || msg.includes('invalid'))
+      return 'el nombre del archivo tiene caracteres no válidos';
+    if (status === 401 || status === 403 || msg.includes('jwt') || msg.includes('row-level') || msg.includes('policy') || msg.includes('permission'))
+      return 'la sesión venció o no tenés permiso; volvé a iniciar sesión';
+    if (status === 429 || msg.includes('rate'))
+      return 'demasiadas fotos a la vez; esperá un momento y reintentá';
+    if (status >= 500) return 'el servidor no respondió; reintentá en unos minutos';
+    return error?.message || 'error desconocido';
+  };
+
   const subirFotos = async (files: FileList) => {
     if (!albumSeleccionado || !user) return;
     
     setUploading(true);
     const nuevasFotos: FotoAlbum[] = [];
+    const errores: { nombre: string; motivo: string }[] = [];
+    const lista = Array.from(files);
+    const toastId = toast.loading(`Subiendo 0 de ${lista.length} fotos...`);
     
     try {
-      for (const file of Array.from(files)) {
-        const url = await albumesStore.uploadFoto(file, albumSeleccionado.id);
-        if (url) {
-          const foto = await albumesStore.addFoto({
-            album_id: albumSeleccionado.id,
-            url,
-            nombre_archivo: file.name,
-            orden: fotosAlbum.length + nuevasFotos.length
-          });
-          if (foto) {
-            nuevasFotos.push(foto);
+      for (let i = 0; i < lista.length; i++) {
+        const file = lista[i];
+        toast.loading(`Subiendo ${i + 1} de ${lista.length} fotos...`, { id: toastId });
+        if (!file.type.startsWith('image/')) {
+          errores.push({ nombre: file.name, motivo: 'no es una imagen' });
+          continue;
+        }
+        if (file.size > 50 * 1024 * 1024) {
+          errores.push({ nombre: file.name, motivo: `la foto pesa demasiado (${(file.size / 1024 / 1024).toFixed(1)} MB, máximo 50 MB)` });
+          continue;
+        }
+        try {
+          const url = await albumesStore.uploadFoto(file, albumSeleccionado.id);
+          if (url) {
+            const foto = await albumesStore.addFoto({
+              album_id: albumSeleccionado.id,
+              url,
+              nombre_archivo: file.name,
+              orden: fotosAlbum.length + nuevasFotos.length
+            });
+            if (foto) nuevasFotos.push(foto);
           }
+        } catch (error) {
+          console.error('Error subiendo foto:', file.name, error);
+          errores.push({ nombre: file.name, motivo: motivoError(error, file) });
         }
       }
       
       setFotosAlbum(prev => [...prev, ...nuevasFotos]);
       
-      // Update album cover if it's the first photo
       if (fotosAlbum.length === 0 && nuevasFotos.length > 0) {
         await albumesStore.updateAlbum(albumSeleccionado.id, {
           foto_portada_url: nuevasFotos[0].url
@@ -125,10 +159,21 @@ const Galeria = () => {
         ));
       }
       
-      toast.success(`${nuevasFotos.length} foto(s) subida(s) correctamente`);
+      toast.dismiss(toastId);
+      if (errores.length === 0) {
+        toast.success(`${nuevasFotos.length} foto(s) subida(s) correctamente`);
+      } else {
+        const detalle = errores.slice(0, 5).map(e => `• ${e.nombre}: ${e.motivo}`).join('\n');
+        const extra = errores.length > 5 ? `\n...y ${errores.length - 5} más` : '';
+        toast.error(`Se subieron ${nuevasFotos.length} de ${lista.length} fotos. ${errores.length} no se pudieron subir:`, {
+          description: <span className="whitespace-pre-line">{detalle + extra}</span>,
+          duration: 20000,
+        });
+      }
     } catch (error) {
       console.error('Error subiendo fotos:', error);
-      toast.error('Error al subir las fotos');
+      toast.dismiss(toastId);
+      toast.error(`Error al subir las fotos: ${motivoError(error, lista[0])}`);
     } finally {
       setUploading(false);
     }

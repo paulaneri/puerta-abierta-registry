@@ -160,7 +160,10 @@ export const albumesStore = {
   },
 
   async uploadFoto(file: File, albumId: string): Promise<string | null> {
-    const fileName = `${albumId}/${Date.now()}-${file.name}`;
+    const nombreSeguro = file.name
+      .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+      .replace(/[^a-zA-Z0-9._-]/g, '_');
+    const fileName = `${albumId}/${Date.now()}-${Math.random().toString(36).slice(2, 7)}-${nombreSeguro}`;
     
     const { error: uploadError } = await supabase.storage
       .from('fotos-albumes')

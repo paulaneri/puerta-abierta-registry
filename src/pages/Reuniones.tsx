@@ -17,7 +17,7 @@ import { CalendarioMensual } from "@/components/reuniones/CalendarioMensual";
 import { CalendarioAnual } from "@/components/reuniones/CalendarioAnual";
 import { GestionParticipantes } from "@/components/reuniones/GestionParticipantes";
 import { supabase } from "@/integrations/supabase/client";
-import { calcularAsignacionesAutomaticas } from "@/lib/rolesAutoAssignment";
+import { calcularAsignacionesAutomaticas, mesDeReunion, MES_INICIO_REGLA_MENSUAL } from "@/lib/rolesAutoAssignment";
 
 const Reuniones = () => {
   const currentYear = new Date().getFullYear();
@@ -85,21 +85,55 @@ const Reuniones = () => {
         });
       });
 
+      // Desde octubre: sin repetir rol en el mes y cantidad de roles equiparada
+      const idxOctubre = reunionesActivasOrdenadas.findIndex(
+        r => (mesDeReunion(r) ?? 0) >= MES_INICIO_REGLA_MENSUAL
+      );
+      const desdeOctubre = idxOctubre >= 0 ? reunionesActivasOrdenadas.slice(idxOctubre) : [];
+      const hayRepeticionMensual = desdeOctubre.some((r, idx) =>
+        desdeOctubre.slice(0, idx).some(prev =>
+          mesDeReunion(prev) === mesDeReunion(r) &&
+          r.asignaciones.some(a =>
+            prev.asignaciones.some(p => p.rol === a.rol && p.profesional_id === a.profesional_id)
+          )
+        )
+      );
+      let hayDesequilibrio = false;
+      if (desdeOctubre.length > 0 && profesionalesCoordinador.length > 0) {
+        const totales = new Map<string, number>(profesionalesCoordinador.map(p => [p.id, 0]));
+        desdeOctubre.forEach(r => r.asignaciones.forEach(a => {
+          if (totales.has(a.profesional_id)) totales.set(a.profesional_id, totales.get(a.profesional_id)! + 1);
+        }));
+        const vals = [...totales.values()];
+        hayDesequilibrio = Math.max(...vals) - Math.min(...vals) > 1;
+      }
+      const corregirDesdeOctubre = hayRepeticionMensual || hayDesequilibrio;
+
       // Auto-corrección (solo si detectamos problemas y hay profesionales para asignar)
       if (
-        (hayRolesSinAsignar || hayRepeticionConsecutiva) &&
+        (hayRolesSinAsignar || hayRepeticionConsecutiva || corregirDesdeOctubre) &&
         profesionalesCoordinador.length > 0 &&
         !autoFixInProgressRef.current
       ) {
         autoFixInProgressRef.current = true;
 
-        const nuevasAsignaciones = calcularAsignacionesAutomaticas(
-          reunionesActivasOrdenadas,
-          profesionalesCoordinador,
-          disponibilidadMap
+        // Si solo hay problemas desde octubre, recalcular únicamente desde allí
+        const soloOctubre = corregirDesdeOctubre && !hayRolesSinAsignar && !hayRepeticionConsecutiva;
+        const startIdx = soloOctubre ? idxOctubre : 0;
+        const reunionesParaCalculo = reunionesActivasOrdenadas.map((r, idx) =>
+          idx >= startIdx ? { ...r, asignaciones: [] } : r
         );
 
-        const idsActivas = reunionesActivasOrdenadas.map(r => r.id);
+        const nuevasAsignacionesTodas = calcularAsignacionesAutomaticas(
+          reunionesParaCalculo,
+          profesionalesCoordinador,
+          disponibilidadMap,
+          startIdx > 0 ? reunionesParaCalculo[startIdx].id : undefined
+        );
+        const idsActivas = reunionesActivasOrdenadas.slice(startIdx).map(r => r.id);
+        const nuevasAsignaciones = new Map(
+          [...nuevasAsignacionesTodas].filter(([id]) => idsActivas.includes(id))
+        );
         const okDelete = await reunionesStore.eliminarAsignacionesMultiples(idsActivas);
         if (okDelete) {
           const asignacionesParaInsertar: { reunion_id: string; profesional_id: string; rol: RolReunion }[] = [];

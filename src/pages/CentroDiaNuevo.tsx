@@ -44,6 +44,8 @@ const CentroDiaNuevo = () => {
   const [nuevaLlamadaRecibida, setNuevaLlamadaRecibida] = useState({ nombre: '', descripcion: '' });
   const [nuevaLlamadaHecha, setNuevaLlamadaHecha] = useState({ nombre: '', descripcion: '' });
   const [hasChanges, setHasChanges] = useState(false);
+  const [guardando, setGuardando] = useState(false);
+  const guardandoRef = useRef(false);
 
   const { showWarning, confirmNavigation, cancelNavigation, handleNavigateBack } = useUnsavedChanges(hasChanges);
 
@@ -104,6 +106,9 @@ const CentroDiaNuevo = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (guardandoRef.current) return;
+    guardandoRef.current = true;
+    setGuardando(true);
     
     try {
       const equipoNombres = equipoSeleccionado.map(p => `${p.nombre} ${p.apellido} - ${p.cargo}`).join(', ');
@@ -121,10 +126,14 @@ const CentroDiaNuevo = () => {
         navigate('/centro-dia');
       } else {
         toast.error("Error al guardar el registro. Por favor, intente nuevamente.");
+        guardandoRef.current = false;
+        setGuardando(false);
       }
     } catch (error) {
       console.error('Error guardando registro:', error);
       toast.error("Error al guardar el registro. Por favor, intente nuevamente.");
+      guardandoRef.current = false;
+      setGuardando(false);
     }
   };
 

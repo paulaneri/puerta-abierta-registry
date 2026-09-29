@@ -24,6 +24,8 @@ const Galeria = () => {
   const [uploading, setUploading] = useState(false);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [lightboxIndex, setLightboxIndex] = useState(0);
+  const [resumen, setResumen] = useState<Record<string, { total: number; porUsuario: Record<string, number>; ultima: string | null }>>({});
+  const [nombres, setNombres] = useState<Record<string, string>>({});
   
   // Form state
   const [nuevoAlbum, setNuevoAlbum] = useState({
@@ -39,8 +41,18 @@ const Galeria = () => {
 
   const cargarAlbumes = async () => {
     try {
-      const data = await albumesStore.getAlbumes();
+      const [data, res] = await Promise.all([albumesStore.getAlbumes(), albumesStore.getResumenFotos()]);
       setAlbumes(data);
+      setResumen(res);
+      const ids = new Set<string>();
+      Object.values(res).forEach(r => Object.keys(r.porUsuario).forEach(u => u !== '__sin__' && ids.add(u)));
+      if (ids.size) {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data: perfiles } = await supabase.from('profiles').select('id, nombre, apellido, email').in('id', [...ids]);
+        const m: Record<string, string> = {};
+        (perfiles || []).forEach((p: any) => { m[p.id] = [p.nombre, p.apellido].filter(Boolean).join(' ') || p.email; });
+        setNombres(m);
+      }
     } catch (error) {
       console.error('Error cargando álbumes:', error);
       toast.error('Error al cargar los álbumes');
@@ -517,6 +529,26 @@ const Galeria = () => {
                         {album.evento}
                       </span>
                     )}
+                    {(() => {
+                      const r = resumen[album.id];
+                      const total = r?.total || 0;
+                      const creador = (album as any).creado_por as string | undefined;
+                      const otros = r ? Object.entries(r.porUsuario).filter(([u]) => u !== '__sin__' && u !== creador) : [];
+                      return (
+                        <div className="mt-2 text-xs text-muted-foreground space-y-0.5">
+                          <p className="flex items-center gap-1 font-medium text-foreground">
+                            <ImageIcon className="h-3 w-3" />
+                            {total.toLocaleString('es-AR')} {total === 1 ? 'foto' : 'fotos'}
+                          </p>
+                          {otros.map(([u, n]) => (
+                            <p key={u}>+{n.toLocaleString('es-AR')} agregada{n === 1 ? '' : 's'} por {nombres[u] || 'otra persona'}</p>
+                          ))}
+                          {r?.ultima && (
+                            <p>Última carga: {format(new Date(r.ultima), "dd/MM/yyyy HH:mm")}</p>
+                          )}
+                        </div>
+                      );
+                    })()}
                   </CardContent>
                 </Card>
               ))}

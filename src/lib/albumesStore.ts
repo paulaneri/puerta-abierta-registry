@@ -113,6 +113,28 @@ export const albumesStore = {
     return (data as unknown) as FotoAlbum[];
   },
 
+  async getResumenFotos(): Promise<Record<string, { total: number; porUsuario: Record<string, number>; ultima: string | null }>> {
+    const resumen: Record<string, { total: number; porUsuario: Record<string, number>; ultima: string | null }> = {};
+    const paso = 1000;
+    for (let desde = 0; ; desde += paso) {
+      const { data, error } = await supabase
+        .from('fotos_album' as any)
+        .select('album_id, creado_por, created_at')
+        .range(desde, desde + paso - 1);
+      if (error) { console.error('Error resumen fotos:', error); break; }
+      const filas = (data as any[]) || [];
+      for (const f of filas) {
+        const r = (resumen[f.album_id] ||= { total: 0, porUsuario: {}, ultima: null });
+        r.total++;
+        const u = f.creado_por || '__sin__';
+        r.porUsuario[u] = (r.porUsuario[u] || 0) + 1;
+        if (!r.ultima || f.created_at > r.ultima) r.ultima = f.created_at;
+      }
+      if (filas.length < paso) break;
+    }
+    return resumen;
+  },
+
   async getAllFotos(): Promise<FotoAlbum[]> {
     const { data, error } = await supabase
       .from('fotos_album' as any)

@@ -192,7 +192,7 @@ const FormularioCentroDia = ({ registro, onClose, onSave }: FormularioCentroDiaP
       onClose();
     } catch (error) {
       console.error('Error al guardar registro:', error);
-      toast.error("Error al guardar el registro");
+      toast.error(error instanceof Error ? error.message : "Error al guardar el registro");
     }
   };
 

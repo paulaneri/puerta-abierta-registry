@@ -131,7 +131,7 @@ const CentroDiaNuevo = () => {
       }
     } catch (error) {
       console.error('Error guardando registro:', error);
-      toast.error("Error al guardar el registro. Por favor, intente nuevamente.");
+      toast.error(error instanceof Error ? error.message : "Error al guardar el registro.");
       guardandoRef.current = false;
       setGuardando(false);
     }

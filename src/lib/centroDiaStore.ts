@@ -27,6 +27,18 @@ interface RegistroCentroDia {
   comentariosObservaciones: string;
 }
 
+function explicarError(error: any): string {
+  const msg = String(error?.message || '').toLowerCase();
+  const code = String(error?.code || '');
+  if (code === '42501' || msg.includes('row-level security') || msg.includes('jwt') || msg.includes('permission'))
+    return 'Tu sesión venció o no tenés permiso. Volvé a iniciar sesión e intentá de nuevo.';
+  if (msg.includes('failed to fetch') || msg.includes('network'))
+    return 'No hay conexión a internet. Revisá la conexión e intentá de nuevo.';
+  if (code === '23502') return 'Falta completar un dato obligatorio.';
+  if (code === '22007' || code === '22008') return 'La fecha no es válida.';
+  return `No se pudo guardar: ${error?.message || 'error desconocido'}`;
+}
+
 export const centroDiaStore = (() => {
     return {
     getRegistros: async (mostrarArchivados = false): Promise<RegistroCentroDia[]> => {
@@ -89,7 +101,7 @@ export const centroDiaStore = (() => {
       
       if (error) {
         console.error('Error adding registro centro dia:', error);
-        return null;
+        throw new Error(explicarError(error));
       }
       
       return {
@@ -117,6 +129,7 @@ export const centroDiaStore = (() => {
       
       if (error) {
         console.error('Error updating registro centro dia:', error);
+        throw new Error(explicarError(error));
       }
     },
 

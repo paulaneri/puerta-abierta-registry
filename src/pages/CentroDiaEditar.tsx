@@ -162,7 +162,7 @@ const CentroDiaEditar = () => {
       navigate('/centro-dia');
     } catch (error) {
       console.error('Error actualizando registro:', error);
-      toast.error("Error al actualizar el registro. Por favor, intente nuevamente.");
+      toast.error(error instanceof Error ? error.message : "Error al actualizar el registro. Por favor, intente nuevamente.");
     }
   };
 

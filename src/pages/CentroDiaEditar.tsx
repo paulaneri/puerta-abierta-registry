@@ -29,6 +29,7 @@ const CentroDiaEditar = () => {
   
   const [registro, setRegistro] = useState<RegistroCentroDia | null>(null);
   const [cargando, setCargando] = useState(true);
+  const [guardando, setGuardando] = useState(false);
   const [registroActual, setRegistroActual] = useState<Omit<RegistroCentroDia, 'id'>>({
     fecha: new Date().toISOString().split('T')[0],
     mujeresAsistieron: [],
@@ -146,7 +147,8 @@ const CentroDiaEditar = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!registro) return;
+    if (!registro || guardando) return;
+    setGuardando(true);
     
     try {
       const equipoNombres = equipoSeleccionado.map(p => `${p.nombre} ${p.apellido} - ${p.cargo}`).join(', ');
@@ -162,7 +164,12 @@ const CentroDiaEditar = () => {
       navigate('/centro-dia');
     } catch (error) {
       console.error('Error actualizando registro:', error);
-      toast.error(error instanceof Error ? error.message : "Error al actualizar el registro. Por favor, intente nuevamente.");
+      toast.error("No se pudo actualizar el registro", {
+        description: error instanceof Error ? error.message : "Intentá nuevamente.",
+        duration: 10000,
+      });
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -381,9 +388,9 @@ const CentroDiaEditar = () => {
                 <p className="text-muted-foreground">Modifica el registro del {formatDate(registro.fecha)}</p>
               </div>
             </div>
-            <Button type="submit" onClick={handleSubmit}>
+            <Button type="submit" onClick={handleSubmit} disabled={guardando}>
               <Save className="h-4 w-4 mr-2" />
-              Guardar
+              {guardando ? "Guardando..." : "Guardar"}
             </Button>
           </div>
         </div>
@@ -874,9 +881,9 @@ const CentroDiaEditar = () => {
             <Button type="button" variant="outline" onClick={() => handleNavigateBack('/centro-dia')}>
               Cancelar
             </Button>
-            <Button type="submit" className="bg-purple-600 hover:bg-purple-700">
+            <Button type="submit" disabled={guardando} className="bg-purple-600 hover:bg-purple-700">
               <Save className="h-4 w-4 mr-2" />
-              Actualizar Registro
+              {guardando ? "Guardando..." : "Actualizar Registro"}
             </Button>
           </div>
 

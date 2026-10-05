@@ -382,8 +382,44 @@ export const calcularRotacionJusta = (
   };
   const total = (pid: string) => { const c = conteo.get(pid)!; return c.reflexion + c.coordinacion + c.acta; };
 
+  // Esquema cíclico perfecto (N>=6, N no múltiplo de 3): en la semana k el rol r
+  // lo tiene orden[(3k + r) mod N]. Cumple todas las reglas; se elige el orden
+  // de personas que mejor continúa el historial de los meses anteriores.
+  let orden: string[] | null = null;
+  if (N >= 6 && N % 3 !== 0 && N <= 8) {
+    const permutar = (arr: string[]): string[][] => arr.length <= 1 ? [arr] :
+      arr.flatMap((x, i) => permutar([...arr.slice(0, i), ...arr.slice(i + 1)]).map(p => [x, ...p]));
+    let mejorCosto = Infinity;
+    for (const perm of permutar(ids)) {
+      let costo = 0;
+      const prev = semanaAnterior;
+      for (let k = 0; k < N && costo < mejorCosto; k++) {
+        ROLES.forEach((r, ri) => {
+          const pid = perm[(3 * k + ri) % N];
+          if (k === 0 && prev.has(pid)) costo += 100000;
+          // Rol hecho hace poco antes de octubre: posponerlo
+          const d = distancia(pid, r) + k;
+          if (d < N - 1) costo += 1000 * (N - 1 - d);
+          costo += 0.01 * (conteo.get(pid)![r] * (N - k));
+        });
+      }
+      if (costo < mejorCosto) { mejorCosto = costo; orden = perm; }
+    }
+  }
+
   for (let i = startIndex; i < reunionesOrdenadas.length; i++) {
     const reunion = reunionesOrdenadas[i];
+    if (orden) {
+      const k = i - startIndex;
+      const disp0 = disponibilidadPorReunion.get(reunion.id);
+      const prop = ROLES.map((_, ri) => orden![(3 * k + ri) % N]);
+      if (!disp0 || prop.every(p => disp0.has(p))) {
+        const asig = { reflexion: prop[0], coordinacion: prop[1], acta: prop[2] };
+        resultado.set(reunion.id, asig);
+        registrar(asig);
+        continue;
+      }
+    }
     const disp = disponibilidadPorReunion.get(reunion.id);
     let pool = disp ? ids.filter(id => disp.has(id)) : ids.slice();
     if (pool.length < 3) pool = ids.slice();

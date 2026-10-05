@@ -17,7 +17,7 @@ import { CalendarioMensual } from "@/components/reuniones/CalendarioMensual";
 import { CalendarioAnual } from "@/components/reuniones/CalendarioAnual";
 import { GestionParticipantes } from "@/components/reuniones/GestionParticipantes";
 import { supabase } from "@/integrations/supabase/client";
-import { calcularAsignacionesAutomaticas, mesDeReunion, MES_INICIO_REGLA_MENSUAL } from "@/lib/rolesAutoAssignment";
+import { calcularAsignacionesAutomaticas, calcularRotacionJusta, mesDeReunion, MES_INICIO_REGLA_MENSUAL } from "@/lib/rolesAutoAssignment";
 
 const Reuniones = () => {
   const currentYear = new Date().getFullYear();
@@ -107,7 +107,8 @@ const Reuniones = () => {
         const vals = [...totales.values()];
         hayDesequilibrio = Math.max(...vals) - Math.min(...vals) > 1;
       }
-      const corregirDesdeOctubre = hayRepeticionMensual || hayDesequilibrio;
+      void hayRepeticionMensual; void hayDesequilibrio;
+      const corregirDesdeOctubre = false; // desde octubre lo maneja la rotación justa
 
       // Auto-corrección (solo si detectamos problemas y hay profesionales para asignar)
       if (
@@ -156,6 +157,45 @@ const Reuniones = () => {
         }
 
         autoFixInProgressRef.current = false;
+      }
+
+      // Rotación justa desde octubre (tiene en cuenta los meses anteriores)
+      if (profesionalesCoordinador.length >= 3 && !autoFixInProgressRef.current) {
+        const ordenadas = reunionesData
+          .filter(r => r.estado !== 'cancelada')
+          .slice()
+          .sort((a, b) => a.semana_numero - b.semana_numero);
+        const idxOct = ordenadas.findIndex(r => (mesDeReunion(r) ?? 0) >= MES_INICIO_REGLA_MENSUAL);
+        if (idxOct >= 0) {
+          const rot = calcularRotacionJusta(ordenadas, profesionalesCoordinador, disponibilidadMap, idxOct);
+          const cambiadas = ordenadas.slice(idxOct).filter(r => {
+            const n = rot.get(r.id);
+            if (!n) return false;
+            return ROLES.some(rol => r.asignaciones.find(a => a.rol === rol)?.profesional_id !== n[rol])
+              || r.asignaciones.length !== 3;
+          });
+          if (cambiadas.length > 0) {
+            autoFixInProgressRef.current = true;
+            const idsCambio = cambiadas.map(r => r.id);
+            const okDel = await reunionesStore.eliminarAsignacionesMultiples(idsCambio);
+            if (okDel) {
+              const filas: { reunion_id: string; profesional_id: string; rol: RolReunion }[] = [];
+              idsCambio.forEach(id => {
+                const n = rot.get(id)!;
+                ROLES.forEach(rol => filas.push({ reunion_id: id, profesional_id: n[rol], rol }));
+              });
+              if (await reunionesStore.asignarRolesMultiples(filas)) {
+                reunionesData = await reunionesStore.getReuniones(ano);
+                toast.success('Roles desde octubre reorganizados con la nueva rotación');
+              } else {
+                toast.error('No se pudieron guardar los roles reorganizados');
+              }
+            } else {
+              toast.error('No se pudieron reorganizar los roles desde octubre');
+            }
+            autoFixInProgressRef.current = false;
+          }
+        }
       }
 
       setReuniones(reunionesData);

@@ -9,6 +9,9 @@ export function describirError(error: unknown): string {
   const msg = String(err?.message || err?.error_description || err || '').toLowerCase();
   const code = String(err?.code || err?.status || '');
 
+  if (msg.includes('dynamically imported module') || msg.includes('importing a module script failed')) {
+    return 'Hay una versión nueva de la aplicación. Recargá la página (tecla F5) e intentá de nuevo.';
+  }
   if (!navigator.onLine || msg.includes('failed to fetch') || msg.includes('networkerror') || msg.includes('network request failed')) {
     return 'No hay conexión a internet. Revisá la conexión e intentá de nuevo.';
   }

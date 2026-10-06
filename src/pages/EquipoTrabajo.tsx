@@ -1,3 +1,4 @@
+import { avisarError } from "@/lib/avisoErrores";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -215,7 +216,7 @@ const EquipoTrabajo = () => {
       resetForm();
       setIsDialogOpen(false);
     } catch (error) {
-      toast.error("Error al guardar el profesional");
+      avisarError(error, "No se pudo guardar el profesional");
       console.error('Error guardando profesional:', error);
     }
   };

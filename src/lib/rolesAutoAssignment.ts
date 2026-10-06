@@ -328,3 +328,124 @@ export const obtenerMejorCandidatoParaRol = (
   
   return candidatosFiltrados[0]?.id || null;
 };
+
+/**
+ * Rotación justa desde octubre (considera todo el historial anterior del año):
+ * - Nadie tiene rol dos semanas seguidas.
+ * - 3 personas distintas por semana.
+ * - Nadie repite un rol hasta que el resto del equipo haya pasado por él.
+ * - Equilibrio de cantidad total y por rol; variación de posición.
+ * Es determinística: con los mismos datos siempre da el mismo resultado.
+ */
+export const calcularRotacionJusta = (
+  reunionesOrdenadas: ReunionParaAsignar[],
+  profesionales: Profesional[],
+  disponibilidadPorReunion: Map<string, Set<string>>,
+  startIndex: number
+): Map<string, { reflexion: string; coordinacion: string; acta: string }> => {
+  const resultado = new Map<string, { reflexion: string; coordinacion: string; acta: string }>();
+  if (profesionales.length < 3) return resultado;
+  const ROLES: RolReunion[] = ['reflexion', 'coordinacion', 'acta'];
+  const ids = profesionales.map(p => p.id);
+  const N = ids.length;
+
+  // Historial secuencial de titulares por rol y semanas
+  const titulares: Record<RolReunion, string[]> = { reflexion: [], coordinacion: [], acta: [] };
+  const conteo = new Map<string, Record<RolReunion, number>>();
+  ids.forEach(id => conteo.set(id, { reflexion: 0, coordinacion: 0, acta: 0 }));
+  let semanaAnterior = new Set<string>();
+
+  const registrar = (asig: Partial<Record<RolReunion, string>>) => {
+    const s = new Set<string>();
+    ROLES.forEach(r => {
+      const pid = asig[r];
+      if (!pid) return;
+      titulares[r].push(pid);
+      const c = conteo.get(pid);
+      if (c) c[r]++;
+      s.add(pid);
+    });
+    semanaAnterior = s;
+  };
+
+  for (let i = 0; i < startIndex; i++) {
+    const a: Partial<Record<RolReunion, string>> = {};
+    reunionesOrdenadas[i].asignaciones.forEach(x => { a[x.rol] = x.profesional_id; });
+    registrar(a);
+  }
+
+  // Asignaciones desde que la persona hizo ese rol por última vez
+  const distancia = (pid: string, r: RolReunion) => {
+    const t = titulares[r];
+    for (let k = t.length - 1; k >= 0; k--) if (t[k] === pid) return t.length - 1 - k;
+    return Infinity;
+  };
+  const total = (pid: string) => { const c = conteo.get(pid)!; return c.reflexion + c.coordinacion + c.acta; };
+
+  // Esquema cíclico perfecto (N>=6, N no múltiplo de 3): en la semana k el rol r
+  // lo tiene orden[(3k + r) mod N]. Cumple todas las reglas; se elige el orden
+  // de personas que mejor continúa el historial de los meses anteriores.
+  let orden: string[] | null = null;
+  if (N >= 6 && N % 3 !== 0 && N <= 8) {
+    const permutar = (arr: string[]): string[][] => arr.length <= 1 ? [arr] :
+      arr.flatMap((x, i) => permutar([...arr.slice(0, i), ...arr.slice(i + 1)]).map(p => [x, ...p]));
+    let mejorCosto = Infinity;
+    for (const perm of permutar(ids)) {
+      let costo = 0;
+      const prev = semanaAnterior;
+      for (let k = 0; k < N && costo < mejorCosto; k++) {
+        ROLES.forEach((r, ri) => {
+          const pid = perm[(3 * k + ri) % N];
+          if (k === 0 && prev.has(pid)) costo += 100000;
+          // Rol hecho hace poco antes de octubre: posponerlo
+          const d = distancia(pid, r) + k;
+          if (d < N - 1) costo += 1000 * (N - 1 - d);
+          costo += 0.01 * (conteo.get(pid)![r] * (N - k));
+        });
+      }
+      if (costo < mejorCosto) { mejorCosto = costo; orden = perm; }
+    }
+  }
+
+  for (let i = startIndex; i < reunionesOrdenadas.length; i++) {
+    const reunion = reunionesOrdenadas[i];
+    if (orden) {
+      const k = i - startIndex;
+      const disp0 = disponibilidadPorReunion.get(reunion.id);
+      const prop = ROLES.map((_, ri) => orden![(3 * k + ri) % N]);
+      if (!disp0 || prop.every(p => disp0.has(p))) {
+        const asig = { reflexion: prop[0], coordinacion: prop[1], acta: prop[2] };
+        resultado.set(reunion.id, asig);
+        registrar(asig);
+        continue;
+      }
+    }
+    const disp = disponibilidadPorReunion.get(reunion.id);
+    let pool = disp ? ids.filter(id => disp.has(id)) : ids.slice();
+    if (pool.length < 3) pool = ids.slice();
+
+    let mejor: string[] | null = null;
+    let mejorPuntaje = Infinity;
+    for (const a of pool) for (const b of pool) for (const c of pool) {
+      if (a === b || a === c || b === c) continue;
+      const elegidos = [a, b, c];
+      let p = 0;
+      elegidos.forEach((pid, k) => {
+        const r = ROLES[k];
+        if (semanaAnterior.has(pid)) p += 100000;
+        const d = distancia(pid, r);
+        if (d < N - 1) p += 1000 * (N - 1 - d);
+        p += 20 * total(pid) + 10 * conteo.get(pid)![r];
+        p -= Math.min(d, 2 * N);
+      });
+      // Variación: desempate rotativo según la semana
+      p += ((ids.indexOf(a) + ids.indexOf(b) * 2 + ids.indexOf(c) * 3 + i) % N) * 0.01;
+      if (p < mejorPuntaje) { mejorPuntaje = p; mejor = elegidos; }
+    }
+    if (!mejor) continue;
+    const asig = { reflexion: mejor[0], coordinacion: mejor[1], acta: mejor[2] };
+    resultado.set(reunion.id, asig);
+    registrar(asig);
+  }
+  return resultado;
+};

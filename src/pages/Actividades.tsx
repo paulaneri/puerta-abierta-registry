@@ -18,9 +18,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { actividadesStore, type Actividad, type EstadoActividad, COLUMNAS_KANBAN, PRIORIDADES } from "@/lib/actividadesStore";
 import { equipoStore, type Profesional } from "@/lib/equipoStore";
 import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRoles } from "@/hooks/useRoles";
 
 const Actividades = () => {
   const { user } = useAuth();
+  const { userRole } = useRoles();
   const [actividades, setActividades] = useState<Actividad[]>([]);
   const [profesionales, setProfesionales] = useState<Profesional[]>([]);
   const [loading, setLoading] = useState(true);
@@ -224,7 +226,7 @@ const Actividades = () => {
   };
 
   const canEdit = (actividad: Actividad) => {
-    return actividad.creado_por === user?.id;
+    return actividad.creado_por === user?.id || userRole === 'coordinador' || userRole === 'administrador';
   };
 
   const getPrioridadBorderClass = (prioridad: string | null) => {

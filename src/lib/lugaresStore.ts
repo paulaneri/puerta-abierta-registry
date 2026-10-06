@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Lugar {
@@ -60,7 +61,6 @@ export const lugaresStore = {
       }
 
       // Crear nuevo lugar
-      const { getCurrentUserId } = await import('./currentUser');
       const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('lugares')

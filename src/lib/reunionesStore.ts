@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { Database } from "@/integrations/supabase/types";
 
@@ -125,7 +126,6 @@ export const reunionesStore = {
 
   crearReunion: async (fecha: string, semana_numero: number, ano: number): Promise<Reunion | null> => {
     try {
-      const { getCurrentUserId } = await import('./currentUser');
       const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('reuniones_semanales')

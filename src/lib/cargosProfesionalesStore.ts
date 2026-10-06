@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface CargoProfesional {
@@ -51,7 +52,6 @@ export const cargosProfesionalesStore = {
 
   agregarCargo: async (cargo: Omit<CargoProfesional, 'id' | 'created_at' | 'updated_at'>): Promise<CargoProfesional | null> => {
     try {
-      const { getCurrentUserId } = await import('./currentUser');
       const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('cargos_profesionales')

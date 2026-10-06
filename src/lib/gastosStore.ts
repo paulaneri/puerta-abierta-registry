@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface DocumentoAdjunto {
@@ -68,7 +69,6 @@ class GastosStore {
   }
 
   async addGasto(gasto: Omit<Gasto, 'id' | 'createdAt'>): Promise<boolean> {
-    const { getCurrentUserId } = await import('./currentUser');
     const creado_por = await getCurrentUserId();
     const { error } = await supabase
       .from('gastos')
@@ -269,7 +269,6 @@ class GastosStore {
   }
 
   async addEtiqueta(nombre: string): Promise<boolean> {
-    const { getCurrentUserId } = await import('./currentUser');
     const creado_por = await getCurrentUserId();
     const { error } = await supabase
       .from('etiquetas_gastos' as any)

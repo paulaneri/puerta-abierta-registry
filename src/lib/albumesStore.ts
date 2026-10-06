@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface Album {
@@ -52,7 +53,6 @@ export const albumesStore = {
   },
 
   async createAlbum(album: Omit<Album, 'id' | 'created_at' | 'updated_at'>): Promise<Album | null> {
-    const { getCurrentUserId } = await import('./currentUser');
     const creado_por = await getCurrentUserId();
     const { data, error } = await supabase
       .from('albumes' as any)
@@ -151,7 +151,6 @@ export const albumesStore = {
   },
 
   async addFoto(foto: Omit<FotoAlbum, 'id' | 'created_at'>): Promise<FotoAlbum | null> {
-    const { getCurrentUserId } = await import('./currentUser');
     const creado_por = await getCurrentUserId();
     const { data, error } = await supabase
       .from('fotos_album' as any)

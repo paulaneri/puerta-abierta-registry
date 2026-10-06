@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Evento {
@@ -40,7 +41,6 @@ export const eventosStore = {
   
   agregarEvento: async (evento: Omit<Evento, 'id' | 'created_at' | 'updated_at'>): Promise<Evento | null> => {
     try {
-      const { getCurrentUserId } = await import('./currentUser');
       const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('eventos')

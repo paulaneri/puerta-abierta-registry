@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { parseUbicaciones, type UbicacionRecorrido } from "@/components/trabajoCampo/tipos";
 
@@ -88,7 +89,6 @@ export const trabajoCampoStore = (() => {
 
     agregarTrabajo: async (trabajo: Omit<TrabajoCampo, 'id' | 'createdAt' | 'updatedAt'>): Promise<TrabajoCampo | null> => {
       try {
-        const { getCurrentUserId } = await import('./currentUser');
         const creado_por = await getCurrentUserId();
         const { data, error } = await supabase
           .from('trabajo_campo')

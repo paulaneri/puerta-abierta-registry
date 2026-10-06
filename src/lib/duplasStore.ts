@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Dupla {
@@ -85,7 +86,6 @@ export const duplasStore = {
     activa?: boolean;
   }): Promise<Dupla | null> => {
     try {
-      const { getCurrentUserId } = await import('./currentUser');
       const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('duplas_acompanamiento')

@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 import { mujeresStore, type Mujer } from './mujeresStore';
 
@@ -78,7 +79,6 @@ export const centroDiaStore = (() => {
     },
 
     agregarRegistro: async (registro: Omit<RegistroCentroDia, 'id'>) => {
-      const { getCurrentUserId } = await import('./currentUser');
       const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('centro_dia')

@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from '@/integrations/supabase/client';
 
 export interface Nacionalidad {
@@ -42,7 +43,6 @@ class NacionalidadesStore {
 
   async agregarNacionalidad(nacionalidad: Omit<Nacionalidad, 'id' | 'created_at' | 'updated_at'>): Promise<Nacionalidad | null> {
     try {
-      const { getCurrentUserId } = await import('./currentUser');
       const creado_por = await getCurrentUserId();
       const { data, error } = await supabase
         .from('nacionalidades')

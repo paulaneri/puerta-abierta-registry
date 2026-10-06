@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Acompanamiento {
@@ -171,7 +172,6 @@ export const mujeresStore = {
         return false; // Ya existe
       }
 
-      const { getCurrentUserId } = await import('./currentUser');
       const creado_por = await getCurrentUserId();
       const { error } = await supabase
         .from('mujeres')

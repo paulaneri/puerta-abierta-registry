@@ -1,3 +1,4 @@
+import { getCurrentUserId } from "@/lib/currentUser";
 import { supabase } from "@/integrations/supabase/client";
 
 interface Contacto {
@@ -67,7 +68,6 @@ class ContactosStore {
   }
 
   async addContacto(contacto: Omit<Contacto, 'id' | 'createdAt'>): Promise<boolean> {
-    const { getCurrentUserId } = await import('./currentUser');
     const creado_por = await getCurrentUserId();
     const { error } = await supabase
       .from('contactos')

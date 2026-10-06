@@ -236,6 +236,11 @@ export const equipoStore = {
       if (profesionalActualizado.certificaciones !== undefined) updateData.certificaciones = profesionalActualizado.certificaciones;
       if (profesionalActualizado.equipoAmpliado !== undefined) updateData.equipo_ampliado = profesionalActualizado.equipoAmpliado;
 
+      // Fechas vacías deben guardarse como "sin fecha", no como texto vacío
+      ['fecha_ingreso', 'fecha_nacimiento'].forEach(k => {
+        if (k in updateData && !updateData[k]) updateData[k] = null;
+      });
+
       console.log('Actualizando profesional ID:', id, 'con datos:', updateData);
 
       const { data, error } = await supabase

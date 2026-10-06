@@ -18,9 +18,11 @@ import { useAuth } from "@/hooks/useAuth";
 import { actividadesStore, type Actividad, type EstadoActividad, COLUMNAS_KANBAN, PRIORIDADES } from "@/lib/actividadesStore";
 import { equipoStore, type Profesional } from "@/lib/equipoStore";
 import { MetadatosRegistro } from "@/components/ui/MetadatosRegistro";
+import { useRoles } from "@/hooks/useRoles";
 
 const Actividades = () => {
   const { user } = useAuth();
+  const { userRole } = useRoles();
   const [actividades, setActividades] = useState<Actividad[]>([]);
   const [profesionales, setProfesionales] = useState<Profesional[]>([]);
   const [loading, setLoading] = useState(true);

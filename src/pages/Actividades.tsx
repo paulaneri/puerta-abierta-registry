@@ -224,7 +224,7 @@ const Actividades = () => {
   };
 
   const canEdit = (actividad: Actividad) => {
-    return actividad.creado_por === user?.id;
+    return actividad.creado_por === user?.id || userRole === 'coordinador' || userRole === 'administrador';
   };
 
   const getPrioridadBorderClass = (prioridad: string | null) => {

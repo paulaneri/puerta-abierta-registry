@@ -86,9 +86,31 @@ export const VERSIONS: AppVersion[] = [
     },
   },
 
+  {
+    version: "1.3.0",
+    date: "2026-10-07",
+    title: "Mapa de recorridos, rotación de roles y avisos de error",
+    description: "Mapa de Trabajo de Campo, nueva rotación de roles de reuniones, permisos de coordinador y avisos de error claros.",
+    type: "minor",
+    changes: [
+      "Mapa de recorridos en Trabajo de Campo con puntos por mujer y paradas",
+      "Rotación de roles de reuniones desde octubre: sin repeticiones y reparto parejo",
+      "Comentarios por reunión y exportación de imagen mensual",
+      "Coordinador puede editar, archivar y borrar registros propios y ajenos",
+      "PDF de la ficha completa de cada participante",
+      "Hijos a cargo con nombre, fecha de nacimiento, CUIL y edad calculada",
+      "Galería: conteo de fotos por álbum, quién agregó fotos y última carga",
+      "Avisos de error con el motivo explicado en toda la aplicación",
+      "Carteles de error visibles ante cualquier fallo inesperado",
+      "Cambio de contraseña de usuarias desde Administración",
+      "Tipo de evento Sensibilización con estadísticas",
+      "Versión de la aplicación visible en el Panel de Administración",
+    ],
+  },
+
   // ── Add future versions below ──────────────────────────────────────────────
   // {
-  //   version: "1.3.0",
+  //   version: "1.4.0",
   //   date: "2026-XX-XX",
   //   title: "Nombre de la actualización",
   //   description: "Descripción general",

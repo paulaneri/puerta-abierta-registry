@@ -13,7 +13,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { toast } from 'sonner';
-import { Users, UserCheck, Settings, Shield, Briefcase, Plus, Edit, Trash2, UserPlus, MapPin, Eye, EyeOff, Copy, Check, HardDriveDownload, KeyRound } from 'lucide-react';
+import { Users, UserCheck, Settings, Shield, Briefcase, Plus, Edit, Trash2, UserPlus, MapPin, Eye, EyeOff, Copy, Check, HardDriveDownload, KeyRound, Info } from 'lucide-react';
+import { CURRENT_VERSION, VERSIONS } from '@/lib/appVersion';
 import { cargosProfesionalesStore, type CargoProfesional } from '@/lib/cargosProfesionalesStore';
 import { nacionalidadesStore, type Nacionalidad } from '@/lib/nacionalidadesStore';
 import { equipoStore } from '@/lib/equipoStore';
@@ -531,6 +532,37 @@ export default function Administracion() {
           {downloadingBackup ? 'Generando backup...' : 'Descargar Backup .sql'}
         </Button>
       </div>
+
+      <Card>
+        <CardHeader className="pb-3">
+          <CardTitle className="flex items-center gap-2 text-base sm:text-lg">
+            <Info className="h-5 w-5 text-primary" />
+            Versión de la aplicación
+          </CardTitle>
+          <CardDescription>
+            Versión instalada en este servidor. Si no coincide con la última publicada, hay que volver a subir la aplicación.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          {(() => {
+            const actual = VERSIONS[VERSIONS.length - 1];
+            const [y, m, d] = actual.date.split('-').map(Number);
+            const fecha = `${String(d).padStart(2, '0')}/${String(m).padStart(2, '0')}/${y}`;
+            return (
+              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
+                <Badge variant="default" className="text-sm px-3 py-1 w-fit">v{actual.version}</Badge>
+                <span className="text-sm font-medium">{actual.title}</span>
+                <span className="text-sm text-muted-foreground">Publicada el {fecha}</span>
+              </div>
+            );
+          })()}
+          <ul className="text-sm text-muted-foreground list-disc pl-5 space-y-1">
+            {VERSIONS[VERSIONS.length - 1].changes.map((c, i) => (
+              <li key={i}>{c}</li>
+            ))}
+          </ul>
+        </CardContent>
+      </Card>
 
       <Tabs defaultValue="usuarios" className="space-y-6">
         <TabsList className="grid w-full grid-cols-3 sm:grid-cols-4 md:grid-cols-6 gap-1">

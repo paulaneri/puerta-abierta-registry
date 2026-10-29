@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { AppSidebar } from "./components/AppSidebar";
+import { InstalarApp } from "./components/InstalarApp";
 import { SetupGuard } from "./components/SetupGuard";
 import { useAuth } from "./hooks/useAuth";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -52,6 +53,7 @@ const MainLayout = () => {
             </div>
             {user && (
               <div className="flex items-center gap-2 w-full md:w-auto justify-end">
+                <InstalarApp />
                 <span className="text-xs sm:text-sm text-muted-foreground truncate max-w-[150px] sm:max-w-none">{user.email}</span>
                 <Tooltip>
                   <TooltipTrigger asChild>

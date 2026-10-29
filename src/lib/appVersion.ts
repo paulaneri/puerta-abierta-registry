@@ -108,6 +108,19 @@ export const VERSIONS: AppVersion[] = [
     ],
   },
 
+  {
+    version: "1.4.0",
+    date: "2026-10-29",
+    title: "Aplicación instalable en celular y computadora",
+    description: "La aplicación se puede instalar con su propio ícono en celulares y computadoras.",
+    type: "minor",
+    changes: [
+      "Botón \"Instalar app\" en la barra superior",
+      "Guía paso a paso para instalar en Android, iPhone y computadora",
+      "Ícono propio de Puerta Abierta en la pantalla de inicio",
+    ],
+  },
+
   // ── Add future versions below ──────────────────────────────────────────────
   // {
   //   version: "1.4.0",

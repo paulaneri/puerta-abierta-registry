@@ -1,7 +1,7 @@
 {
     "description": "DO NOT DELETE THIS FILE. This file is used to keep track of which files have been synced in the most recent deployment. If you delete this file a resync will need to be done (which can take a while) - read more: https://github.com/SamKirkland/FTP-Deploy-Action",
     "version": "1.0.0",
-    "generatedTime": 1791397331132,
+    "generatedTime": 1793278406115,
     "data": [
         {
             "type": "folder",
@@ -9,15 +9,39 @@
         },
         {
             "type": "file",
-            "name": "index.html",
-            "size": 1754,
-            "hash": "fb29e686ec2351dd006f2b7ba774e93bff3ff34b4c8a143370962c0586d58dff"
-        },
-        {
-            "type": "file",
             "name": "favicon.png",
             "size": 5220,
             "hash": "9be77e12dbde2afeb9446ec9c4b8f8b32a4981520ac2080f73618dc05cd37d1f"
+        },
+        {
+            "type": "file",
+            "name": "icon-180.png",
+            "size": 14336,
+            "hash": "c65d220fee0cd7129c437a15c132c8eff67508328133113e2807f5183bbcc58f"
+        },
+        {
+            "type": "file",
+            "name": "icon-192.png",
+            "size": 15887,
+            "hash": "54f3e1bdf1a806f225e56e26f634cf2c5a7b08bcc7de22ee7480ec8270abc782"
+        },
+        {
+            "type": "file",
+            "name": "icon-512.png",
+            "size": 52812,
+            "hash": "5a0e70cd953713e6cf7fdca99c4e4f9629e166f7cc79cc0b30d30999063273fa"
+        },
+        {
+            "type": "file",
+            "name": "index.html",
+            "size": 2110,
+            "hash": "da73f13c378facbb1151c6698a1f47de604f1cd1fc43d8a19675dc4d4b2d9647"
+        },
+        {
+            "type": "file",
+            "name": "manifest.webmanifest",
+            "size": 638,
+            "hash": "a0d6aea6de6eaa7b1fe4a7a72ea1890dfe8fe9cddbb5b66df6ad730a562a9440"
         },
         {
             "type": "file",
@@ -39,21 +63,15 @@
         },
         {
             "type": "file",
-            "name": "assets/index-Bg9oWmAF.css",
-            "size": 104100,
-            "hash": "e4b40873a33e87ba3e335b92c1456fda8df303594e7e82c3e57088b461530411"
+            "name": "assets/index-3jivxAJM.js",
+            "size": 2273246,
+            "hash": "73983e78f25d9453a3a2e6d9801d78650ff2a1bebf250c4aa2218ecc7dd4a4c7"
         },
         {
             "type": "file",
-            "name": "assets/index-Cc37TU2g.js",
-            "size": 2269393,
-            "hash": "beeb2c82782ef5deb2487a491c4cb9e68a911cedc2255ab1f4533af7f482e459"
-        },
-        {
-            "type": "file",
-            "name": "assets/index.es-BGuenPbM.js",
+            "name": "assets/index.es-z7dOf4tB.js",
             "size": 150852,
-            "hash": "d01d66922a48efa41c9915ea7242b619c0600b6063e083a1df227a1e51223cc7"
+            "hash": "9b256ec68f4047591e95e120a77c2f8379957e12c5d7e8b37fb3d5852ac95e0b"
         },
         {
             "type": "file",
@@ -63,9 +81,15 @@
         },
         {
             "type": "file",
-            "name": "assets/purify.es-BYftNTi7.js",
-            "size": 29398,
-            "hash": "9f24eccccf33948bbfdda22ccb0db7d9bafa21375319b34be8a0fd908402c5f7"
+            "name": "assets/index-Bg9oWmAF.css",
+            "size": 104100,
+            "hash": "e4b40873a33e87ba3e335b92c1456fda8df303594e7e82c3e57088b461530411"
+        },
+        {
+            "type": "file",
+            "name": "assets/purify.es-CAi2OJFm.js",
+            "size": 30469,
+            "hash": "8e143ee7bcdf076d62676183aacc62568c9adb8042c57d4fef7d62e1ca7c345a"
         }
     ]
 }

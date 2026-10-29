@@ -120,6 +120,17 @@ export const VERSIONS: AppVersion[] = [
       "Ícono propio de Puerta Abierta en la pantalla de inicio",
     ],
   },
+  {
+    version: "1.4.1",
+    date: "2026-10-29",
+    title: "Novedades actualizadas",
+    description: "Se cargaron las novedades de octubre y se pueden volver a ver desde la portada.",
+    type: "patch",
+    changes: [
+      "Novedades de octubre en la portada (instalar app, roles, avisos, permisos, galería)",
+      "Botón \"Ver novedades\" para volver a leerlas cuando quieras",
+    ],
+  },
 
   // ── Add future versions below ──────────────────────────────────────────────
   // {

@@ -15,6 +15,36 @@ export interface Novedad {
 
 export const NOVEDADES: Novedad[] = [
   {
+    id: "2026-10-29-instalar-app",
+    fecha: "2026-10-29",
+    mensaje:
+      "Ahora podés instalar la aplicación en tu celular o computadora: tocá \"Instalar app\" en la barra de arriba.",
+  },
+  {
+    id: "2026-10-20-avisos-error",
+    fecha: "2026-10-20",
+    mensaje:
+      "Si algo falla al guardar, aparece un cartel que explica el motivo (sesión vencida, sin conexión, falta un dato, etc.).",
+  },
+  {
+    id: "2026-10-15-coordinadoras",
+    fecha: "2026-10-15",
+    mensaje:
+      "Las coordinadoras pueden editar, archivar y borrar registros propios y de otras usuarias.",
+  },
+  {
+    id: "2026-10-10-rotacion-roles",
+    fecha: "2026-10-10",
+    mensaje:
+      "Desde octubre los roles de reuniones rotan de forma justa: nadie tiene rol dos semanas seguidas y todas pasan por los tres roles.",
+  },
+  {
+    id: "2026-10-05-galeria",
+    fecha: "2026-10-05",
+    mensaje:
+      "En la Galería cada álbum muestra cuántas fotos tiene y cuándo se agregaron fotos nuevas.",
+  },
+  {
     id: "2026-09-15-mapa-trabajo-campo",
     fecha: "2026-09-15",
     mensaje:

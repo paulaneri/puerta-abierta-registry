@@ -605,12 +605,6 @@ const DetalleMujer = () => {
         const apellidoMujer = normalizar(mujer.apellido);
         const apodoMujer = mujer.apodo ? normalizar(mujer.apodo) : '';
         
-        console.log("Comparando normalizado:", 
-          `${nombreEncuentro} ${apellidoEncuentro}`, 
-          "vs", 
-          `${nombreMujer} ${apellidoMujer}`,
-          apodoMujer ? `o ${apodoMujer} ${apellidoMujer}` : ''
-        );
         
         // Comparar nombre y apellido por separado para mayor precisión
         const matchNombre = (nombreEncuentro === nombreMujer || nombreEncuentro === apodoMujer) && apellidoEncuentro === apellidoMujer;

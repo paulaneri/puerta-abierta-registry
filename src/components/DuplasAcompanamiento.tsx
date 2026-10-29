@@ -61,11 +61,6 @@ const DuplasAcompanamiento = () => {
       if (duplasGuardadas) {
         const duplas = JSON.parse(duplasGuardadas);
         duplas.forEach((dupla: DuplaAcompanamiento, index: number) => {
-          console.log(`Dupla ${index + 1}:`, {
-            id: dupla.id,
-            mujerAsignada: dupla.mujerAsignada,
-            existeEnSupabase: dupla.mujerAsignada ? mujeresData.find(m => m.id.toString() === dupla.mujerAsignada?.toString()) : 'sin asignar'
-          });
         });
         
         const duplasLimpias = duplas.map((dupla: DuplaAcompanamiento) => {
@@ -181,11 +176,6 @@ const DuplasAcompanamiento = () => {
   };
 
   const mostrarDatosDebug = () => {
-    console.log('Duplas en estado:', duplas.map(d => ({ 
-      id: d.id, 
-      mujerAsignada: d.mujerAsignada, 
-      nombreMostrado: d.mujerAsignada ? getMujerNombre(d.mujerAsignada) : 'Sin asignar'
-    })));
     toast.info('Revisa la consola para ver los datos de debug');
   };
 

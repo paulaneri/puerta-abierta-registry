@@ -289,8 +289,6 @@ const CentroDiaEditar = () => {
     );
     
     // Log especial para Juana Repeto
-    if (mujer.nombre === 'Juana' && mujer.apellido === 'Repeto') {
-    }
     
     return cumpleFiltro;
   });

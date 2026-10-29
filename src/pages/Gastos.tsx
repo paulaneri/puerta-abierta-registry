@@ -125,7 +125,7 @@ const Gastos = () => {
       gasto.monto.toString(),
       gasto.detalleFactura || ''
     ]);
-    const csvContent = [headers.join(';'), ...rows.map(row => row.map(cell => `"${cell.replace(/"/g, '""')}"`).join(';'))].join('\n');
+    const csvContent = [headers.join(';'), ...rows.map(row => row.map(cell => { const c = /^[=+\-@\t\r]/.test(cell) ? `'${cell}` : cell; return `"${c.replace(/"/g, '""')}"`; }).join(';'))].join('\n');
     const BOM = '\uFEFF';
     const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = URL.createObjectURL(blob);

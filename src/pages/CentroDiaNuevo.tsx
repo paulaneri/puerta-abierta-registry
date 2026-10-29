@@ -138,16 +138,12 @@ const CentroDiaNuevo = () => {
   };
 
   const agregarMujer = (mujer: Mujer) => {
-    console.log('Intentando agregar mujer:', mujer);
-    console.log('Mujeres ya asistiendo:', registroActual.mujeresAsistieron);
     
     const yaEsta = registroActual.mujeresAsistieron.some(m => {
       const existe = m.mujer.id === mujer.id;
-      console.log(`Comparando ${m.mujer.id} === ${mujer.id}:`, existe);
       return existe;
     });
     
-    console.log('¿Ya está agregada?:', yaEsta);
     
     if (!yaEsta) {
       setRegistroActual(prev => {
@@ -155,7 +151,6 @@ const CentroDiaNuevo = () => {
           ...prev,
           mujeresAsistieron: [...prev.mujeresAsistieron, { mujer, entrevistaRealizada: false }]
         };
-        console.log('Nuevo estado después de agregar:', nuevoEstado.mujeresAsistieron);
         return nuevoEstado;
       });
       setHasChanges(true);

@@ -402,7 +402,7 @@ export const mujeresStore = {
       
       const { data, error } = await supabase.storage
         .from('mujeres-documentos')
-        .createSignedUrl(path, 3600); // URL válida por 1 hora
+        .createSignedUrl(path, 60); // URL válida por 1 minuto
       
       if (error) {
         console.error('Error creating signed URL:', error);

@@ -125,7 +125,6 @@ const DetalleMujer = () => {
 
 
   useEffect(() => {
-    console.log("DetalleMujer - activeTab:", activeTab, "editMode:", editMode);
     const cargarDatos = async () => {
       setErrorRed(false);
       let huboErrorRed = false;
@@ -135,7 +134,6 @@ const DetalleMujer = () => {
         try {
           const profesionalesData = await equipoStore.getProfesionalesActivos();
           setProfesionales(profesionalesData);
-          console.log("Profesionales cargados:", profesionalesData.length);
         } catch (error) {
           console.error("Error cargando profesionales:", error);
           huboErrorRed = true;
@@ -145,7 +143,6 @@ const DetalleMujer = () => {
         try {
           const nacionalidadesData = await nacionalidadesStore.getNacionalidadesActivas();
           setNacionalidades(nacionalidadesData);
-          console.log("Nacionalidades cargadas:", nacionalidadesData.length);
         } catch (error) {
           console.error("Error cargando nacionalidades:", error);
           huboErrorRed = true;
@@ -153,13 +150,10 @@ const DetalleMujer = () => {
 
         // Cargar mujer
         if (id) {
-          console.log("Buscando mujer con ID:", id);
           try {
             const mujeres = await mujeresStore.getMujeres();
-            console.log("Mujeres disponibles:", mujeres.length);
             // Buscar por ID como string
             const mujerEncontrada = mujeres.find(m => m.id === id);
-            console.log("Mujer encontrada:", mujerEncontrada);
             if (mujerEncontrada) {
               setMujer(mujerEncontrada);
               const fechaParts = mujerEncontrada.fechaNacimiento ? mujerEncontrada.fechaNacimiento.split('-') : ['', '', ''];
@@ -199,9 +193,7 @@ const DetalleMujer = () => {
             } else if (mujeres.length === 0) {
               // Si no hay mujeres cargadas, probablemente hubo error de red
               huboErrorRed = true;
-              console.log("No hay mujeres cargadas - posible error de red");
             } else {
-              console.log("Mujer no encontrada para ID:", id);
               toast.error("Mujer no encontrada");
             }
           } catch (error) {
@@ -589,8 +581,6 @@ const DetalleMujer = () => {
       trabajosCampo = trabajosEjemplo;
     }
     
-    console.log("Trabajos de campo disponibles:", trabajosCampo);
-    console.log("Buscando para mujer:", mujer.nombre, mujer.apellido, "Apodo:", mujer.apodo);
     
     const historial: Array<{
       fecha: string;
@@ -601,9 +591,7 @@ const DetalleMujer = () => {
     }> = [];
     
     trabajosCampo.forEach(trabajo => {
-      console.log("Revisando trabajo del", trabajo.fecha, "con encuentros:", trabajo.encuentros);
       trabajo.encuentros.forEach(encuentro => {
-        console.log("Comparando encuentro:", encuentro.nombre, encuentro.apellido);
         
         // Normalizar strings para comparación (quitar acentos y convertir a minúsculas)
         const normalizar = (str: string) => str.toLowerCase()
@@ -628,7 +616,6 @@ const DetalleMujer = () => {
         const matchNombre = (nombreEncuentro === nombreMujer || nombreEncuentro === apodoMujer) && apellidoEncuentro === apellidoMujer;
         
         if (matchNombre) {
-          console.log("¡Encontrado match!");
           historial.push({
             fecha: trabajo.fecha,
             lugar: trabajo.lugar,
@@ -640,7 +627,6 @@ const DetalleMujer = () => {
       });
     });
     
-    console.log("Historial encontrado:", historial);
     
     // Ordenar por fecha (más reciente primero)
     return historial.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime());

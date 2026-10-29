@@ -186,16 +186,12 @@ const CentroDiaEditar = () => {
 
   const quitarMujer = (mujerIndex: number) => {
     const mujerAEliminar = registroActual.mujeresAsistieron[mujerIndex];
-    console.log('Eliminando mujer:', mujerAEliminar);
-    console.log('Índice a eliminar:', mujerIndex);
-    console.log('Estado antes de eliminar:', registroActual.mujeresAsistieron);
     
     setRegistroActual(prev => {
       const nuevoEstado = {
         ...prev,
         mujeresAsistieron: prev.mujeresAsistieron.filter((_, index) => index !== mujerIndex)
       };
-      console.log('Estado después de eliminar:', nuevoEstado.mujeresAsistieron);
       return nuevoEstado;
     });
   };
@@ -294,8 +290,6 @@ const CentroDiaEditar = () => {
     
     // Log especial para Juana Repeto
     if (mujer.nombre === 'Juana' && mujer.apellido === 'Repeto') {
-      console.log('Juana Repeto en lista completa de mujeres:', mujer);
-      console.log('Cumple filtro de búsqueda:', cumpleFiltro);
     }
     
     return cumpleFiltro;

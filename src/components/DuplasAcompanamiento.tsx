@@ -49,13 +49,10 @@ const DuplasAcompanamiento = () => {
 
   const cargarDatos = async () => {
     try {
-      console.log('Cargando datos actualizados...');
       const profesionalesData = await equipoStore.getProfesionales();
       const mujeresData = await mujeresStore.getMujeres();
       const duplasGuardadas = localStorage.getItem('duplasAcompanamiento');
       
-      console.log('Mujeres cargadas desde Supabase:', mujeresData.length, mujeresData.map(m => `${m.nombre} ${m.apellido} (ID: ${m.id})`));
-      console.log('IDs de mujeres válidas:', mujeresData.map(m => m.id));
       
       setProfesionales(profesionalesData.filter(p => p.activo));
       setMujeres(mujeresData);
@@ -63,7 +60,6 @@ const DuplasAcompanamiento = () => {
       // Limpiar duplas con referencias a mujeres que ya no existen
       if (duplasGuardadas) {
         const duplas = JSON.parse(duplasGuardadas);
-        console.log('Duplas en localStorage:', duplas.length);
         duplas.forEach((dupla: DuplaAcompanamiento, index: number) => {
           console.log(`Dupla ${index + 1}:`, {
             id: dupla.id,
@@ -75,7 +71,6 @@ const DuplasAcompanamiento = () => {
         const duplasLimpias = duplas.map((dupla: DuplaAcompanamiento) => {
           // Si la mujer asignada ya no existe, eliminarla de la dupla
           if (dupla.mujerAsignada && !mujeresData.find(m => m.id.toString() === dupla.mujerAsignada?.toString())) {
-            console.log(`🧹 Limpiando referencia a mujer inexistente en dupla: ${dupla.mujerAsignada}`);
             return { ...dupla, mujerAsignada: undefined };
           }
           return dupla;
@@ -179,7 +174,6 @@ const DuplasAcompanamiento = () => {
 
   const limpiarTodasLasDuplas = () => {
     if (confirm('¿Está seguro de que desea eliminar TODAS las duplas? Esta acción no se puede deshacer.')) {
-      console.log('🗑️ Limpiando todas las duplas del localStorage');
       localStorage.removeItem('duplasAcompanamiento');
       setDuplas([]);
       toast.success('Todas las duplas han sido eliminadas');
@@ -187,14 +181,11 @@ const DuplasAcompanamiento = () => {
   };
 
   const mostrarDatosDebug = () => {
-    console.log('🔍 DEBUG - Estado actual:');
-    console.log('Mujeres en estado:', mujeres.map(m => ({ id: m.id, nombre: `${m.nombre} ${m.apellido}` })));
     console.log('Duplas en estado:', duplas.map(d => ({ 
       id: d.id, 
       mujerAsignada: d.mujerAsignada, 
       nombreMostrado: d.mujerAsignada ? getMujerNombre(d.mujerAsignada) : 'Sin asignar'
     })));
-    console.log('LocalStorage duplas:', localStorage.getItem('duplasAcompanamiento'));
     toast.info('Revisa la consola para ver los datos de debug');
   };
 

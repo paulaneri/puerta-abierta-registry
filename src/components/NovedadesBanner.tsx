@@ -8,6 +8,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import {
+  NOVEDADES,
   getNovedadesPendientes,
   marcarNovedadesVistas,
   type Novedad,
@@ -38,7 +39,21 @@ export const NovedadesBanner = () => {
     };
   }, []);
 
-  if (novedades.length === 0) return null;
+  if (novedades.length === 0) {
+    return (
+      <div className="flex justify-end">
+        <Button
+          type="button"
+          variant="ghost"
+          size="sm"
+          onClick={() => setNovedades(NOVEDADES.slice(0, 6))}
+        >
+          <Sparkles className="h-4 w-4 mr-2" />
+          Ver novedades
+        </Button>
+      </div>
+    );
+  }
 
   const cerrar = () => {
     void marcarNovedadesVistas(pendientesRef.current);

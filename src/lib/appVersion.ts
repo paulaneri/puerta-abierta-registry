@@ -132,6 +132,19 @@ export const VERSIONS: AppVersion[] = [
     ],
   },
 
+  {
+    version: "1.4.2",
+    date: "2026-11-12",
+    title: "Fotos de la Galería visibles para todo el equipo",
+    description: "Las fotos subidas a la Galería se guardan y se ven desde el servidor propio para todas las usuarias.",
+    type: "patch",
+    changes: [
+      "Servidor propio: guardado y entrega de fotos de la Galería",
+      "Todas las usuarias ven las fotos de cualquier álbum, no solo quien las subió",
+      "Documentos de gastos y participantes protegidos: solo se ven con sesión iniciada",
+    ],
+  },
+
   // ── Add future versions below ──────────────────────────────────────────────
   // {
   //   version: "1.4.0",

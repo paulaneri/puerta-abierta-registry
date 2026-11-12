@@ -1,0 +1,2 @@
+# Nunca servir archivos directamente: todo pasa por api/storage.php
+Require all denied

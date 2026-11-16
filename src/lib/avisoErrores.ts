@@ -9,6 +9,10 @@ export function describirError(error: unknown): string {
   const msg = String(err?.message || err?.error_description || err || '').toLowerCase();
   const code = String(err?.code || err?.status || '');
 
+  if (err?.isAcquireTimeout || msg.includes('lock was stolen') || msg.includes('another request stole') || msg.includes('bloqueo de sesión')) {
+    return 'No se pudo verificar tu sesión porque otra ventana o solicitud la está usando. Esperá unos segundos e intentá de nuevo; si continúa, cerrá las otras pestañas de la aplicación y recargá esta página.';
+  }
+
   if (msg.includes('dynamically imported module') || msg.includes('importing a module script failed')) {
     return 'Hay una versión nueva de la aplicación. Recargá la página (tecla F5) e intentá de nuevo.';
   }

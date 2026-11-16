@@ -15,6 +15,11 @@ export interface Novedad {
 
 export const NOVEDADES: Novedad[] = [
   {
+    id: "2026-11-16-bloqueo-sesion",
+    fecha: "2026-11-16",
+    mensaje: "Corregimos el bloqueo de sesión que podía mostrar un error al entrar; si la sesión no se puede verificar, ahora el aviso explica qué hacer.",
+  },
+  {
     id: "2026-10-29-instalar-app",
     fecha: "2026-10-29",
     mensaje:

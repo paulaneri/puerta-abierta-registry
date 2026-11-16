@@ -146,6 +146,17 @@ export const VERSIONS: AppVersion[] = [
   },
 
   // ── Add future versions below ──────────────────────────────────────────────
+  {
+    version: "1.4.3",
+    date: "2026-11-16",
+    title: "Corrección del bloqueo de sesión",
+    description: "Se evita que una solicitud interrumpa la verificación de sesión de otra ventana.",
+    type: "hotfix",
+    changes: [
+      "Verificación de sesión sin quitar el bloqueo a otra solicitud activa",
+      "Aviso claro si la sesión no se puede verificar, sin dejar la pantalla cargando",
+    ],
+  },
   // {
   //   version: "1.4.0",
   //   date: "2026-XX-XX",

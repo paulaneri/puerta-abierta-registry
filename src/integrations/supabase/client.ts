@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 import { brokeredPreviewStorage } from './previewAuthStorage';
 import { createPhpClient } from '@/lib/phpApiClient';
+import { sessionLock } from '@/lib/sessionLock';
 
 const SUPABASE_URL = "https://psjwlhngaltuxakupixr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBzandsaG5nYWx0dXhha3VwaXhyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTUwOTMwODQsImV4cCI6MjA3MDY2OTA4NH0.pkfUdeQuhueeGPqliLx6pFgM2ozErAcFQz67yY9hXTw";
@@ -27,6 +28,7 @@ if (BACKEND_MODE === 'php') {
       storage: brokeredPreviewStorage(),
       persistSession: true,
       autoRefreshToken: true,
+      lock: sessionLock,
     }
   });
 }
